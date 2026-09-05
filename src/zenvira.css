@@ -1,0 +1,1070 @@
+/* ═══════════════════════════════════════════════════════════════
+   ZENVIRA THEME LAYER
+   ───────────────────────────────────────────────────────────────
+   Ported from the Zenvira reference (zenvira-nextjs.vercel.app).
+   Fjalla One for display (condensed, uppercase), Poppins for body, on a
+   warm cream ground with a deep olive-black primary.
+
+   IMPORTANT — scoping contract:
+   These tokens and the `.zv` utilities are OPT-IN. Nothing here
+   styles a bare element, so the protected sections (Header, Projets
+   récents, Showcase, Testimonials, the équipe/CTA panels and the
+   Footer) keep Fraunces/Inter and render identically to the approved
+   screenshots. A section adopts the theme only by carrying `.zv`.
+   ═══════════════════════════════════════════════════════════════ */
+:root {
+  /* ── Palette ──────────────────────────────────────────────────
+     The nine swatches of the reference style-guide, in order. It is
+     a single ordered ramp from the darkest olive to white, which is
+     what makes it read as a system: every surface, rule and text
+     tone on the site is one of these steps, never an ad-hoc tint.
+
+       1  #202918  primary      darkest — text, dark bands, buttons
+       2  #34402c  muted        secondary text, graph accents
+       3  #4b5243  border-dark  rules on dark ground
+       4  #646662  gray-400     placeholder / meta text
+       5  #a1a49a  gray-100     de-emphasised display text
+       6  #cccbc2  border-light rules on light ground
+       7  #ede9df  gray-50      panels, alt bands
+       8  #f7f4ec  body         page ground
+       9  #ffffff  white        cards                              */
+  --zv-primary: #202918;
+  --zv-muted: #34402c;
+  --zv-border-dark: #4b5243;
+  --zv-gray-400: #646662;
+  --zv-gray-100: #a1a49a;
+  --zv-border: #cccbc2;
+  --zv-bg-alt: #ede9df;
+  --zv-bg: #f7f4ec;
+  --zv-white: #ffffff;
+
+  /* `--secondary` in the reference is #a5a89e — a near-duplicate of
+     gray-100, used only for text on dark bands. Kept as an alias so
+     existing rules keep working. */
+  --zv-secondary: #a5a89e;
+
+  /* Type families.
+     Display is Fjalla One, not the reference's Bayon: Bayon ships no
+     accented glyphs at all, so every É/À/Û in a French heading fell back
+     to a different face mid-word. See the note in public/fonts. */
+  --zv-display: 'Fjalla One', 'Arial Narrow', sans-serif;
+  --zv-body: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  /* Type scale — reference desktop sizes, made fluid so they hold on
+     mobile without the reference's separate breakpoint block. */
+  --zv-h1: clamp(2.75rem, 6.4vw, 5.5rem);   /* 88px */
+  --zv-h2: clamp(2.25rem, 5.2vw, 4.5rem);   /* 72px */
+  --zv-h3: clamp(1.875rem, 3.8vw, 3.25rem); /* 52px */
+  --zv-h4: clamp(1.5rem, 2.4vw, 2rem);      /* 32px */
+  --zv-h5: clamp(1.25rem, 1.8vw, 1.5rem);   /* 24px */
+  --zv-h6: 1.25rem;                         /* 20px */
+
+  /* Body sizes */
+  --zv-p-lg: 20px;
+  --zv-p: 17px;
+  --zv-p-sm: 16px;
+  --zv-sub: 14px;
+
+  --zv-section-y: 100px;     /* --_padding---section-padding */
+  --zv-radius: 100px;        /* pill radius on buttons */
+}
+
+@media (max-width: 768px) {
+  :root { --zv-section-y: 64px; }
+}
+
+/* Phone type scale.
+   The clamps above only start scaling once the vw term clears the floor,
+   which for --zv-h1 is 688px and for --zv-h5 is 1111px — so on a phone
+   every heading pinned to its desktop minimum (h1 at 44px, h2 at 36px)
+   and the fluid middle never ran. These are the floors the scale should
+   have had below the fold, set outright rather than via a clamp that
+   cannot reach them. The display face is condensed and uppercase, so it carries a
+   smaller size than a body face would at the same measure. */
+@media (max-width: 640px) {
+  :root {
+    --zv-h1: 2.25rem;    /* 36px */
+    --zv-h2: 1.875rem;   /* 30px */
+    --zv-h3: 1.625rem;   /* 26px */
+    --zv-h4: 1.375rem;   /* 22px */
+    --zv-h5: 1.125rem;   /* 18px */
+    --zv-h6: 1.0625rem;  /* 17px */
+  }
+}
+
+@media (max-width: 380px) {
+  :root {
+    --zv-h1: 2rem;       /* 32px */
+    --zv-h2: 1.6875rem;  /* 27px */
+    --zv-h3: 1.5rem;     /* 24px */
+  }
+}
+
+/* ── Theme root ────────────────────────────────────────────────
+   Applied per-section. Sets the ground, body face and text colour
+   for everything inside, without touching the rest of the page. */
+.zv {
+  background: var(--zv-bg);
+  color: var(--zv-primary);
+  font-family: var(--zv-body);
+  font-size: var(--zv-p);
+  line-height: 26px;
+  letter-spacing: -0.18px;
+}
+
+.zv-alt { background: var(--zv-bg-alt); }
+.zv-dark { background: var(--zv-primary); color: var(--zv-white); }
+
+.zv-section {
+  padding-top: var(--zv-section-y);
+  padding-bottom: var(--zv-section-y);
+}
+
+/* ── Display headings ──────────────────────────────────────────
+   Fjalla One is a single-weight condensed face; the reference renders it
+   uppercase at normal weight with no negative tracking. */
+.zv h1, .zv h2, .zv h3, .zv h4, .zv h5, .zv h6,
+.zv-h1, .zv-h2, .zv-h3, .zv-h4, .zv-h5, .zv-h6 {
+  font-family: var(--zv-display);
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: inherit;
+  margin: 0;
+}
+
+.zv h1, .zv-h1 { font-size: var(--zv-h1); line-height: 1; }
+.zv h2, .zv-h2 { font-size: var(--zv-h2); line-height: 1.14; }
+.zv h3, .zv-h3 { font-size: var(--zv-h3); line-height: 1.15; }
+.zv h4, .zv-h4 { font-size: var(--zv-h4); line-height: 1.13; }
+.zv h5, .zv-h5 { font-size: var(--zv-h5); line-height: 1.33; }
+.zv h6, .zv-h6 { font-size: var(--zv-h6); line-height: 1.4; }
+
+/* ── Body copy ─────────────────────────────────────────────────── */
+.zv-lead {
+  font-size: var(--zv-p-lg);
+  line-height: 28px;
+  letter-spacing: -0.2px;
+}
+
+.zv-body  { font-size: var(--zv-p);    line-height: 26px; letter-spacing: -0.18px; }
+.zv-small { font-size: var(--zv-p-sm); line-height: 24px; letter-spacing: -0.16px; }
+
+/* Muted body text. A real palette step rather than an opacity wash, so
+   the tone is identical wherever it lands and stays legible on both the
+   body ground and the #ede9df panels. */
+.zv-muted { color: var(--zv-muted); }
+.zv-dark .zv-muted { color: var(--zv-secondary); }
+
+/* ── Subtitle / eyebrow ────────────────────────────────────────
+   The reference's small label above a section title: bullet-led,
+   uppercase, tight tracking. */
+.zv-subtitle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--zv-body);
+  font-size: var(--zv-sub);
+  line-height: 20px;
+  letter-spacing: -0.14px;
+  font-weight: 500;
+  text-transform: uppercase;
+  color: var(--zv-muted);
+}
+
+.zv-subtitle::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+.zv-dark .zv-subtitle { color: var(--zv-secondary); }
+
+/* Centred section header block — reference caps these at 555–730px. */
+.zv-section-head {
+  text-align: center;
+  max-width: 730px;
+  margin-inline: auto;
+  margin-bottom: 60px;
+}
+
+/* ── Buttons ───────────────────────────────────────────────────
+   `.primary-button` in the reference: solid primary pill, 16/24
+   padding, medium weight. Hover scales down slightly, matching the
+   reference's own `.checkout` transition. */
+.zv-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 16px 24px;
+  font-family: var(--zv-body);
+  font-size: var(--zv-p-sm);
+  line-height: 1;
+  font-weight: 500;
+  letter-spacing: -0.16px;
+  border-radius: var(--zv-radius);
+  border: 1px solid transparent;
+  background: var(--zv-primary);
+  color: var(--zv-white);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: transform 300ms var(--ease-soft), background-color 300ms var(--ease-soft),
+              color 300ms var(--ease-soft), border-color 300ms var(--ease-soft);
+}
+
+.zv-btn:hover { transform: scale(0.96); }
+
+/* Keyboard focus needs a visible ring; the hover scale alone is invisible
+   to anyone tabbing through the form. */
+.zv-btn:focus-visible {
+  outline: 2px solid var(--zv-primary);
+  outline-offset: 3px;
+}
+
+/* Sending state — the press animation is suppressed so a queued submit
+   does not read as another accepted click. */
+.zv-btn:disabled,
+.zv-btn[aria-busy='true'] {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.zv-btn:disabled:hover,
+.zv-btn[aria-busy='true']:hover {
+  transform: none;
+}
+
+/* Outline variant — transparent with a light rule. */
+.zv-btn-outline {
+  background: transparent;
+  color: var(--zv-primary);
+  border-color: var(--zv-border);
+}
+
+.zv-btn-outline:hover {
+  background: var(--zv-primary);
+  border-color: var(--zv-primary);
+  color: var(--zv-white);
+}
+
+/* On media or a dark band the fills invert: solid white pill, and an
+   outline variant ruled in white. Used by the hero over its render. */
+.zv-btn-light {
+  background: var(--zv-white);
+  color: var(--zv-primary);
+  border-color: var(--zv-white);
+}
+.zv-btn-light:hover { background: var(--zv-white); color: var(--zv-primary); }
+
+.zv-btn-onmedia {
+  background: transparent;
+  color: var(--zv-white);
+  border-color: rgba(255, 255, 255, 0.6);
+}
+.zv-btn-onmedia:hover {
+  background: var(--zv-white);
+  color: var(--zv-primary);
+  border-color: var(--zv-white);
+}
+
+.zv-dark .zv-btn { background: var(--zv-white); color: var(--zv-primary); }
+.zv-dark .zv-btn-outline {
+  background: transparent;
+  color: var(--zv-white);
+  border-color: var(--zv-border-dark);
+}
+.zv-dark .zv-btn-outline:hover { background: var(--zv-white); color: var(--zv-primary); }
+
+/* ── Cards ─────────────────────────────────────────────────────
+   Flat, hairline-bordered, generous radius — the reference avoids
+   drop shadows almost entirely. */
+.zv-card {
+  background: var(--zv-white);
+  border: 1px solid var(--zv-border);
+  border-radius: 20px;
+  padding: 32px;
+  transition: border-color 300ms var(--ease-soft), transform 300ms var(--ease-soft);
+}
+
+.zv-card:hover { border-color: var(--zv-primary); }
+
+.zv-dark .zv-card {
+  background: transparent;
+  border-color: var(--zv-border-dark);
+}
+.zv-dark .zv-card:hover { border-color: var(--zv-secondary); }
+
+/* Round icon chip, as on the reference's core-values cards. */
+.zv-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 1px solid var(--zv-border);
+  color: var(--zv-primary);
+  flex-shrink: 0;
+}
+
+.zv-dark .zv-icon {
+  border-color: var(--zv-border-dark);
+  background: var(--zv-white);
+  color: var(--zv-primary);
+}
+
+/* ── Rules, media & inputs ─────────────────────────────────────── */
+.zv-rule { height: 1px; background: var(--zv-border); border: 0; }
+.zv-dark .zv-rule { background: var(--zv-border-dark); }
+
+.zv-media {
+  overflow: hidden;
+  border-radius: 20px;
+  background: var(--zv-bg-alt);
+}
+
+.zv-media img { transition: transform 900ms var(--ease-arch); }
+.zv-media:hover img { transform: scale(1.04); }
+
+/* Boxed variant of the field, used inside the project-detail panels.
+   Shares every behaviour with .zv-field; only the shell differs. */
+.zv-input {
+  width: 100%;
+  min-height: 56px;
+  padding: 16px 20px;
+  font-family: var(--zv-body);
+  /* 16px floor — Safari zooms the viewport below it. See .zv-field. */
+  font-size: max(16px, var(--zv-p-sm));
+  color: var(--zv-primary);
+  background: var(--zv-white);
+  border: 1px solid var(--zv-border);
+  border-radius: 12px;
+  transition: border-color 260ms var(--ease-soft),
+              box-shadow 260ms var(--ease-soft);
+  appearance: none;
+}
+
+.zv-input::placeholder {
+  color: var(--zv-gray-400);
+  opacity: 1;
+}
+
+/* A ring rather than a thicker border, so the box never grows on focus. */
+.zv-input:focus {
+  outline: none;
+  border-color: var(--zv-primary);
+  box-shadow: 0 0 0 3px rgba(32, 41, 24, 0.1);
+}
+
+.zv-input:hover:not(:focus):not(:disabled) {
+  border-color: var(--zv-gray-400);
+}
+
+.zv-input:disabled {
+  background: var(--zv-bg-alt);
+  color: var(--zv-gray-400);
+  cursor: not-allowed;
+}
+
+.zv-input[aria-invalid='true'] { border-color: #b4342b; }
+.zv-input[aria-invalid='true']:focus {
+  box-shadow: 0 0 0 3px rgba(180, 52, 43, 0.12);
+}
+
+/* Repaint Chrome's yellow autofill onto the white panel ground. */
+.zv-input:-webkit-autofill,
+.zv-input:-webkit-autofill:hover,
+.zv-input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--zv-primary);
+  -webkit-box-shadow: 0 0 0 100px var(--zv-white) inset;
+  caret-color: var(--zv-primary);
+  transition: background-color 100000s ease 0s;
+}
+
+textarea.zv-input { min-height: 132px; resize: vertical; }
+
+.zv-input[type='number'] { -moz-appearance: textfield; }
+.zv-input[type='number']::-webkit-outer-spin-button,
+.zv-input[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Date and time controls, tinted to match the drawn chevron. */
+.zv-input[type='date'],
+.zv-input[type='time'],
+.zv-input[type='datetime-local'],
+.zv-input[type='month'],
+.zv-input[type='week'] {
+  cursor: pointer;
+}
+
+.zv-input::-webkit-calendar-picker-indicator {
+  filter: grayscale(1) brightness(0.25);
+  opacity: 0.7;
+  cursor: pointer;
+  transition: opacity 200ms var(--ease-soft);
+}
+.zv-input::-webkit-calendar-picker-indicator:hover { opacity: 1; }
+.zv-input::-webkit-date-and-time-value { text-align: left; }
+.zv-input::-webkit-datetime-edit { padding: 0; }
+
+/* Option rows, same treatment as .zv-field — see the note there on why
+   Chromium and Firefox need this and Safari ignores it. */
+.zv-input option {
+  font-family: var(--zv-body);
+  font-size: var(--zv-p-sm);
+  color: var(--zv-primary);
+  background: var(--zv-white);
+  padding: 10px 12px;
+}
+.zv-input option:checked,
+.zv-input option:hover {
+  background: var(--zv-bg-alt);
+  color: var(--zv-primary);
+}
+.zv-input option[value=''] { color: var(--zv-gray-400); }
+
+select.zv-input { accent-color: var(--zv-primary); }
+select.zv-input:has(option[value='']:checked) { color: var(--zv-gray-400); }
+
+.zv-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: var(--zv-sub);
+  font-weight: 500;
+  letter-spacing: -0.14px;
+  color: var(--zv-muted);
+}
+
+/* Select needs its own chevron once the native arrow is stripped. */
+.zv select.zv-input {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1.5L6 6.5l5-5' stroke='%23202918' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 20px center;
+  padding-right: 44px;
+  cursor: pointer;
+}
+
+.zv select.zv-input:open {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 6.5L6 1.5l5 5' stroke='%23202918' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+/* ── Project-detail panels ─────────────────────────────────────
+   The reference rounds these panels on their TOP corners only, so a
+   stacked column reads as one continuous run of surfaces rather than
+   a set of detached cards. */
+.zv-panel {
+  background: var(--zv-bg-alt);
+  border-radius: 24px 24px 0 0;
+  padding: 40px;
+}
+
+.zv-panel-media {
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 24px 24px 0 0;
+  background: var(--zv-bg-alt);
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+.zv-panel-media img { transition: transform 900ms var(--ease-arch); }
+.zv-panel-media:hover img { transform: scale(1.03); }
+
+@media (max-width: 640px) {
+  .zv-panel { padding: 28px 22px; }
+}
+
+/* ── Banner ticker ─────────────────────────────────────────────
+   Services banner: a centred title over a full-bleed strip of images
+   that drifts sideways. Reference caps each frame at 422px with a
+   16px gutter and top-only rounding. */
+.zv-ticker {
+  position: relative;
+  overflow: hidden;
+}
+
+.zv-ticker-track {
+  display: flex;
+  width: max-content;
+  animation: zv-ticker 46s linear infinite;
+}
+
+.zv-ticker-frame {
+  flex: none;
+  width: 422px;
+  max-width: 60vw;
+  margin-right: 16px;
+  overflow: hidden;
+  border-radius: 24px 24px 0 0;
+  background: var(--zv-bg-alt);
+}
+
+@keyframes zv-ticker {
+  from { transform: translateX(0); }
+  /* The track holds the frame list twice; shifting by exactly half
+     lands on the identical frame, so the loop has no visible seam. */
+  to   { transform: translateX(-50%); }
+}
+
+.zv-ticker:hover .zv-ticker-track { animation-play-state: paused; }
+
+/* :hover never fires on a touch screen, so the drift cannot be paused to
+   read a frame. Give coarse pointers a real scroller instead. */
+@media (hover: none) {
+  .zv-ticker { overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .zv-ticker::-webkit-scrollbar { display: none; }
+  .zv-ticker-track { animation: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zv-ticker-track { animation: none; }
+}
+
+/* ── Trust graph ───────────────────────────────────────────────
+   Staggered dark bars of differing heights, each with a rounded
+   "cap" line at the top and its figure set below in the display face. */
+.zv-graph {
+  width: 100%;
+  padding: 8px;
+  border-radius: 16px 16px 0 0;
+  background: var(--zv-primary);
+  display: flex;
+  flex-direction: column;
+}
+
+.zv-graph-line {
+  width: 100%;
+  height: 20px;
+  margin-bottom: 20px;
+  border-radius: 100px;
+  background: var(--zv-muted);
+  flex-shrink: 0;
+}
+
+/* The staggered heights are set as --bar-h by the page. They only read as
+   a chart when the four bars stand side by side; stacked two-up on a phone
+   a 107px bar cannot hold a label that wraps to three lines, so below sm
+   the bar sizes to its content instead. */
+.zv-graph { height: var(--bar-h); }
+
+@media (max-width: 639px) {
+  .zv-graph {
+    height: auto;
+    min-height: 92px;
+    padding: 6px;
+  }
+  .zv-graph-line { height: 14px; margin-bottom: 12px; }
+}
+
+.zv-graph-label {
+  padding-left: 12px;
+  color: var(--zv-white);
+  font-weight: 500;
+  font-size: var(--zv-p-sm);
+  line-height: 24px;
+}
+
+/* .zv-panel already steps its padding down on a phone; .zv-card did not,
+   so 32px a side ate a fifth of a 360px screen across every card grid. */
+@media (max-width: 640px) {
+  .zv-card { padding: 22px 20px; border-radius: 16px; }
+  .zv-icon { width: 46px; height: 46px; }
+}
+
+/* ── CTA with floating cards ───────────────────────────────────
+   A centred form with four small project cards pinned to the corners
+   of the section. Below the lg breakpoint the cards would collide
+   with the form, so they drop out of the layout entirely. */
+.zv-cta-card {
+  position: absolute;
+  width: 210px;
+  padding: 10px;
+  border: 1px solid #eae8e1;
+  border-radius: 16px 16px 0 0;
+  background: var(--zv-white);
+}
+
+.zv-cta-card-media {
+  overflow: hidden;
+  border-radius: 8px;
+  background: var(--zv-bg-alt);
+}
+
+@media (max-width: 1279px) {
+  .zv-cta-card { display: none; }
+}
+
+/* Underline-style field — the reference's contact and CTA forms use a
+   single bottom rule rather than a boxed input.
+
+   font-size stays at 16px on touch: Safari zooms the viewport whenever a
+   focused control measures under 16px, which yanks the layout sideways
+   mid-typing. 16px is a floor here, not a preference. */
+.zv-field {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 0;
+  font-family: var(--zv-body);
+  font-size: max(16px, var(--zv-p-sm));
+  line-height: 24px;
+  letter-spacing: -0.16px;
+  color: var(--zv-primary);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--zv-border);
+  border-radius: 0;
+  transition: border-color 260ms var(--ease-soft),
+              box-shadow 260ms var(--ease-soft),
+              background-color 260ms var(--ease-soft);
+  appearance: none;
+}
+
+.zv-field::placeholder {
+  color: var(--zv-gray-400);
+  opacity: 1; /* Firefox dims placeholders on its own */
+}
+
+/* The rule darkens and doubles on focus. A 1px inset shadow rather than a
+   border-width swap, so the field never shifts as focus lands. */
+.zv-field:focus {
+  outline: none;
+  border-bottom-color: var(--zv-primary);
+  box-shadow: 0 1px 0 0 var(--zv-primary);
+}
+
+/* Keyboard users also get a faint wash, so the active field is findable
+   without hunting for a 1px rule. */
+.zv-field:focus-visible {
+  background-color: rgba(32, 41, 24, 0.03);
+}
+
+.zv-field:hover:not(:focus):not(:disabled) {
+  border-bottom-color: var(--zv-gray-400);
+}
+
+.zv-field:disabled {
+  color: var(--zv-gray-400);
+  border-bottom-style: dashed;
+  cursor: not-allowed;
+}
+
+/* Invalid state is driven by aria-invalid, set by the form after a submit
+   attempt. Bare :invalid would flag every empty required field on load. */
+.zv-field[aria-invalid='true'] {
+  border-bottom-color: #b4342b;
+}
+.zv-field[aria-invalid='true']:focus {
+  box-shadow: 0 1px 0 0 #b4342b;
+}
+
+/* Chrome paints autofilled fields a hard yellow. The oversized inset
+   shadow is the only reliable way to repaint them in the paper palette. */
+.zv-field:-webkit-autofill,
+.zv-field:-webkit-autofill:hover,
+.zv-field:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--zv-primary);
+  -webkit-box-shadow: 0 0 0 100px var(--zv-bg) inset, 0 1px 0 0 var(--zv-border);
+  caret-color: var(--zv-primary);
+  transition: background-color 100000s ease 0s;
+}
+.zv-field:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 100px var(--zv-bg) inset, 0 1px 0 0 var(--zv-primary);
+}
+
+textarea.zv-field {
+  min-height: 132px;
+  padding-top: 16px;
+  resize: vertical;
+}
+
+/* Number fields: strip the spinners, which break the underline rhythm. */
+.zv-field[type='number'] { -moz-appearance: textfield; }
+.zv-field[type='number']::-webkit-outer-spin-button,
+.zv-field[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Date and time fields — the native picker glyph is a dark system icon
+   that clashes with the drawn chevron, so it is tinted to the ink tone
+   and given the same right-edge hit area as the select arrow. */
+.zv-field[type='date'],
+.zv-field[type='time'],
+.zv-field[type='datetime-local'],
+.zv-field[type='month'],
+.zv-field[type='week'] {
+  padding-right: 28px;
+  cursor: pointer;
+}
+
+.zv-field::-webkit-calendar-picker-indicator {
+  filter: grayscale(1) brightness(0.25);
+  opacity: 0.7;
+  cursor: pointer;
+  padding: 4px;
+  margin-right: -4px;
+  transition: opacity 200ms var(--ease-soft);
+}
+.zv-field::-webkit-calendar-picker-indicator:hover { opacity: 1; }
+
+/* Safari gives date sub-fields their own padding; flatten it so the value
+   sits on the same baseline as a text input's. */
+.zv-field::-webkit-date-and-time-value { text-align: left; }
+.zv-field::-webkit-datetime-edit { padding: 0; }
+.zv-field::-webkit-datetime-edit-fields-wrapper { padding: 0; }
+
+/* Select keeps its own chevron once the native arrow is stripped. */
+select.zv-field {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1.5L6 6.5l5-5' stroke='%23202918' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 4px center;
+  padding-right: 28px;
+  cursor: pointer;
+  /* Windows otherwise paints the closed select in the OS text colour. */
+  color: var(--zv-primary);
+  /* Tints the popup's own highlight where the browser honours it. */
+  accent-color: var(--zv-primary);
+}
+
+/* An unchosen select reads as placeholder text, matching ::placeholder. */
+select.zv-field:has(option[value='']:checked) { color: var(--zv-gray-400); }
+
+/* The chevron flips while the list is open, where :open is supported. */
+select.zv-field:open {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 6.5L6 1.5l5 5' stroke='%23202918' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+/* ── Custom select ─────────────────────────────────────────────────
+   The native control's popup is drawn by the OS, so its selected row
+   arrives as a hard system blue that no page CSS can reach. Select.jsx
+   replaces it with an ARIA listbox; these are that listbox's styles.
+
+   The button reuses .zv-field, so the closed control keeps the same
+   underline, focus rule, and invalid state as every other field. */
+.zv-select {
+  position: relative;
+  width: 100%;
+}
+
+.zv-select-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  text-align: left;
+  cursor: pointer;
+  /* .zv-field paints a chevron as a background image for real <select>s;
+     this one draws its own as an element so it can rotate. */
+  background-image: none;
+  padding-right: 4px;
+}
+
+.zv-select-value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Unchosen reads as placeholder text, matching ::placeholder elsewhere. */
+.zv-select-button[data-placeholder] .zv-select-value {
+  color: var(--zv-gray-400);
+}
+
+.zv-select-chevron {
+  flex: none;
+  color: var(--zv-primary);
+  transition: transform 240ms var(--ease-soft);
+}
+
+.zv-select[data-open] .zv-select-chevron {
+  transform: rotate(180deg);
+}
+
+/* ── The popup ── */
+.zv-select-list {
+  position: absolute;
+  z-index: 60;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  max-height: 264px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--zv-white);
+  border: 1px solid var(--zv-border);
+  border-radius: 14px;
+  box-shadow: 0 1px 2px rgba(32, 41, 24, 0.04),
+              0 12px 32px -8px rgba(32, 41, 24, 0.18);
+  animation: zv-select-in 160ms var(--ease-soft);
+}
+
+@keyframes zv-select-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.zv-select-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 11px 12px;
+  border-radius: 9px;
+  font-size: max(16px, var(--zv-p-sm));
+  line-height: 20px;
+  letter-spacing: -0.16px;
+  color: var(--zv-primary);
+  cursor: pointer;
+  /* Colour only — a transform here would jitter the list while arrowing. */
+  transition: background-color 140ms var(--ease-soft);
+}
+
+/* One highlight, driven by the keyboard and by hover alike, so arrowing
+   and pointing never light up two different rows at once. */
+.zv-select-option[data-active] {
+  background: var(--zv-bg-alt);
+}
+
+.zv-select-option[aria-selected='true'] {
+  font-weight: 500;
+}
+
+.zv-select-option svg { flex: none; color: var(--zv-primary); }
+
+.zv-select-scrim { display: none; }
+
+/* ── Touch: a bottom sheet ──────────────────────────────────────────
+   A dropdown anchored to a field low in the viewport opens off-screen on
+   a phone. The sheet is also the shape the platform already teaches. */
+@media (max-width: 639px) {
+  .zv-select-scrim {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 70;
+    background: rgba(32, 41, 24, 0.32);
+    animation: zv-fade-in 200ms var(--ease-soft);
+  }
+
+  .zv-select-list {
+    position: fixed;
+    z-index: 71;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    max-height: 62vh;
+    padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
+    border: 0;
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -8px 40px -8px rgba(32, 41, 24, 0.3);
+    animation: zv-sheet-up 240ms var(--ease-arch);
+  }
+
+  /* The grabber, so the sheet reads as dismissible. */
+  .zv-select-list::before {
+    content: '';
+    display: block;
+    width: 36px;
+    height: 4px;
+    margin: 4px auto 10px;
+    border-radius: 99px;
+    background: var(--zv-border);
+  }
+
+  .zv-select-option {
+    padding: 14px 12px;
+    border-radius: 11px;
+  }
+}
+
+@keyframes zv-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes zv-sheet-up {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zv-select-list { animation: none; }
+  .zv-select-chevron { transition: none; }
+}
+
+/* ── The open dropdown list ────────────────────────────────
+   Left alone, Chromium and Firefox draw <option> rows with the OS accent
+   (a hard blue band) and the system UI font. These pull the open list
+   back into the paper palette. Safari and iOS render a native sheet that
+   ignores them — accepted, since that sheet is the correct control there. */
+.zv-field option {
+  font-family: var(--zv-body);
+  font-size: var(--zv-p-sm);
+  color: var(--zv-primary);
+  background: var(--zv-white);
+  padding: 10px 12px;
+}
+
+.zv-field option:checked,
+.zv-field option:hover {
+  background: var(--zv-bg-alt);
+  color: var(--zv-primary);
+}
+
+.zv-field option[value=''] { color: var(--zv-gray-400); }
+
+/* ── Home: hero banner ─────────────────────────────────────────
+   Full-bleed media with the title set bottom-left in white. The
+   reference uses a 794px tall block with 75px of bottom padding. */
+.zv-hero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: 794px;
+  padding-bottom: 75px;
+  overflow: hidden;
+  /* The section sits on media, not on the page ground: everything inside
+     is white by default. Without this the inherited `.zv` primary colour
+     would paint the title dark olive over the render. */
+  background: var(--zv-primary);
+  color: var(--zv-white);
+}
+
+.zv-hero h1,
+.zv-hero h2 { color: var(--zv-white); }
+
+@media (max-width: 768px) {
+  /* 620px is the portrait-phone figure. Capped against the viewport so a
+     landscape phone (~360px tall) does not get a hero 1.7 screens deep. */
+  .zv-hero { min-height: min(620px, 88svh); padding-bottom: 48px; }
+}
+
+@supports not (height: 1svh) {
+  @media (max-width: 768px) {
+    .zv-hero { min-height: min(620px, 88vh); }
+  }
+}
+
+/* ── Home: trusted strip ───────────────────────────────────────
+   A quiet row of client/discipline marks under the hero. */
+.zv-marks {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 56px;
+  flex-wrap: wrap;
+  color: var(--zv-gray-400);
+}
+
+.zv-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: var(--zv-p-sm);
+  font-weight: 500;
+  letter-spacing: -0.16px;
+  white-space: nowrap;
+}
+
+/* A 56px gap is a desktop rhythm; on a phone it stacked the five marks
+   into a ~330px band of mostly air. */
+@media (max-width: 767px) {
+  .zv-marks { gap: 12px 20px; }
+  .zv-mark { font-size: 14px; }
+}
+
+/* ── Home: portfolio mosaic ────────────────────────────────────
+   A tall image on the left paired with a stacked pair on the right;
+   each tile carries its caption over the image. */
+.zv-tile {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  border-radius: 26px 26px 0 0;
+  background: var(--zv-bg-alt);
+}
+
+.zv-tile img { transition: transform 900ms var(--ease-arch); }
+.zv-tile:hover img { transform: scale(1.04); }
+
+/* Caption plate sitting on the image, legible over any render. */
+.zv-tile-cap {
+  position: absolute;
+  inset: auto 0 0 0;
+  padding: 20px 24px;
+  color: var(--zv-white);
+  background: linear-gradient(to top, rgba(32, 41, 24, 0.85), transparent);
+}
+
+/* Round action button pinned to a tile corner, as on the reference. */
+.zv-tile-btn {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--zv-primary);
+  color: var(--zv-white);
+}
+
+/* ── Contact info cards ────────────────────────────────────────
+   Row of tinted panels, each led by a round dark icon chip. */
+.zv-info-card {
+  background: var(--zv-bg-alt);
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+@media (max-width: 640px) {
+  .zv-info-card { padding: 22px 20px; }
+}
+
+.zv-info-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--zv-primary);
+  color: var(--zv-white);
+  margin-bottom: 28px;
+}
+
+/* ── Accordion ─────────────────────────────────────────────────── */
+.zv-accordion {
+  border: 1px solid var(--zv-border);
+  border-radius: 16px;
+  background: var(--zv-white);
+  transition: border-color 300ms var(--ease-soft);
+}
+
+.zv-accordion[open] { border-color: var(--zv-primary); }
+.zv-accordion summary::-webkit-details-marker { display: none; }
+
+.zv-accordion summary:focus-visible {
+  outline: 2px solid var(--zv-primary);
+  outline-offset: -2px;
+  border-radius: 16px;
+}
+
+/* Focus ring inside themed sections follows the primary, not clay. */
+.zv :focus-visible { outline-color: var(--zv-primary); }
