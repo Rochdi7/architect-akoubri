@@ -12,11 +12,11 @@
 declare(strict_types=1);
 
 // ── Configure ────────────────────────────────────────────────────────────
-$TO      = 'contact@adostigia.com';   // <-- change to the real recipient
-$SUBJECT = 'Nouvelle demande — site Adostigia';
+$TO      = 'contact@akoubri.com';   // <-- change to the real recipient
+$SUBJECT = 'Nouvelle demande — site Akoubri';
 // On Hostinger the From address must belong to your own domain or the mail
 // is rejected as spoofed. Create this mailbox in hPanel first.
-$FROM    = 'no-reply@adostigia.com';
+$FROM    = 'no-reply@akoubri.com';
 $THROTTLE_SECONDS = 60;
 // ─────────────────────────────────────────────────────────────────────────
 
@@ -52,7 +52,7 @@ if (!empty($data['company'])) {
 
 // Per-IP throttle.
 $ip   = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
-$lock = sys_get_temp_dir() . '/adostigia_' . hash('sha256', $ip) . '.lock';
+$lock = sys_get_temp_dir() . '/akoubri_' . hash('sha256', $ip) . '.lock';
 if (is_file($lock) && (time() - (int) filemtime($lock)) < $THROTTLE_SECONDS) {
     fail(429, 'Merci de patienter avant un nouvel envoi.');
 }
@@ -83,7 +83,7 @@ if (mb_strlen($message) < 20) {
     fail(422, 'Message trop court.');
 }
 
-$body = "Nouvelle demande depuis adostigia.com\n\n"
+$body = "Nouvelle demande depuis akoubri.com\n\n"
       . "Nom      : {$name}\n"
       . "E-mail   : {$email}\n"
       . "Téléphone: " . ($phone   ?: '—') . "\n"
@@ -93,7 +93,7 @@ $body = "Nouvelle demande depuis adostigia.com\n\n"
       . "---\nIP : {$ip}\nDate : " . date('c') . "\n";
 
 $headers = implode("\r\n", [
-    'From: Site Adostigia <' . $FROM . '>',
+    'From: Site Akoubri <' . $FROM . '>',
     'Reply-To: ' . $name . ' <' . $email . '>',
     'Content-Type: text/plain; charset=UTF-8',
     'MIME-Version: 1.0',

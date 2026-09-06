@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom';
 import { stats, journey, agencyFaq } from '../data/projects';
 import { useReveal } from '../hooks/useReveal';
+import { useInkFill } from '../hooks/useInkFill';
+import { useTrace } from '../hooks/useTrace';
 
 const values = [
   {
@@ -108,6 +110,7 @@ function SplitHero() {
    Label in a narrow left column, statement set large on the right, then a
    ruled row of figures divided by hairlines.                             */
 function AboutStats() {
+  const ink = useInkFill();
   return (
     <section className="zv zv-section">
       <div className="shell">
@@ -116,7 +119,7 @@ function AboutStats() {
             <span className="zv-subtitle">L'agence</span>
           </div>
           <div data-reveal data-reveal-delay="80" className="reveal">
-            <h2 className="zv-h4">
+            <h2 ref={ink} className="zv-h4">
               Chaque terrain est une contrainte avant d'être une opportunité —
               orientation, vues, règlement. Notre travail consiste à faire de
               cette contrainte le sujet du projet.
@@ -193,6 +196,7 @@ function AboutStats() {
 /* ── Journey timeline ───────────────────────────────────────────────────
    Sticky title on the left, vertical rule with pinned dots on the right.  */
 function Journey() {
+  const trace = useTrace();
   return (
     <section className="zv zv-alt zv-section">
       <div className="shell grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
@@ -216,6 +220,7 @@ function Journey() {
             className="absolute left-[19px] top-3 -z-10 w-px bg-[var(--zv-border)]"
             style={{ bottom: '3rem' }}
           />
+          <span ref={trace} aria-hidden="true" className="m3-trace" />
 
           {journey.map((j, i) => (
             <li

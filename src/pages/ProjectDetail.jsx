@@ -1,7 +1,9 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import { getProject, projects } from '../data/projects';
 import { useReveal } from '../hooks/useReveal';
+import { useInkFill } from '../hooks/useInkFill';
+import Lightbox from '../components/Lightbox';
 
 /* ── Project detail ─────────────────────────────────────────────────────
    Layout ported from the Zenvira reference (project/cosy-layers.html):
@@ -22,6 +24,8 @@ export default function ProjectDetail() {
   const { slug } = useParams();
   const project = getProject(slug);
   const [lightbox, setLightbox] = useState(null); // index or null
+
+  const ink = useInkFill({ play: true });
 
   useReveal([slug]);
 
@@ -57,7 +61,7 @@ export default function ProjectDetail() {
             {/* ── Left: sticky typography panel + quote form ── */}
             <div className="flex flex-col gap-4 lg:sticky lg:top-28">
               <div data-reveal className="reveal zv-panel">
-                <h1 className="zv-h3">{project.name}</h1>
+                <h1 ref={ink} className="zv-h3">{project.name}</h1>
                 <p className="zv-body zv-muted mt-5 md:mt-8">{project.excerpt}</p>
 
                 <dl className="mt-10 grid max-w-sm grid-cols-1 gap-y-5 min-[420px]:grid-cols-2 min-[420px]:gap-x-6 min-[420px]:gap-y-8 md:mt-16">
@@ -157,7 +161,7 @@ export default function ProjectDetail() {
         <Lightbox
           images={project.gallery}
           index={lightbox}
-          name={project.name}
+          alt={`${project.name} — vue ${lightbox + 1}`}
           onClose={() => setLightbox(null)}
           onChange={setLightbox}
         />
@@ -231,7 +235,7 @@ function QuoteForm({ project }) {
       {status === 'error' && (
         <p role="alert" className="zv-small mb-6 rounded-xl border border-red-700 bg-red-50 px-4 py-3 text-red-800">
           L'envoi a échoué. Écrivez-nous à{' '}
-          <a href="mailto:contact@adostigia.com" className="underline">contact@adostigia.com</a>.
+          <a href="mailto:contact@akoubri.com" className="underline">contact@akoubri.com</a>.
         </p>
       )}
 
@@ -350,86 +354,3 @@ function RelatedRow({ project, delay }) {
     </div>
   );
 }
-
-/* Modal gallery. Arrow keys page through, Escape closes, and body scroll is
-   locked while it is open.                                                */
-function Lightbox({ images, index, name, onClose, onChange }) {
-  const go = useCallback(
-    (step) => onChange((index + step + images.length) % images.length),
-    [index, images.length, onChange]
-  );
-
-  useEffect(() => {
-    const onKey = (e) => {
-      if (e.key === 'Escape') onClose();
-      if (e.key === 'ArrowRight') go(1);
-      if (e.key === 'ArrowLeft') go(-1);
-    };
-    window.addEventListener('keydown', onKey);
-    document.body.style.overflow = 'hidden';
-    return () => {
-      window.removeEventListener('keydown', onKey);
-      document.body.style.overflow = '';
-    };
-  }, [go, onClose]);
-
-  return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-label={`${name} — galerie`}
-      className="zv fixed inset-0 z-[60] flex items-center justify-center bg-[#202918]/95 p-4 backdrop-blur-sm"
-      onClick={onClose}
-    >
-      <button
-        type="button"
-        onClick={onClose}
-        aria-label="Fermer"
-        className="absolute right-5 top-5 flex h-11 w-11 items-center justify-center rounded-full border border-white/25 text-white transition-colors hover:bg-white hover:text-[var(--zv-primary)]"
-      >
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-          <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-        </svg>
-      </button>
-
-      <NavBtn side="left" onClick={(e) => { e.stopPropagation(); go(-1); }} />
-      <NavBtn side="right" onClick={(e) => { e.stopPropagation(); go(1); }} />
-
-      <figure className="max-h-full" onClick={(e) => e.stopPropagation()}>
-        <img
-          src={images[index]}
-          alt={`${name} — vue ${index + 1}`}
-          className="max-h-[80vh] w-auto rounded-2xl object-contain"
-        />
-        <figcaption className="zv-small mt-4 text-center text-white/60">
-          {index + 1} / {images.length}
-        </figcaption>
-      </figure>
-    </div>
-  );
-}
-
-function NavBtn({ side, onClick }) {
-  const isLeft = side === 'left';
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-label={isLeft ? 'Image précédente' : 'Image suivante'}
-      className={`absolute top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-black/20 text-white backdrop-blur-sm transition-colors hover:bg-white hover:text-[var(--zv-primary)] sm:h-12 sm:w-12 sm:bg-transparent sm:backdrop-blur-none ${
-        isLeft ? 'left-1 sm:left-4' : 'right-1 sm:right-4'
-      }`}
-    >
-      <svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-        <path
-          d={isLeft ? 'M10 3L5 8l5 5' : 'M6 3l5 5-5 5'}
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    </button>
-  );
-}
-

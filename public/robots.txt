@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /api/
 
-Sitemap: https://adostigia.com/sitemap.xml
+Sitemap: https://akoubri.com/sitemap.xml

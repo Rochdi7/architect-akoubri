@@ -1,5 +1,6 @@
 import { cloneElement, isValidElement, useId, useState } from 'react';
 import { useReveal } from '../hooks/useReveal';
+import { useInkFill } from '../hooks/useInkFill';
 import Select from '../components/Select';
 
 const budgets = [
@@ -19,7 +20,7 @@ const missions = [
 
 // The four contact facts, shown as the reference's icon-led card row.
 const info = [
-  { icon: 'mail', label: 'E-mail', value: 'contact@adostigia.com', href: 'mailto:contact@adostigia.com', cta: 'Nous écrire' },
+  { icon: 'mail', label: 'E-mail', value: 'contact@akoubri.com', href: 'mailto:contact@akoubri.com', cta: 'Nous écrire' },
   { icon: 'phone', label: 'Téléphone', value: '+212 6 00 00 00 00', href: 'tel:+212600000000', cta: 'Appeler' },
   { icon: 'pin', label: 'Bureaux', value: 'Marrakech & Casablanca' },
   { icon: 'clock', label: 'Horaires', value: 'Lun — Ven, 9h — 18h' },
@@ -37,6 +38,7 @@ const EMPTY = {
 
 export default function Contact() {
   useReveal();
+  const ink = useInkFill({ play: true });
 
   const [form, setForm] = useState(EMPTY);
   const [status, setStatus] = useState('idle'); // idle | sending | sent | error
@@ -85,7 +87,7 @@ export default function Contact() {
       {/* ── Banner ── */}
       <section className="zv pt-36 md:pt-44">
         <div className="shell text-center">
-          <h1 data-reveal className="reveal zv-h1">
+          <h1 ref={ink} data-reveal className="reveal zv-h1">
             Parlons de votre projet
           </h1>
           <p
@@ -106,7 +108,7 @@ export default function Contact() {
             <div data-reveal className="reveal zv-media">
               <img
                 src="/media/adostigia/adostigia-01.jpg"
-                alt="Hall d'accueil Adostigia"
+                alt="Hall d'accueil Akoubri"
                 width="1280"
                 height="960"
                 fetchpriority="high"
@@ -129,8 +131,8 @@ export default function Contact() {
                   className="zv-small mb-8 rounded-2xl border border-red-700 bg-red-50 px-5 py-4 text-red-800"
                 >
                   L'envoi a échoué. Écrivez-nous directement à{' '}
-                  <a href="mailto:contact@adostigia.com" className="underline">
-                    contact@adostigia.com
+                  <a href="mailto:contact@akoubri.com" className="underline">
+                    contact@akoubri.com
                   </a>
                   .
                 </div>

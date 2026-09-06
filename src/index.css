@@ -7,7 +7,7 @@
    Light, warm, paper-like. Structure borrowed from the CodeSommet
    token system (spacing scale, radius scale, easing set) but the
    palette is drawn from the renders themselves: travertine, clay,
-   warm plaster, and the brass accent of the Adostigia signage.
+   warm plaster, and the brass accent of the Akoubri signage.
    ═══════════════════════════════════════════════════════════════ */
 :root {
   /* Ink / text */
@@ -21,7 +21,7 @@
   --sand: #f2ede6;
   --sand-deep: #e8e0d5;
 
-  /* Accent — the brass of the Adostigia logo wall */
+  /* Accent — the brass of the Akoubri logo wall */
   --clay: #b06b3a;
   --clay-deep: #8f5329;
   --clay-wash: rgba(176, 107, 58, 0.08);
@@ -228,13 +228,20 @@ img, video {
   transform: none;
 }
 
-/* Image mask-reveal — the curtain wipe used on project cards */
-.mask-reveal {
+/* Image mask-reveal — the curtain wipe used on project cards.
+
+   The clip is on the inner image, NOT on the .mask-reveal element itself.
+   That element is the IntersectionObserver target, and an element clipped
+   to `inset(0 0 100%)` reports intersectionRatio 0 even when it fills the
+   viewport — so it could never earn the .is-visible that would unclip it,
+   and the media stayed permanently invisible and unclickable. Clipping a
+   child leaves the observed box intact. */
+.mask-reveal > * {
   clip-path: inset(0 0 100% 0);
   transition: clip-path 1100ms var(--ease-arch);
 }
 
-.mask-reveal.is-visible {
+.mask-reveal.is-visible > * {
   clip-path: inset(0 0 0 0);
 }
 
@@ -245,7 +252,7 @@ img, video {
     scroll-behavior: auto !important;
   }
   .reveal { opacity: 1; transform: none; }
-  .mask-reveal { clip-path: none; }
+  .mask-reveal > * { clip-path: none; }
 }
 
 /* ── Utilities ─────────────────────────────────────────────────── */
@@ -886,3 +893,38 @@ summary::-webkit-details-marker { display: none; }
 }
 
 .border-on-dark { border-color: rgba(250, 248, 245, 0.25); }
+
+/* ── Akoubri logo mark ──────────────────────────────────────────────────
+   The mark draws itself in with SMIL (see AkoubriMark.jsx). Nothing here
+   sizes it — the component owns width/height so the header and the footer
+   can ask for different sizes off one source.
+
+   The footer sits on the dark navy card, where the mark's own #10243F band
+   would disappear. Rather than ship a second colour variant of the artwork,
+   the band is lifted to the paper tone with a filter that only touches the
+   navy: the copper A is left exactly as drawn. */
+.akoubri-mark {
+  display: block;
+  overflow: visible;
+}
+
+.akoubri-mark--on-dark path[fill="#10243F"] {
+  fill: #faf8f5;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Kill the 5s loop and pin every reveal to its END state. The reveals are
+     driven by SMIL <animate values>, which CSS cannot override — so stop the
+     animation elements themselves, then restate the finished values. Without
+     this the masks sit at their initial dashoffset and the mark never appears
+     at all: a blank header logo, worse than an unanimated one. */
+  .akoubri-mark animate {
+    display: none;
+  }
+  .akoubri-mark mask path[stroke-dasharray] {
+    stroke-dashoffset: 0 !important;
+  }
+  .akoubri-mark mask g[opacity] {
+    opacity: 1 !important;
+  }
+}

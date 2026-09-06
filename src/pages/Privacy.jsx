@@ -59,8 +59,8 @@ export default function Privacy() {
                   mentions légales
                 </Link>
                 . Pour toute question relative à vos données, écrivez à{' '}
-                <a href="mailto:contact@adostigia.com" className="underline underline-offset-4 hover:text-[var(--zv-primary)]">
-                  contact@adostigia.com
+                <a href="mailto:contact@akoubri.com" className="underline underline-offset-4 hover:text-[var(--zv-primary)]">
+                  contact@akoubri.com
                 </a>
                 .
               </p>
@@ -162,7 +162,7 @@ export default function Privacy() {
                 ))}
               </ul>
               <p className="zv-body zv-muted mt-7">
-                Pour exercer ces droits, écrivez à contact@adostigia.com. Nous
+                Pour exercer ces droits, écrivez à contact@akoubri.com. Nous
                 répondons sous trente jours. Vous pouvez également saisir la
                 Commission Nationale de contrôle de la protection des Données à
                 caractère Personnel (CNDP) — cndp.ma.

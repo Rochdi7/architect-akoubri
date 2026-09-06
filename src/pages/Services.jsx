@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { services, stats, projects } from '../data/projects';
 import { useReveal } from '../hooks/useReveal';
+import { useVolets } from '../hooks/useVolets';
+import { useInkFill } from '../hooks/useInkFill';
 
 // Frames for the banner ticker, drawn from across the project renders.
 const ticker = [
@@ -46,6 +48,9 @@ const faq = [
 
 export default function Services() {
   useReveal();
+  const volets = useVolets();
+  const ink = useInkFill();
+  const heroInk = useInkFill({ play: true });
 
   return (
     <>
@@ -53,7 +58,7 @@ export default function Services() {
       <section className="zv overflow-hidden pt-24 sm:pt-32 md:pt-44">
         <div className="shell">
           <div data-reveal className="reveal mx-auto max-w-4xl text-center">
-            <h1 className="zv-h2">
+            <h1 ref={heroInk} className="zv-h2">
               Une architecture ancrée dans le lieu, l'usage et la matière
             </h1>
             <p className="zv-lead zv-muted mx-auto mt-5 max-w-xl">
@@ -89,7 +94,7 @@ export default function Services() {
       <section className="zv zv-section">
         <div className="shell">
           <div data-reveal className="reveal mx-auto mb-12 max-w-[764px] text-center md:mb-20 lg:mb-32">
-            <h2 className="zv-h4">
+            <h2 ref={ink} className="zv-h4">
               De l'esquisse à la réception, nous livrons une architecture tenue —{' '}
               <span className="text-[var(--zv-gray-100)]">
                 avec une attention constante au détail et le goût des choses qui durent.
@@ -121,7 +126,7 @@ export default function Services() {
 
       {/* Alternating service rows */}
       <section className="zv zv-section pt-0">
-        <div className="shell space-y-12 sm:space-y-20 md:space-y-28">
+        <div ref={volets} className="shell space-y-12 sm:space-y-20 md:space-y-28">
           {services.map((s, i) => (
             <div
               key={s.n}
@@ -130,6 +135,7 @@ export default function Services() {
                 i % 2 ? 'lg:[&>*:first-child]:order-2' : ''
               }`}
             >
+              <div className="m3-volet">
               <div className="zv-media">
                 <img
                   src={shots[i].src}
@@ -139,6 +145,7 @@ export default function Services() {
                   height="853"
                   className="aspect-[4/3] w-full object-cover"
                 />
+              </div>
               </div>
               <div>
                 <span className="zv-icon">
@@ -268,7 +275,7 @@ function CtaWithCards() {
             {status === 'error' && (
               <p role="alert" className="zv-small mb-6 rounded-xl border border-red-700 bg-red-50 px-4 py-3 text-red-800">
                 L'envoi a échoué. Écrivez-nous à{' '}
-                <a href="mailto:contact@adostigia.com" className="underline">contact@adostigia.com</a>.
+                <a href="mailto:contact@akoubri.com" className="underline">contact@akoubri.com</a>.
               </p>
             )}
 

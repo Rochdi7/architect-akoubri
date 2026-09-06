@@ -244,7 +244,7 @@ export const showcase = [
   },
   {
     src: '/media/adostigia/adostigia-22.jpg',
-    title: 'Salon d\'attente, Adostigia',
+    title: 'Salon d\'attente, Akoubri',
     caption: 'Panneaux de pierre claire, cimaises noires, assises en velours.',
     slug: 'adostigia',
   },

@@ -17,7 +17,7 @@ const identity = [
   { term: 'Identifiant commun (ICE)', desc: '[NUMÉRO ICE]' },
   { term: 'Identifiant fiscal', desc: '[NUMÉRO IF]' },
   { term: 'Directeur de la publication', desc: '[NOM DU RESPONSABLE]' },
-  { term: 'Contact', desc: 'contact@adostigia.com — +212 6 00 00 00 00' },
+  { term: 'Contact', desc: 'contact@akoubri.com — +212 6 00 00 00 00' },
 ];
 
 export default function Legal() {
@@ -32,7 +32,7 @@ export default function Legal() {
             <h1 className="zv-h1 mt-5">Mentions légales</h1>
             <p className="zv-lead zv-muted mt-5 max-w-xl">
               Éditeur du site, hébergement, propriété intellectuelle et
-              conditions d'utilisation de adostigia.com.
+              conditions d'utilisation de akoubri.com.
             </p>
           </div>
         </div>
@@ -66,7 +66,7 @@ export default function Legal() {
 
             <Block n="03" title="Propriété intellectuelle">
               <p className="zv-body zv-muted">
-                L'ensemble des contenus présentés sur adostigia.com — textes,
+                L'ensemble des contenus présentés sur akoubri.com — textes,
                 plans, photographies, images de synthèse, identité graphique,
                 logotype et code source — est protégé par le droit d'auteur et
                 demeure la propriété exclusive de l'éditeur ou de ses ayants

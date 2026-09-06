@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { projects } from '../data/projects';
+import AkoubriMark from './AkoubriMark';
 
 /**
  * Footer — a dark rounded card inset from the page edges, with the studio
@@ -70,6 +71,7 @@ export default function Footer() {
                 <FooterLink to="/projets">Projets</FooterLink>
                 <FooterLink to="/agence">Agence</FooterLink>
                 <FooterLink to="/services">Services</FooterLink>
+                <FooterLink to="/journal">Journal</FooterLink>
                 <FooterLink to="/contact">Contact</FooterLink>
               </FooterCol>
 
@@ -83,8 +85,8 @@ export default function Footer() {
 
               <FooterCol title="Contact" wide listClass="grid grid-cols-2 gap-x-6 gap-y-2.5 sm:gap-y-3 lg:block lg:space-y-3">
                 <li className="col-span-2 lg:col-auto">
-                  <a href="mailto:contact@adostigia.com" className="text-sm on-dark-soft transition-colors hover:text-[#e6b083]">
-                    contact@adostigia.com
+                  <a href="mailto:contact@akoubri.com" className="text-sm on-dark-soft transition-colors hover:text-[#e6b083]">
+                    contact@akoubri.com
                   </a>
                 </li>
                 <li>
@@ -102,7 +104,7 @@ export default function Footer() {
 
             <div className="mt-10 flex flex-col gap-3 border-t border-[rgba(250,248,245,0.12)] pt-6 text-xs on-dark-muted sm:mt-14 sm:text-sm md:flex-row md:items-center md:justify-between md:gap-6">
               <span>
-                © {year} <span className="on-dark">Adostigia</span>. Tous droits réservés.
+                © {year} <span className="on-dark">Akoubri</span>. Tous droits réservés.
               </span>
               <nav className="flex flex-wrap items-center gap-x-4 gap-y-1.5">
                 <Link to="/mentions-legales" className="transition-colors hover:text-[#e6b083]">
@@ -118,7 +120,7 @@ export default function Footer() {
 
           {/* Oversized studio name, clipped by the card's bottom edge. */}
           <div className="footer-wordmark select-none font-display" aria-hidden="true">
-            Adostigia
+            Akoubri
           </div>
         </div>
       </div>
@@ -169,15 +171,12 @@ function Social({ label, href, children, stroke }) {
   );
 }
 
-/* Logo mark — the triangle-in-A of the signage wall, on the dark ground. */
+/* Lockup — the animated mark beside the wordmark, on the dark card. */
 function Mark() {
   return (
     <span className="flex items-center gap-2.5">
-      <svg width="30" height="30" viewBox="0 0 30 30" fill="none" aria-hidden="true">
-        <path d="M4 25L15 5l11 20" stroke="#e6b083" strokeWidth="1.8" strokeLinejoin="round" />
-        <path d="M10 25l5-9 5 9" stroke="#faf8f5" strokeWidth="1.8" strokeLinejoin="round" />
-      </svg>
-      <span className="font-display text-xl on-dark">Adostigia</span>
+      <AkoubriMark size={36} className="akoubri-mark--on-dark" />
+      <span className="font-display text-xl on-dark">Akoubri</span>
     </span>
   );
 }

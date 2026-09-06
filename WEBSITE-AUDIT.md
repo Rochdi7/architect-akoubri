@@ -1,4 +1,4 @@
-# Adostigia — Website Audit & Technical Handoff
+# Akoubri — Website Audit & Technical Handoff
 
 > **Purpose of this document.** It has two jobs.
 > 1. A **full audit** of the site as it stands today (architecture, design system, code quality, performance, accessibility, SEO, security).
@@ -29,7 +29,7 @@ If you are an AI reading this to help with a 3D feature, here are the ten facts 
 
 ## Part 1 — What this website is
 
-**Adostigia** is a French-language marketing/portfolio site ("site vitrine") for a fictional-but-realistic Moroccan **architecture and interior design studio** based in Marrakech and Casablanca.
+**Akoubri** is a French-language marketing/portfolio site ("site vitrine") for a fictional-but-realistic Moroccan **architecture and interior design studio** based in Marrakech and Casablanca.
 
 It sells four services: architecture, interior design, **3D renderings/CGI** (`images de synthèse`), and art direction.
 
@@ -343,14 +343,14 @@ const control = isValidElement(children)
 Add to `<head>`:
 
 ```html
-<link rel="canonical" href="https://adostigia.com/" />
+<link rel="canonical" href="https://akoubri.com/" />
 <meta property="og:type"        content="website" />
-<meta property="og:site_name"   content="Adostigia" />
+<meta property="og:site_name"   content="Akoubri" />
 <meta property="og:locale"      content="fr_FR" />
-<meta property="og:title"       content="Adostigia — Cabinet d'architecture & design d'intérieur" />
+<meta property="og:title"       content="Akoubri — Cabinet d'architecture & design d'intérieur" />
 <meta property="og:description" content="Résidences, villas et espaces de travail au Maroc." />
-<meta property="og:image"       content="https://adostigia.com/media/le-sentier/sentier-05.jpg" />
-<meta property="og:url"         content="https://adostigia.com/" />
+<meta property="og:image"       content="https://akoubri.com/media/le-sentier/sentier-05.jpg" />
+<meta property="og:url"         content="https://akoubri.com/" />
 <meta name="twitter:card"       content="summary_large_image" />
 ```
 
@@ -392,7 +392,7 @@ Harmless (gzip handles it), but it's misleading scaffolding for anyone reading t
 
 ### 🟢 8. Placeholder contact details ship to production
 
-`contact@adostigia.com` and `+212 6 00 00 00 00` appear in Header, Footer, Contact, and `contact.php`. Real values must be set in **all four** before launch, and the `no-reply@` mailbox must exist in hPanel or Hostinger rejects the mail as spoofed.
+`contact@akoubri.com` and `+212 6 00 00 00 00` appear in Header, Footer, Contact, and `contact.php`. Real values must be set in **all four** before launch, and the `no-reply@` mailbox must exist in hPanel or Hostinger rejects the mail as spoofed.
 
 ### 🟢 9. Minor
 
@@ -454,7 +454,7 @@ Harmless (gzip handles it), but it's misleading scaffolding for anyone reading t
 
 ---
 
-**PROJECT CONTEXT — Adostigia architecture studio website**
+**PROJECT CONTEXT — Akoubri architecture studio website**
 
 I have a French-language architecture-studio portfolio site and I want to add 3D features. Here is the full technical context.
 

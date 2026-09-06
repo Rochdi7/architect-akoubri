@@ -1,10 +1,12 @@
 import { useMemo, useState } from 'react';
 import { projects } from '../data/projects';
 import { useReveal } from '../hooks/useReveal';
+import { useInkFill } from '../hooks/useInkFill';
 import ProjectCard from '../components/ProjectCard';
 
 export default function Projects() {
   const [filter, setFilter] = useState('Tous');
+  const ink = useInkFill({ play: true });
 
   const categories = useMemo(
     () => ['Tous', ...Array.from(new Set(projects.map((p) => p.category)))],
@@ -22,7 +24,7 @@ export default function Projects() {
       <section className="zv relative overflow-hidden pb-14 pt-32 md:pt-40">
         <div className="shell relative z-10 text-center">
           <span data-reveal className="reveal zv-subtitle">Réalisations</span>
-          <h1 data-reveal data-reveal-delay="80" className="reveal zv-h1 mt-5">
+          <h1 ref={ink} data-reveal data-reveal-delay="80" className="reveal zv-h1 mt-5">
             Projets
           </h1>
           <p

@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
+import AkoubriMark from './AkoubriMark';
 
 const nav = [
   { to: '/', label: 'Accueil', end: true },
   { to: '/projets', label: 'Projets' },
   { to: '/agence', label: 'Agence' },
   { to: '/services', label: 'Services' },
+  { to: '/journal', label: 'Journal' },
   { to: '/contact', label: 'Contact' },
 ];
 
@@ -52,9 +54,9 @@ export default function Header() {
               <div className="nav-sweep absolute left-0 top-0 h-full" />
             </div>
 
-            <Link to="/" className="relative z-10 flex items-center gap-2 pl-3" aria-label="Adostigia — accueil">
-              <Mark />
-              <span className="font-display text-lg tracking-tight">Adostigia</span>
+            <Link to="/" className="relative z-10 flex items-center gap-2 pl-3" aria-label="Akoubri — accueil">
+              <AkoubriMark size={30} />
+              <span className="font-display text-lg tracking-tight">Akoubri</span>
             </Link>
 
             <nav className="relative z-10 flex items-center gap-1">
@@ -120,10 +122,10 @@ export default function Header() {
             <Link
               to="/"
               className="absolute left-1/2 z-10 flex -translate-x-1/2 items-center gap-2"
-              aria-label="Adostigia — accueil"
+              aria-label="Akoubri — accueil"
             >
-              <Mark />
-              <span className="font-display text-[17px] tracking-tight">Adostigia</span>
+              <AkoubriMark size={30} />
+              <span className="font-display text-[17px] tracking-tight">Akoubri</span>
             </Link>
 
             <Link
@@ -176,7 +178,7 @@ export default function Header() {
             Demander un devis
           </Link>
           <div className="mt-7 space-y-1 text-sm text-ink-muted">
-            <a href="mailto:contact@adostigia.com" className="block hover:text-clay">contact@adostigia.com</a>
+            <a href="mailto:contact@akoubri.com" className="block hover:text-clay">contact@akoubri.com</a>
             <a href="tel:+212600000000" className="block hover:text-clay">+212 6 00 00 00 00</a>
           </div>
         </div>
@@ -185,12 +187,3 @@ export default function Header() {
   );
 }
 
-/* Logo mark — the triangle-in-A of the signage wall, redrawn as line art. */
-function Mark() {
-  return (
-    <svg width="26" height="26" viewBox="0 0 30 30" fill="none" aria-hidden="true">
-      <path d="M4 25L15 5l11 20" stroke="var(--clay)" strokeWidth="1.7" strokeLinejoin="round" />
-      <path d="M10 25l5-9 5 9" stroke="var(--ink)" strokeWidth="1.7" strokeLinejoin="round" />
-    </svg>
-  );
-}

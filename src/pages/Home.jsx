@@ -2,17 +2,21 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { projects, services, stats, process, testimonials, showcase, agencyFaq } from '../data/projects';
 import { useReveal } from '../hooks/useReveal';
-import ProjectCard from '../components/ProjectCard';
+import RadialMarquee from '../components/RadialMarquee';
 import Testimonials from '../components/Testimonials';
 import Showcase from '../components/Showcase';
+import { useAxonometric } from '../hooks/useAxonometric';
+import { useFloorPlates } from '../hooks/useFloorPlates';
 
 /* Home — laid out on the Zenvira reference homepage.
 
    Sections marked PROTECTED are the approved designs and are left
-   exactly as they are: Featured (Projets récents), Showcase (Les
-   espaces que vous imaginez) and Testimonials (Ce qu'en disent les
-   maîtres d'ouvrage). Everything else follows the reference order,
-   minus its testimonial and pricing blocks.                        */
+   exactly as they are: Showcase (Les espaces que vous imaginez) and
+   Testimonials (Ce qu'en disent les maîtres d'ouvrage). Featured
+   (Projets récents) was protected until 2026-09-06, when its card grid
+   was replaced by the radial wheel (RadialMarquee) at the owner's
+   request; its header row is unchanged. Everything else follows the
+   reference order, minus its testimonial and pricing blocks.       */
 export default function Home() {
   useReveal();
 
@@ -225,6 +229,7 @@ function DesignStories() {
    Dark full-width band carrying the practice figures, as the reference
    places beneath its featured projects.                                  */
 function ImpactBand() {
+  const plates = useFloorPlates();
   return (
     <section className="zv zv-dark zv-section">
       <div className="shell">
@@ -233,8 +238,9 @@ function ImpactBand() {
           <h2 className="zv-h2 mt-5">Douze ans de projets livrés</h2>
         </div>
 
-        <div className="grid grid-cols-2 gap-x-4 gap-y-10 lg:grid-cols-4 lg:gap-x-0 lg:gap-y-0">
+        <div ref={plates} className="grid grid-cols-2 gap-x-4 gap-y-10 lg:grid-cols-4 lg:gap-x-0 lg:gap-y-0 m3-plates">
           {stats.map((s, i) => (
+            <div key={s.label} className="m3-plate">
             <div
               key={s.label}
               data-reveal
@@ -245,6 +251,7 @@ function ImpactBand() {
             >
               <div className="zv-h2">{s.value}</div>
               <div className="zv-small zv-muted mt-3">{s.label}</div>
+            </div>
             </div>
           ))}
         </div>
@@ -257,6 +264,7 @@ function ImpactBand() {
    Reference layout: one tall tile on the left, two stacked on the right,
    each captioned over the image.                                         */
 function Portfolio() {
+  const axo = useAxonometric();
   return (
     <section className="zv zv-section">
       <div className="shell">
@@ -267,7 +275,9 @@ function Portfolio() {
           </h2>
         </div>
 
-        <div className="grid gap-4 lg:grid-cols-2">
+        <div ref={axo} className="m3-axo">
+        <div className="grid gap-4 lg:grid-cols-2 m3-axo-grid">
+          <div className="m3-axo-tile">
           <Link
             to="/projets/villa-bambou"
             data-reveal
@@ -287,12 +297,14 @@ function Portfolio() {
               <span className="zv-small">Maison individuelle · Marrakech</span>
             </span>
           </Link>
+          </div>
 
-          <div className="grid gap-4">
+          <div className="grid gap-4 m3-axo-grid">
             {[
               { slug: 'adostigia', src: '/media/adostigia/adostigia-16.jpg', name: 'Adostigia', meta: 'Bureau de direction · Casablanca' },
               { slug: 'zahiya', src: '/media/zahiya/zahiya-01.jpg', name: 'Zahiya', meta: 'Séjour livré · Marrakech' },
             ].map((p, i) => (
+              <div key={p.slug} className="m3-axo-tile">
               <Link
                 key={p.slug}
                 to={`/projets/${p.slug}`}
@@ -314,8 +326,10 @@ function Portfolio() {
                   <span className="zv-small">{p.meta}</span>
                 </span>
               </Link>
+              </div>
             ))}
           </div>
+        </div>
         </div>
       </div>
     </section>
@@ -445,11 +459,12 @@ function Featured() {
           </Link>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:gap-8">
-          {projects.map((p, i) => (
-            <ProjectCard key={p.slug} project={p} delay={(i % 2) * 90} />
-          ))}
-        </div>
+      </div>
+
+      {/* Full-bleed on purpose: the wheel is clipped by the section's edges,
+          not the shell's, so the leaning outer cards run off the viewport. */}
+      <div data-reveal data-reveal-delay="140" className="reveal">
+        <RadialMarquee projects={projects} />
       </div>
     </section>
   );

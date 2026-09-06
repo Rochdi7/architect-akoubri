@@ -1068,3 +1068,382 @@ select.zv-field:open {
 
 /* Focus ring inside themed sections follows the primary, not clay. */
 .zv :focus-visible { outline-color: var(--zv-primary); }
+
+/* ── GSAP 3D motion layer — additive, safe to delete ────────── */
+/* Wrappers introduced around existing markup so GSAP never animates an
+   element that useReveal already owns. Every rule here is invisible at
+   rest: perspective and transform-style change nothing until a child is
+   transformed, and the edge ring sits at opacity 0 until GSAP raises the
+   custom property. Delete this block and the wrappers become plain divs. */
+
+/* I. L'axonométrie — home portfolio mosaic */
+.m3-axo { perspective: 1400px; }
+.m3-axo-grid { transform-style: preserve-3d; }
+/* display: grid keeps the tall left tile on its stretch chain: the wrapper
+   stretches to the outer grid row and the Link stretches to the wrapper, so
+   the image's h-full resolves exactly as it did when the Link was the item. */
+.m3-axo-tile {
+  position: relative;
+  display: grid;
+  transform-style: preserve-3d;
+}
+.m3-axo-tile::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--zv-border);
+  border-radius: 26px 26px 0 0;
+  opacity: var(--m3-edge, 0);
+  pointer-events: none;
+}
+
+/* II. Les plateaux — dark stats band */
+.m3-plates { perspective: 1400px; }
+
+/* L'encrage — a heading inked in on scroll (useInkFill). The word spans and
+   the .m3-ink-on class exist only while the scene is live. Only the word
+   currently mid-fill carries .m3-ink-p and the clip-to-text gradient;
+   --m3-ink is its fill, 0% (pencil grey) → 100% (the heading's colour). */
+.m3-ink-on .m3-ink-w.m3-ink-p {
+  background-image: linear-gradient(
+    90deg,
+    currentColor var(--m3-ink, 0%),
+    var(--zv-gray-100) var(--m3-ink, 0%)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Le tracé — the journey timeline's ink line (useTrace). Sits exactly on the
+   existing hairline (left 19px, top .75rem, bottom 3rem) between the rule
+   (-z-10) and the markers (z-10). Decorative: scaleY(0) until drawn. */
+.m3-trace {
+  position: absolute;
+  left: 19px;
+  top: 0.75rem;
+  bottom: 3rem;
+  width: 1px;
+  z-index: 0;
+  background: var(--zv-primary);
+  transform: scaleY(0);
+  transform-origin: top center;
+  pointer-events: none;
+}
+
+/* Radial marquee — recent projects on a turning wheel (RadialMarquee.jsx).
+   Lives in the System A "Projets récents" section, so it uses the global
+   clay tokens (--ink, --paper, --sand-deep). The wheel is a circle of
+   radius R = N·(card + gap)/2π so N cards tile the rim with a gap of ground
+   between neighbours — about a third of a card on desktop, so three cards
+   read as separate sheets with the outer two cut by the viewport; each
+   slot is pinned at the rim's top and rotated about the wheel's centre.
+   Twenty slots put neighbours 18° apart on a flat, wide arc. */
+.m3-radial {
+  --m3-radial-n: 20;
+  --m3-radial-w: 380px;
+  --m3-radial-gap: 115px;
+  --m3-radial-r: calc(
+    var(--m3-radial-n) * (var(--m3-radial-w) + var(--m3-radial-gap)) / 6.2832
+  );
+  position: relative;
+  height: 600px;
+  overflow: clip;
+}
+.m3-radial__wheel {
+  position: absolute;
+  left: 50%;
+  top: 16px;
+  width: calc(var(--m3-radial-r) * 2);
+  height: calc(var(--m3-radial-r) * 2);
+  margin-left: calc(var(--m3-radial-r) * -1);
+  border-radius: 50%;
+  animation: m3-spin 110s linear infinite;
+  will-change: transform;
+}
+.m3-radial__wheel.is-paused,
+.m3-radial__wheel:has(.m3-radial__card:hover),
+.m3-radial__wheel:has(.m3-radial__card:focus-visible) {
+  animation-play-state: paused;
+}
+@keyframes m3-spin {
+  to { transform: rotate(-360deg); }
+}
+.m3-radial__slot {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: var(--m3-radial-w);
+  margin-left: calc(var(--m3-radial-w) / -2);
+  transform-origin: 50% var(--m3-radial-r);
+  transform: rotate(calc(var(--i) * 360deg / var(--m3-radial-n)));
+}
+.m3-radial__card {
+  display: block;
+  padding: 10px;
+  border-radius: 20px;
+  background: var(--ink);
+  color: var(--paper);
+  text-decoration: none;
+  outline-offset: 4px;
+}
+.m3-radial__card img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  border-radius: 12px;
+  transition: transform 700ms var(--ease-arch);
+}
+.m3-radial__card:hover img { transform: scale(1.03); }
+.m3-radial__caption {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 6px 4px;
+  font-family: var(--font-body);
+}
+.m3-radial__name {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  font-size: 1.125rem;
+  line-height: 1.2;
+}
+.m3-radial__meta {
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  opacity: 0.7;
+}
+@media (max-width: 1023px) {
+  .m3-radial { --m3-radial-w: 300px; --m3-radial-gap: 80px; height: 480px; }
+}
+@media (max-width: 640px) {
+  /* Smaller gap on a phone so the neighbours still peek in at the edges. */
+  .m3-radial { --m3-radial-w: 250px; --m3-radial-gap: 40px; height: 300px; }
+  .m3-radial__wheel { top: 8px; }
+  .m3-radial__name { font-size: 1rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .m3-radial__wheel { animation: none; will-change: auto; }
+  .m3-radial__card img { transition: none; }
+}
+
+/* backface-visibility is deliberately not set here: the scenes apply it
+   together with will-change when a move starts and clear both when it ends,
+   so no tile is promoted to its own compositing layer while it sits still —
+   the same set pieces run on phones, where that memory matters most. */
+/* ── end GSAP 3D motion layer ───────────────────────────────── */
+
+/* ── Journal card typography ───────────────────────────────────
+   The display face is condensed and uppercase, so a headline set at the
+   h5/h3 scale reads far larger inside a card than the same size does as
+   a section title with a full column to breathe in. These sizes are
+   scoped to the journal cards only, so the global scale is untouched.
+
+   The grid title tracks the card width rather than the viewport: three
+   columns on a wide screen give each card ~380px, so a viewport-based
+   clamp overshoots. Line-clamp caps the tallest headline at three lines
+   so the meta row stays on a common baseline across a row of cards.
+
+   The selector is doubled deliberately: the card title is an <h3> inside
+   .zv, so `.zv h3` (0,1,1) outranks a lone class (0,1,0) and would keep
+   forcing the 52px h3 size. Doubling wins without an !important. */
+.zv-card-title.zv-card-title {
+  font-size: clamp(1.0625rem, 0.95rem + 0.45vw, 1.3125rem); /* 17 → 21px */
+  line-height: 1.2;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+}
+
+/* Featured lead post: one wide card, so it carries more size than the
+   grid cards — but well under the h3 it used to borrow. */
+.zv-card-title--featured.zv-card-title--featured {
+  font-size: clamp(1.375rem, 1.05rem + 1.35vw, 2.125rem); /* 22 → 34px */
+  line-height: 1.12;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+}
+
+@media (max-width: 640px) {
+  .zv-card-title.zv-card-title { font-size: 1.125rem; }                       /* 18px */
+  .zv-card-title--featured.zv-card-title--featured { font-size: 1.375rem; }   /* 22px */
+}
+
+/* ── Image lightbox ────────────────────────────────────────────
+   The backdrop carries the perspective, so the panel inside swings on a
+   real 3D axis rather than a flat scale. Transitions rather than GSAP:
+   the lightbox opens on a click and must not wait for the lazy motion
+   chunk to become visible. */
+.m3-lb {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Top padding clears the fixed close button. */
+  padding: 72px 16px 16px;
+  background: rgba(32, 41, 24, 0);
+  backdrop-filter: blur(0px);
+  perspective: 1600px;
+  transition: background 320ms ease, backdrop-filter 320ms ease;
+}
+.m3-lb.m3-lb-in {
+  background: rgba(32, 41, 24, 0.95);
+  backdrop-filter: blur(4px);
+}
+
+/* The swing itself. Starts tipped away from the reader and slightly small,
+   settles flat. transform-style keeps the figure on the same 3D plane. */
+.m3-lb__panel {
+  position: relative;
+  display: flex;
+  max-height: 100%;
+  max-width: 100%;
+  align-items: center;
+  justify-content: center;
+  transform-style: preserve-3d;
+  transform: rotateX(14deg) translateY(28px) scale(0.94);
+  opacity: 0;
+  transition:
+    transform 460ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 260ms ease;
+}
+.m3-lb-in .m3-lb__panel {
+  transform: rotateX(0deg) translateY(0) scale(1);
+  opacity: 1;
+}
+
+.m3-lb__figure { margin: 0; max-height: 100%; }
+
+.m3-lb__img {
+  display: block;
+  /* Room for the caption and, on a phone, the arrow bar below it. */
+  max-height: calc(100vh - 200px);
+  width: auto;
+  max-width: 100%;
+  border-radius: 16px;
+  object-fit: contain;
+  backface-visibility: hidden;
+}
+
+/* Paging: the new image swings in on Y from the side it travelled from.
+   The element is re-keyed per index, so this runs on mount. */
+@keyframes m3-lb-from-right {
+  from { transform: rotateY(-22deg) translateX(6%); opacity: 0; }
+  to   { transform: rotateY(0) translateX(0); opacity: 1; }
+}
+@keyframes m3-lb-from-left {
+  from { transform: rotateY(22deg) translateX(-6%); opacity: 0; }
+  to   { transform: rotateY(0) translateX(0); opacity: 1; }
+}
+.m3-lb__img.from-right {
+  animation: m3-lb-from-right var(--m3-lb-flip, 420ms) cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.m3-lb__img.from-left {
+  animation: m3-lb-from-left var(--m3-lb-flip, 420ms) cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.m3-lb__cap {
+  margin-top: 14px;
+  text-align: center;
+  font-size: var(--zv-p-sm);
+  line-height: 24px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.m3-lb__close,
+.m3-lb__nav {
+  position: absolute;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  width: 44px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #fff;
+  transition: background-color 240ms ease, color 240ms ease;
+}
+.m3-lb__close:hover,
+.m3-lb__nav:hover {
+  background: #fff;
+  color: var(--zv-primary);
+}
+/* Close on a phone rides the panel's own top-right corner, sitting just
+   above the image rather than over it — the panel is vertically centred, so
+   a viewport-pinned button would land on the photo at some viewport heights
+   and float far from it at others. From `sm` up it returns to the viewport
+   corner, where there is always margin beside the image. */
+.m3-lb__close {
+  position: absolute;
+  top: -56px;
+  right: 0;
+}
+
+/* Phone: the image is far narrower than the screen is tall, so arrows in
+   the vertical middle would land on the photo. They sit in a row under the
+   panel instead — laid out by flex, not positioned — which also puts them
+   in thumb reach. */
+.m3-lb__panel { flex-direction: column; gap: 18px; }
+.m3-lb__navrow { display: flex; justify-content: center; gap: 20px; }
+.m3-lb__nav {
+  position: static;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(4px);
+}
+
+/* Wide enough for the image to leave side margins: arrows flank it, back in
+   the vertical middle and anchored to the viewport edges. */
+@media (min-width: 640px) {
+  .m3-lb { padding: 16px; }
+  .m3-lb__img { max-height: 80vh; }
+  .m3-lb__close { position: fixed; right: 20px; top: 20px; }
+  .m3-lb__panel { flex-direction: row; gap: 0; }
+  .m3-lb__navrow { display: contents; }
+  .m3-lb__nav {
+    position: fixed;
+    top: 50%;
+    height: 48px;
+    width: 48px;
+    background: transparent;
+    backdrop-filter: none;
+  }
+  .m3-lb__nav.is-left  { left: 20px;  transform: translateY(-50%); }
+  .m3-lb__nav.is-right { right: 20px; transform: translateY(-50%); }
+}
+
+/* Anything clickable that opens the lightbox. The lift is the affordance
+   that the image is more than decoration. */
+.m3-lb-open {
+  cursor: zoom-in;
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  background: none;
+  border: 0;
+  padding: 0;
+  text-align: inherit;
+}
+.m3-lb-open img { transition: transform 700ms cubic-bezier(0.22, 1, 0.36, 1); }
+.m3-lb-open:hover img { transform: scale(1.03); }
+.m3-lb-open:focus-visible {
+  outline: 2px solid var(--zv-primary);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .m3-lb,
+  .m3-lb__panel,
+  .m3-lb__img,
+  .m3-lb-open img {
+    transition: none;
+    animation: none;
+  }
+  .m3-lb__panel { transform: none; opacity: 1; }
+  .m3-lb-open:hover img { transform: none; }
+}
