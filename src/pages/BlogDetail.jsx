@@ -214,7 +214,7 @@ function Body({ blocks, onOpen }) {
   let imgIndex = 0;
 
   return (
-    <div className="space-y-6">
+    <div className="zv-prose">
       {blocks.map((block, i) => {
         switch (block.kind) {
           case 'h2': {
@@ -224,7 +224,7 @@ function Body({ blocks, onOpen }) {
                 key={i}
                 id={`section-${h2Index}`}
                 data-reveal
-                className="reveal zv-h4 scroll-mt-28 pt-6"
+                className="reveal zv-h4 scroll-mt-28"
               >
                 {block.text}
               </h2>
@@ -240,7 +240,7 @@ function Body({ blocks, onOpen }) {
 
           case 'list':
             return (
-              <ul key={i} data-reveal className="reveal space-y-3 py-2">
+              <ul key={i} data-reveal className="reveal space-y-3">
                 {block.items.map((item) => (
                   <li key={item} className="zv-body zv-muted flex items-start gap-4">
                     <span className="mt-[0.7em] h-px w-4 shrink-0 bg-[var(--zv-primary)]" />
@@ -255,7 +255,7 @@ function Body({ blocks, onOpen }) {
               <blockquote
                 key={i}
                 data-reveal
-                className="reveal my-4 border-l-2 border-[var(--zv-primary)] py-2 pl-6"
+                className="reveal border-l-2 border-[var(--zv-primary)] py-2 pl-6"
               >
                 <p className="zv-h5">{block.text}</p>
               </blockquote>
@@ -265,7 +265,7 @@ function Body({ blocks, onOpen }) {
             imgIndex += 1;
             const at = imgIndex;
             return (
-              <figure key={i} data-reveal className="reveal my-8">
+              <figure key={i} data-reveal className="reveal">
                 <button
                   type="button"
                   onClick={() => onOpen(at)}

@@ -31,7 +31,7 @@ export default function Blog() {
   return (
     <>
       {/* Banner */}
-      <section className="zv relative overflow-hidden pb-14 pt-32 md:pt-40">
+      <section className="zv relative overflow-hidden pb-4 pt-32 md:pb-6 md:pt-40">
         <div className="shell relative z-10 text-center">
           <span data-reveal className="reveal zv-subtitle">Journal</span>
           <h1 ref={ink} data-reveal data-reveal-delay="80" className="reveal zv-h1 mt-5">
@@ -67,16 +67,16 @@ export default function Blog() {
       </section>
 
       {/* Grid */}
-      <section className="zv zv-alt py-14 md:py-20">
+      <section className="zv zv-alt zv-section">
         <div className="shell">
           {featured && (
-            <div className="mb-6 lg:mb-8">
+            <div className="mb-5">
               <PostCard post={featured} featured />
             </div>
           )}
 
           {rest.length > 0 && (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 lg:gap-8">
+            <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
               {rest.map((p, i) => (
                 <PostCard key={p.slug} post={p} delay={(i % 3) * 80} />
               ))}

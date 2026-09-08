@@ -361,6 +361,53 @@
    The title used to render at the h3 size by mistake; at its correct 24px
    the old 24px gap under the disc read as cramped, so the rhythm is
    restated here rather than inherited from that accident. */
+/* ── Long-form prose rhythm ────────────────────────────────────
+   Article bodies (journal posts) need a hierarchy a single space-y gap
+   cannot give: a heading opening a new section should breathe more than a
+   paragraph continuing one, and a full-width figure more than either.
+   Each block owns its top margin; the first child never adds one, so the
+   body starts flush with whatever sits above it. */
+.zv-prose > * { margin-top: 24px; }
+.zv-prose > *:first-child { margin-top: 0; }
+
+/* A heading starts a new section, so it gets the largest step — and its own
+   copy follows tighter than the gap above it, binding title to text. */
+.zv-prose > h2,
+.zv-prose > h3 { margin-top: 52px; }
+.zv-prose > h2 + *,
+.zv-prose > h3 + * { margin-top: 16px; }
+
+/* Figures and pull quotes are set pieces: they interrupt the column, so
+   they stand clear of the paragraphs either side. */
+.zv-prose > figure { margin-top: 40px; }
+.zv-prose > figure + * { margin-top: 40px; }
+.zv-prose > blockquote { margin-top: 36px; }
+.zv-prose > blockquote + * { margin-top: 36px; }
+
+/* A heading still opens a section even when a set piece precedes it, so it
+   keeps the heading step rather than inheriting the figure's. */
+.zv-prose > figure + h2,
+.zv-prose > figure + h3,
+.zv-prose > blockquote + h2,
+.zv-prose > blockquote + h3 { margin-top: 52px; }
+
+/* A list belongs to the sentence that introduced it. */
+.zv-prose > ul,
+.zv-prose > ol { margin-top: 20px; }
+
+@media (max-width: 640px) {
+  .zv-prose > h2,
+  .zv-prose > h3 { margin-top: 40px; }
+  .zv-prose > figure,
+  .zv-prose > figure + * { margin-top: 32px; }
+  .zv-prose > blockquote,
+  .zv-prose > blockquote + * { margin-top: 28px; }
+  .zv-prose > figure + h2,
+  .zv-prose > figure + h3,
+  .zv-prose > blockquote + h2,
+  .zv-prose > blockquote + h3 { margin-top: 40px; }
+}
+
 /* ── Icon card rhythm ──────────────────────────────────────────
    The icon-chip cards (convictions, services, process) all want the same
    vertical rhythm: one gap between the chip and the title, a tighter one

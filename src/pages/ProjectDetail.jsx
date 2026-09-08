@@ -85,12 +85,12 @@ export default function ProjectDetail() {
             </div>
 
             {/* ── Right: stacked media and the project text ── */}
-            <div className="flex flex-col">
+            <div className="flex flex-col gap-4">
               <button
                 type="button"
                 onClick={() => setLightbox(0)}
                 data-reveal
-                className="mask-reveal zv-panel-media group relative mb-4"
+                className="mask-reveal zv-panel-media group relative"
                 aria-label={`Agrandir la vue principale de ${project.name}`}
               >
                 <img
@@ -115,7 +115,7 @@ export default function ProjectDetail() {
               ))}
 
               {/* Rich text — the reference sets an H5 above the paragraphs. */}
-              <div data-reveal className="reveal my-8 md:my-14">
+              <div data-reveal className="reveal py-6 md:py-10">
                 <h2 className="zv-h5">{project.subtitle} · {project.location}</h2>
                 <div className="mt-4 space-y-5">
                   {project.body.map((para, i) => (
@@ -133,7 +133,6 @@ export default function ProjectDetail() {
                   index={i + lead.length}
                   name={project.name}
                   onOpen={setLightbox}
-                  last={i === rest.length - 1}
                 />
               ))}
             </div>
@@ -171,14 +170,14 @@ export default function ProjectDetail() {
 }
 
 /* One image in the right-hand stack. Top-rounded, opens the lightbox. */
-function GalleryTile({ src, index, name, onOpen, last }) {
+function GalleryTile({ src, index, name, onOpen }) {
   return (
     <button
       type="button"
       onClick={() => onOpen(index + 1)}
       data-reveal
       data-reveal-delay={(index % 3) * 70}
-      className={`reveal zv-panel-media group relative ${last ? '' : 'mb-4'}`}
+      className="reveal zv-panel-media group relative"
       aria-label={`Agrandir la vue ${index + 2} de ${name}`}
     >
       <img
