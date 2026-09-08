@@ -11,9 +11,11 @@ import { Link } from 'react-router-dom';
    faster: the script scales the animation's playbackRate with scroll speed
    and lets it ease back to 1.
 
-   Four projects fill twenty slots; the sixteen repeats are aria-hidden with
+   Four projects fill eight slots; the four repeats are aria-hidden with
    their links out of the tab order, so assistive tech and the keyboard see
-   four projects, not twenty. Images are deliberately not lazy: the wheel is
+   four projects, not eight. Eight is also what the phone's depth cylinder
+   needs: fewer slots means a bigger angular step, so neighbours do not
+   overlap once they are ringed around it. Images are deliberately not lazy: the wheel is
    a transformed track, so a frame in the hidden half never intersects the
    viewport and a lazy image there would only load as it swung into view.
    Four unique files are fetched; the repeats hit the cache.

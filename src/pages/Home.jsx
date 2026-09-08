@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { projects, services, stats, process, testimonials, showcase, agencyFaq } from '../data/projects';
+import Accordion from '../components/Accordion';
 import { useReveal } from '../hooks/useReveal';
 import RadialMarquee from '../components/RadialMarquee';
+import ContactForm from '../components/ContactForm';
 import Testimonials from '../components/Testimonials';
 import Showcase from '../components/Showcase';
 import { useAxonometric } from '../hooks/useAxonometric';
@@ -34,6 +36,7 @@ export default function Home() {
       <Testimonials items={testimonials} />  {/* PROTECTED         */}
       <Process />
       <Faq />
+      <GetInTouch />
     </>
   );
 }
@@ -231,26 +234,33 @@ function DesignStories() {
 function ImpactBand() {
   const plates = useFloorPlates();
   return (
-    <section className="zv zv-dark zv-section">
+    <section className="zv zv-dark zv-section zv-stat-band">
       <div className="shell">
-        <div data-reveal className="reveal mb-14 max-w-[540px]">
+        <div data-reveal className="reveal mb-9 max-w-[540px] lg:mb-14">
           <span className="zv-subtitle">En chiffres</span>
-          <h2 className="zv-h2 mt-5">Douze ans de projets livrés</h2>
+          <h2 className="zv-h2 mt-4 lg:mt-5">Douze ans de projets livrés</h2>
         </div>
 
-        <div ref={plates} className="grid grid-cols-2 gap-x-4 gap-y-10 lg:grid-cols-4 lg:gap-x-0 lg:gap-y-0 m3-plates">
+        {/* On phones the four figures read as a 2×2 table: a single hairline
+            cross drawn by the grid's own gap (zv-stat-grid) replaces the
+            per-item left borders, which only ever landed on the right column
+            and left the block looking lopsided. From lg the reference's row
+            of four with dividers between them takes over. */}
+        <div
+          ref={plates}
+          className="zv-stat-grid grid grid-cols-2 lg:grid-cols-4 lg:gap-x-0 lg:gap-y-0 m3-plates"
+        >
           {stats.map((s, i) => (
             <div key={s.label} className="m3-plate">
             <div
-              key={s.label}
               data-reveal
               data-reveal-delay={i * 80}
-              className={`reveal px-0 lg:px-8 ${
-                i % 2 === 1 ? 'border-l border-[var(--zv-border-dark)]' : ''
-              } ${i > 0 ? 'lg:border-l lg:border-[var(--zv-border-dark)]' : 'lg:border-l-0 lg:pl-0'}`}
+              className={`reveal zv-stat px-0 lg:px-8 ${
+                i > 0 ? 'lg:border-l lg:border-[var(--zv-border-dark)]' : 'lg:border-l-0 lg:pl-0'
+              }`}
             >
-              <div className="zv-h2">{s.value}</div>
-              <div className="zv-small zv-muted mt-3">{s.label}</div>
+              <div className="zv-stat-value">{s.value}</div>
+              <div className="zv-small zv-muted zv-stat-label">{s.label}</div>
             </div>
             </div>
           ))}
@@ -399,25 +409,80 @@ function Faq() {
           </div>
         </div>
 
-        <div className="space-y-4">
-          {agencyFaq.slice(0, 5).map((f, i) => (
-            <details
-              key={f.q}
-              data-reveal
-              data-reveal-delay={i * 60}
-              className="reveal zv-accordion group"
-            >
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-4 sm:gap-5 sm:p-6">
-                <span className="zv-h5">{f.q}</span>
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[var(--zv-border)] transition-transform duration-300 ease-arch group-open:rotate-180 sm:h-9 sm:w-9">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <path d="m6 9 6 6 6-6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </span>
-              </summary>
-              <p className="zv-body zv-muted px-6 pb-6">{f.a}</p>
-            </details>
-          ))}
+        <Accordion
+          items={agencyFaq.slice(0, 5)}
+          summaryClass="flex cursor-pointer list-none items-center justify-between gap-3 p-4 sm:gap-5 sm:p-6"
+          renderIcon={() => (
+            <span className="zv-acc-icon zv-acc-icon-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[var(--zv-border)] sm:h-9 sm:w-9">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="m6 9 6 6 6-6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </span>
+          )}
+        />
+      </div>
+    </section>
+  );
+}
+
+/* ── Get in touch ───────────────────────────────────────────────────────
+   The enquiry band that closes the page, above the footer. Reference
+   layout: the form centred in its own column with project cards tilted
+   into the margins on either side.
+
+   The flanking cards are decoration, so they are aria-hidden and sit
+   behind the form (pointer-events: none) — they must never intercept a tap
+   meant for a field. Below lg there is no margin to put them in, so they
+   are dropped entirely rather than stacked: on a phone the form is the
+   whole point of the section. */
+function GetInTouch() {
+  const flank = projects.slice(0, 4);
+
+  return (
+    <section className="zv zv-section relative overflow-hidden">
+      {/* Decorative flanking cards — desktop only. */}
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 hidden lg:block">
+        {flank.map((p, i) => (
+          <figure
+            key={p.slug}
+            className={`absolute w-[220px] overflow-hidden rounded-2xl bg-white p-3 shadow-[0_18px_50px_rgba(28,25,23,0.10)] xl:w-[280px] ${
+              [
+                'left-0 top-[12%] -rotate-[4deg] xl:left-[3%]',
+                'right-0 top-[10%] rotate-[4deg] xl:right-[3%]',
+                'left-0 bottom-[8%] rotate-[3deg] xl:left-[3%]',
+                'right-0 bottom-[6%] -rotate-[3deg] xl:right-[3%]',
+              ][i]
+            }`}
+          >
+            <figcaption className="mb-2 px-1 font-display text-sm uppercase tracking-tight">
+              {p.name}
+            </figcaption>
+            <img
+              src={p.cover}
+              alt=""
+              width="600"
+              height="400"
+              loading="lazy"
+              className="block aspect-[3/2] w-full rounded-xl object-cover"
+            />
+          </figure>
+        ))}
+      </div>
+
+      <div className="shell relative">
+        <div className="mx-auto max-w-[560px]">
+          <div data-reveal className="reveal text-center">
+            <span className="zv-subtitle">Parlons-en</span>
+            <h2 className="zv-h2 mt-5">Démarrons votre projet</h2>
+            <p className="zv-body zv-muted mx-auto mt-4 max-w-md">
+              Décrivez-nous le terrain, le programme et l&apos;échéance. Nous
+              revenons vers vous sous 48&nbsp;heures ouvrées.
+            </p>
+          </div>
+
+          <div data-reveal data-reveal-delay="120" className="reveal mt-10">
+            <ContactForm compact submitLabel="Envoyer" />
+          </div>
         </div>
       </div>
     </section>
@@ -447,14 +512,14 @@ function ValueIcon({ i }) {
 
 function Featured() {
   return (
-    <section className="section-y bg-[var(--sand)]">
+    <section className="section-y bg-[var(--sand)] max-lg:pb-12">
       <div className="shell">
-        <div className="mb-12 flex flex-wrap items-end justify-between gap-6">
+        <div className="mb-5 flex flex-wrap items-end justify-between gap-x-4 gap-y-3 sm:mb-12 sm:gap-6">
           <div data-reveal className="reveal">
             <span className="eyebrow">Sélection</span>
             <h2 className="display-md mt-6">Projets récents</h2>
           </div>
-          <Link data-reveal data-reveal-delay="100" to="/projets" className="reveal btn btn-ghost">
+          <Link data-reveal data-reveal-delay="100" to="/projets" className="reveal btn btn-ghost shrink-0">
             Tous les projets
           </Link>
         </div>
@@ -485,14 +550,14 @@ function Services() {
               key={s.n}
               data-reveal
               data-reveal-delay={i * 80}
-              className="reveal zv-card"
+              className="reveal zv-card zv-icon-card"
             >
               <span className="zv-icon">
                 <span className="zv-h6 leading-none">{s.n}</span>
               </span>
-              <h3 className="zv-h4 mt-6">{s.title}</h3>
-              <p className="zv-body zv-muted mt-3">{s.text}</p>
-              <ul className="mt-7 space-y-3 border-t border-[var(--zv-border)] pt-6">
+              <h3 className="zv-h4">{s.title}</h3>
+              <p className="zv-body zv-muted">{s.text}</p>
+              <ul className="space-y-3 border-t border-[var(--zv-border)] pt-6">
                 {s.points.map((pt) => (
                   <li key={pt} className="zv-small zv-muted flex items-center gap-3">
                     <span className="h-px w-4 shrink-0 bg-[var(--zv-primary)]" />
@@ -522,13 +587,13 @@ function Process() {
               key={s.n}
               data-reveal
               data-reveal-delay={i * 90}
-              className="reveal zv-card"
+              className="reveal zv-card zv-icon-card zv-icon-card--start"
             >
               <span className="zv-icon">
                 <span className="zv-h6 leading-none">{s.n}</span>
               </span>
-              <h3 className="zv-h5 mt-6">{s.title}</h3>
-              <p className="zv-small zv-muted mt-3">{s.text}</p>
+              <h3 className="zv-h5">{s.title}</h3>
+              <p className="zv-small zv-muted">{s.text}</p>
             </div>
           ))}
         </div>

@@ -102,16 +102,16 @@ export default function AkoubriMark({ size = 30, className = '', title = 'Akoubr
                 {/* COPPER A */}
         <g mask={`url(#${uid}-akRevealA)`}>
           <g mask={`url(#${uid}-akKeyline)`}><g clipPath={`url(#${uid}-akCopperCut)`}>
-            <path d="M445.5 274.6 L489.5 274.6 L616 500 L535 500 L467.8 373.7 L323.5 634.7 L249.3 634.7 Z" fill="#C78E69"/>
+            <path d="M445.5 274.6 L489.5 274.6 L616 500 L535 500 L467.8 373.7 L323.5 634.7 L249.3 634.7 Z" fill="#c58b66"/>
           </g></g>
         </g>
         {/* SOLID NAVY LEG (sits UNDER the band; stripes run across it) */}
         <g mask={`url(#${uid}-akRevealLeg)`}>
-          <g mask={`url(#${uid}-akKeyline)`}><path d="M513.2 450 L591.3 450 L692.9 634.7 L614.8 634.7 Z" fill="#10243F"/></g>
+          <g mask={`url(#${uid}-akKeyline)`}><path d="M513.2 450 L591.3 450 L692.9 634.7 L614.8 634.7 Z" fill="#0f243e"/></g>
         </g>
         {/* STRIPED BAND */}
         <g mask={`url(#${uid}-akRevealBand)`}>
-          <g mask={`url(#${uid}-akBandHoles)`}><path d="M638.3 276 C596 335, 545 411, 513 448 C490 476, 445 505, 394 533 C480 508, 570 476, 592 448 C618 412, 672 335, 712.5 276 Z" fill="#10243F"/></g>
+          <g mask={`url(#${uid}-akBandHoles)`}><path d="M638.3 276 C596 335, 545 411, 513 448 C490 476, 445 505, 394 533 C480 508, 570 476, 592 448 C618 412, 672 335, 712.5 276 Z" fill="#0f243e"/></g>
         </g>
     </svg>
   );

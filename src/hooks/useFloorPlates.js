@@ -49,7 +49,7 @@ function build({ gsap, mm, scope, ease }) {
   mm.add(CONDITIONS, ({ conditions: { motion } }) => {
     if (!motion) return;
 
-    const counters = plates.map((p) => makeCounter(p.querySelector('.zv-h2')));
+    const counters = plates.map((p) => makeCounter(p.querySelector('.zv-stat-value')));
 
     const tl = gsap.timeline({
       defaults: { ease, duration: 1.1 },

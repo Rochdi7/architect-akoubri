@@ -15,33 +15,44 @@
 :root {
   /* ── Palette ──────────────────────────────────────────────────
      The nine swatches of the reference style-guide, in order. It is
-     a single ordered ramp from the darkest olive to white, which is
+     a single ordered ramp from the darkest navy to white, which is
      what makes it read as a system: every surface, rule and text
      tone on the site is one of these steps, never an ad-hoc tint.
 
-       1  #202918  primary      darkest — text, dark bands, buttons
-       2  #34402c  muted        secondary text, graph accents
-       3  #4b5243  border-dark  rules on dark ground
-       4  #646662  gray-400     placeholder / meta text
-       5  #a1a49a  gray-100     de-emphasised display text
-       6  #cccbc2  border-light rules on light ground
-       7  #ede9df  gray-50      panels, alt bands
+     Step 1 is the logo navy exactly; steps 2-6 walk that hue up toward
+     the paper ground, so the rules and muted text read as lighter navy
+     rather than as gray dropped in from another palette.
+
+       1  #0f243e  primary      darkest — text, dark bands, buttons
+       2  #24405f  muted        secondary text, graph accents
+       3  #3d5570  border-dark  rules on dark ground
+       4  #64748b  gray-400     placeholder / meta text
+       5  #a0aab8  gray-100     de-emphasised display text
+       6  #cbd0d8  border-light rules on light ground
+       7  #ece9e3  gray-50      panels, alt bands
        8  #f7f4ec  body         page ground
-       9  #ffffff  white        cards                              */
-  --zv-primary: #202918;
-  --zv-muted: #34402c;
-  --zv-border-dark: #4b5243;
-  --zv-gray-400: #646662;
-  --zv-gray-100: #a1a49a;
-  --zv-border: #cccbc2;
-  --zv-bg-alt: #ede9df;
+       9  #ffffff  white        cards
+
+     Copper, the logo's second colour, is not a step on this ramp — it is
+     the single accent, held to the same value as index.css's --clay so
+     both stylesheets tint from one source. */
+  --zv-primary: #0f243e;
+  --zv-muted: #24405f;
+  --zv-border-dark: #3d5570;
+  --zv-gray-400: #64748b;
+  --zv-gray-100: #a0aab8;
+  --zv-border: #cbd0d8;
+  --zv-bg-alt: #ece9e3;
   --zv-bg: #f7f4ec;
   --zv-white: #ffffff;
 
-  /* `--secondary` in the reference is #a5a89e — a near-duplicate of
-     gray-100, used only for text on dark bands. Kept as an alias so
-     existing rules keep working. */
-  --zv-secondary: #a5a89e;
+  --zv-accent: #c58b66;
+  --zv-accent-deep: #a66a45;
+
+  /* `--secondary` in the reference is a near-duplicate of gray-100, used
+     only for text on dark bands. Kept as an alias so existing rules keep
+     working; retinted to the navy ramp. */
+  --zv-secondary: #a3adba;
 
   /* Type families.
      Display is Fjalla One, not the reference's Bayon: Bayon ships no
@@ -130,15 +141,40 @@
   letter-spacing: 0;
   text-transform: uppercase;
   color: inherit;
+  /* NB: this beats a Tailwind `mt-*` on the same element — (0,1,1) vs
+     (0,1,0), and it is emitted after the utilities besides. Space around
+     a .zv heading therefore has to come from the parent (a flex `gap`, or
+     a rule like .zv-icon-card below), never from a margin utility. */
   margin: 0;
+  /* A single long word — DÉVELOPPEMENT, RÉHABILITATION — has no break
+     opportunity, so in a narrow card it escapes the padding box rather
+     than wrapping. Allow a mid-word break as the last resort only: normal
+     inter-word wrapping is tried first, so ordinary titles are unaffected. */
+  overflow-wrap: break-word;
 }
 
-.zv h1, .zv-h1 { font-size: var(--zv-h1); line-height: 1; }
-.zv h2, .zv-h2 { font-size: var(--zv-h2); line-height: 1.14; }
-.zv h3, .zv-h3 { font-size: var(--zv-h3); line-height: 1.15; }
-.zv h4, .zv-h4 { font-size: var(--zv-h4); line-height: 1.13; }
-.zv h5, .zv-h5 { font-size: var(--zv-h5); line-height: 1.33; }
-.zv h6, .zv-h6 { font-size: var(--zv-h6); line-height: 1.4; }
+/* Tag selectors set the default size for an unclassed heading. */
+.zv h1 { font-size: var(--zv-h1); line-height: 1; }
+.zv h2 { font-size: var(--zv-h2); line-height: 1.14; }
+.zv h3 { font-size: var(--zv-h3); line-height: 1.15; }
+.zv h4 { font-size: var(--zv-h4); line-height: 1.13; }
+.zv h5 { font-size: var(--zv-h5); line-height: 1.33; }
+.zv h6 { font-size: var(--zv-h6); line-height: 1.4; }
+
+/* An explicit .zv-hN class overrides that default, and the selector is
+   doubled so it can. `.zv h3` is (0,1,1) and a lone `.zv-h5` is (0,1,0),
+   so the tag used to win every time the two disagreed — an <h3 class="zv-h5">
+   silently rendered at the 52px h3 size, not the 24px it asked for. That is
+   how "DÉVELOPPEMENT" came to overflow its process card. Heading level is a
+   document-structure decision and size is a visual one; these selectors let
+   the two be chosen independently, which is the whole point of the classes.
+   Same technique as .zv-card-title further down. */
+.zv-h1.zv-h1 { font-size: var(--zv-h1); line-height: 1; }
+.zv-h2.zv-h2 { font-size: var(--zv-h2); line-height: 1.14; }
+.zv-h3.zv-h3 { font-size: var(--zv-h3); line-height: 1.15; }
+.zv-h4.zv-h4 { font-size: var(--zv-h4); line-height: 1.13; }
+.zv-h5.zv-h5 { font-size: var(--zv-h5); line-height: 1.33; }
+.zv-h6.zv-h6 { font-size: var(--zv-h6); line-height: 1.4; }
 
 /* ── Body copy ─────────────────────────────────────────────────── */
 .zv-lead {
@@ -316,9 +352,136 @@
   color: var(--zv-primary);
 }
 
+/* ── Numbered step card ────────────────────────────────────────
+   Disc, title, then copy. Laid out as a flex column so the gaps are
+   owned by the parent — margin utilities cannot reach the <h3> (see the
+   heading reset above), and a gap keeps the three parts on one rhythm
+   rather than three unrelated margins.
+
+   The title used to render at the h3 size by mistake; at its correct 24px
+   the old 24px gap under the disc read as cramped, so the rhythm is
+   restated here rather than inherited from that accident. */
+/* ── Icon card rhythm ──────────────────────────────────────────
+   The icon-chip cards (convictions, services, process) all want the same
+   vertical rhythm: one gap between the chip and the title, a tighter one
+   binding the title to its copy. Written as a flex column with a single
+   gap rather than per-element mt-6/mt-3 utilities, which made the chip
+   float away from the title while the copy crowded it.
+
+   Cards also stretch to the row height, so a short card and a long one
+   in the same row end with the same padding under the last line instead
+   of the ragged bottoms that come from letting each card size itself. */
+.zv-icon-card {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  height: 100%;
+}
+
+/* The copy belongs to the title, so it sits closer than the chip gap. */
+.zv-icon-card > p { margin-top: -8px; }
+
+/* A trailing list is a separate block again: it gets its own rule and the
+   full gap above it, so the card reads chip / title+copy / detail. */
+.zv-icon-card > ul { margin-top: auto; }
+
+.zv-icon-card--center { align-items: center; }
+.zv-icon-card--start { align-items: flex-start; }
+
+@media (min-width: 768px) {
+  .zv-icon-card { gap: 22px; }
+}
+
 /* ── Rules, media & inputs ─────────────────────────────────────── */
 .zv-rule { height: 1px; background: var(--zv-border); border: 0; }
 .zv-dark .zv-rule { background: var(--zv-border-dark); }
+
+/* The figures keep the display face they inherited from .zv-h2 before they
+   had a class of their own — this is not breakpoint-specific, so it sits
+   outside the phone-only block below. */
+.zv-stat-value {
+  font-family: var(--zv-display);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0;
+}
+
+/* ── Impact band figures ───────────────────────────────────────
+   Phone layout is a 2x2 table. The dividing rules are drawn per cell —
+   a left border on the right-hand column, a bottom border on the top row —
+   so the cross spans only the space between the four figures instead of
+   bleeding past them the way a painted grid gap does. The old markup put a
+   border on items 2 and 4 only, which left the block looking lopsided. */
+@media (max-width: 1023px) {
+  .zv-stat-grid {
+    column-gap: 0;
+    row-gap: 0;
+  }
+
+  /* Plates stretch so both cells in a row share the taller one's height and
+     the vertical rule runs the full row. */
+  .zv-stat-grid > * { display: flex; }
+  .zv-stat-grid > * > * { flex: 1; }
+
+  /* Padding lives inside the cell, so the air sits between the rule and the
+     number rather than between the rules. */
+  .zv-stat {
+    height: 100%;
+    padding: 0 20px 26px 0;
+  }
+
+  .zv-stat-grid > *:nth-child(even) .zv-stat {
+    padding-right: 0;
+    padding-left: 20px;
+    border-left: 1px solid var(--zv-border-dark);
+  }
+
+  /* Equal air either side of the horizontal rule. The bottom row does not
+     stretch, so its vertical rule ends with the text rather than running on
+     into the grid's trailing space. */
+  .zv-stat-grid > *:nth-child(n + 3) {
+    align-items: start;
+  }
+
+  .zv-stat-grid > *:nth-child(n + 3) .zv-stat {
+    padding-top: 26px;
+    padding-bottom: 0;
+    height: auto;
+  }
+
+  .zv-stat-grid > *:nth-child(-n + 2) .zv-stat {
+    border-bottom: 1px solid var(--zv-border-dark);
+  }
+
+  /* The figure is the thing being read: sized on its own scale rather than
+     borrowing the section-title size, which the 640px breakpoint drops to
+     30px. Set solid so number and label group as one unit. */
+  .zv-stat-value {
+    font-size: clamp(38px, 11vw, 52px);
+    line-height: 1;
+  }
+
+  .zv-stat-label {
+    margin-top: 8px;
+    display: block;
+    max-width: 15ch;
+  }
+}
+
+/* Four short figures do not need a full-height band: on phones the
+   section's 64px of top/bottom air made this read as mostly empty. */
+@media (max-width: 1023px) {
+  .zv-stat-band { padding-top: 52px; padding-bottom: 52px; }
+}
+
+/* Desktop is the reference's single row of four, its dividers supplied by
+   the lg:border-l utilities in the markup — so everything the phone layout
+   adds is scoped to below lg rather than unset here, where a border reset
+   would out-specify those utilities. */
+@media (min-width: 1024px) {
+  .zv-stat-value { font-size: var(--zv-h2); line-height: 1.14; }
+  .zv-stat-label { margin-top: 12px; }
+}
 
 .zv-media {
   overflow: hidden;
@@ -1057,7 +1220,48 @@ select.zv-field:open {
   transition: border-color 300ms var(--ease-soft);
 }
 
-.zv-accordion[open] { border-color: var(--zv-primary); }
+/* Border highlight follows the visual state, not the DOM open attribute:
+   the <details> stays open so the panel can animate shut. */
+.zv-accordion[data-open='true'] { border-color: var(--zv-primary); }
+
+/* Animated answer panel. Collapsed items keep their box in flow at zero
+   height so the transition has something to interpolate; content is hidden
+   from AT and from tab order while closed. */
+.zv-accordion-panel {
+  overflow: hidden;
+  opacity: 0;
+  transition:
+    max-height 420ms var(--ease-soft),
+    opacity 260ms var(--ease-soft);
+}
+
+.zv-accordion[data-open='true'] .zv-accordion-panel {
+  opacity: 1;
+  transition:
+    max-height 420ms var(--ease-soft),
+    opacity 300ms var(--ease-soft) 90ms;
+}
+
+.zv-accordion[data-open='false'] .zv-accordion-panel {
+  visibility: hidden;
+  transition:
+    max-height 420ms var(--ease-soft),
+    opacity 200ms var(--ease-soft),
+    visibility 0s linear 420ms;
+}
+
+/* Chevron / plus marker: rotates with the visual state. */
+.zv-acc-icon { transition: transform 300ms var(--ease-soft); }
+.zv-accordion[data-open='true'] .zv-acc-icon-chevron { transform: rotate(180deg); }
+.zv-accordion[data-open='true'] .zv-acc-icon-bar {
+  transform: rotate(90deg);
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zv-accordion-panel,
+  .zv-acc-icon { transition-duration: 1ms; }
+}
 .zv-accordion summary::-webkit-details-marker { display: none; }
 
 .zv-accordion summary:focus-visible {
@@ -1141,6 +1345,10 @@ select.zv-field:open {
    Twenty slots put neighbours 18° apart on a flat, wide arc. */
 .m3-radial {
   --m3-radial-n: 20;
+  /* Depth of the lean: 0 keeps the old flat wheel, 1 tips each card back
+     into the screen by --m3-radial-tilt as it leaves the centre. */
+  --m3-radial-depth: 0;
+  --m3-radial-tilt: 0deg;
   --m3-radial-w: 380px;
   --m3-radial-gap: 115px;
   --m3-radial-r: calc(
@@ -1149,6 +1357,8 @@ select.zv-field:open {
   position: relative;
   height: 600px;
   overflow: clip;
+  perspective: 1200px;
+  perspective-origin: 50% 30%;
 }
 .m3-radial__wheel {
   position: absolute;
@@ -1160,6 +1370,7 @@ select.zv-field:open {
   border-radius: 50%;
   animation: m3-spin 110s linear infinite;
   will-change: transform;
+  transform-style: preserve-3d;
 }
 .m3-radial__wheel.is-paused,
 .m3-radial__wheel:has(.m3-radial__card:hover),
@@ -1169,6 +1380,13 @@ select.zv-field:open {
 @keyframes m3-spin {
   to { transform: rotate(-360deg); }
 }
+/* Depth mode: the wheel is a cylinder seen edge-on. Turning it about X
+   carries each card through real depth — swinging toward the reader at the
+   near side and away at the far side — instead of sliding it round a flat
+   disc, where every card stays the same distance from the camera. */
+@keyframes m3-spin-3d {
+  to { transform: rotateX(-360deg); }
+}
 .m3-radial__slot {
   position: absolute;
   left: 50%;
@@ -1177,6 +1395,33 @@ select.zv-field:open {
   margin-left: calc(var(--m3-radial-w) / -2);
   transform-origin: 50% var(--m3-radial-r);
   transform: rotate(calc(var(--i) * 360deg / var(--m3-radial-n)));
+  transform-style: preserve-3d;
+}
+/* ── Depth mode ──────────────────────────────────────────────────
+   Each slot sits on the surface of a cylinder: rotated about X by its share
+   of the circle, then pushed out to the radius along its own Z. The wheel's
+   rotateX carries every card through that depth as it turns, so the near
+   card faces the reader square-on and largest while the ones leaving lean
+   back and shrink. The container's perspective does the foreshortening. */
+@media (max-width: 640px) {
+  .m3-radial__wheel {
+    animation-name: m3-spin-3d;
+    height: 0;
+    top: var(--m3-radial-front);
+  }
+  /* Depth radius, independent of the flat rim: the cylinder must sit well
+     inside the perspective distance or a card crossing the camera plane
+     projects to infinity. Kept to roughly a third of the perspective. */
+  .m3-radial { --m3-radial-r: var(--m3-radial-depth-r); }
+  .m3-radial__slot {
+    top: 0;
+    height: var(--m3-radial-card-h);
+    margin-top: calc(var(--m3-radial-card-h) / -2);
+    transform-origin: 50% 50%;
+    transform:
+      rotateX(calc(var(--i) * -360deg / var(--m3-radial-n)))
+      translateZ(var(--m3-radial-r));
+  }
 }
 .m3-radial__card {
   display: block;
@@ -1215,17 +1460,108 @@ select.zv-field:open {
   opacity: 0.7;
 }
 @media (max-width: 1023px) {
-  .m3-radial { --m3-radial-w: 300px; --m3-radial-gap: 80px; height: 480px; }
+  /* Tablet: the wheel kept a desktop-sized box (400px) while the cards
+     shrank to 300px, so the arc floated in the middle of it. Height is cut
+     to what the visible three-card arc actually occupies, and the negative
+     margins pull the section's own padding back over the slack the arc
+     leaves above and below its box. */
+  .m3-radial {
+    --m3-radial-w: 300px;
+    --m3-radial-gap: 80px;
+    height: 292px;
+    margin-top: -34px;
+    margin-bottom: -6px;
+  }
+  .m3-radial__wheel { top: 8px; }
 }
 @media (max-width: 640px) {
-  /* Smaller gap on a phone so the neighbours still peek in at the edges. */
-  .m3-radial { --m3-radial-w: 250px; --m3-radial-gap: 40px; height: 300px; }
-  .m3-radial__wheel { top: 8px; }
-  .m3-radial__name { font-size: 1rem; }
+  /* Phones drop the wheel entirely. An arc that reads well on a wide screen
+     has to curve hard to show three cards in 320-390px, and that steep step
+     swings the outer captions down and rotates them diagonally — the text
+     ends up climbing out of the box. So on a phone the cards run along a
+     flat baseline instead, each given a small static tilt: the same
+     "sheets fanned on a board" idea, laid out linearly rather than radially,
+     so every caption stays horizontal and legible.
+
+     The track slides one card-pitch and repeats. Twenty slots hold four
+     unique projects, so the loop is seamless at any offset. */
+  .m3-radial {
+    --m3-radial-w: 232px;
+    --m3-radial-gap: 16px;
+    --m3-radial-pitch: calc(var(--m3-radial-w) + var(--m3-radial-gap));
+    height: auto;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-block: 22px;
+    perspective: none;
+  }
+
+  /* The circle becomes a row. Width/height/margins from the wheel rules are
+     all radius-derived, so they are unset rather than overridden. */
+  .m3-radial__wheel {
+    position: relative;
+    left: auto;
+    top: auto;
+    width: max-content;
+    height: auto;
+    margin-left: 0;
+    border-radius: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--m3-radial-gap);
+    /* Start half a card left of centre so a card sits mid-viewport. */
+    padding-left: max(16px, calc(50vw - var(--m3-radial-w) / 2));
+    animation-name: m3-slide;
+    animation-duration: 26s;
+    transform-style: flat;
+  }
+
+  .m3-radial__slot {
+    position: relative;
+    left: auto;
+    top: auto;
+    width: var(--m3-radial-w);
+    flex: 0 0 var(--m3-radial-w);
+    margin-left: 0;
+    transform-origin: 50% 50%;
+    transform-style: flat;
+    /* Alternating lean, a little deeper on every third card so the row
+       reads as scattered rather than zig-zagged. */
+    transform: rotate(var(--m3-tilt, 0deg));
+  }
+  .m3-radial__slot:nth-child(3n + 1) { --m3-tilt: -2.5deg; }
+  .m3-radial__slot:nth-child(3n + 2) { --m3-tilt: 1.75deg; }
+  .m3-radial__slot:nth-child(3n + 3) { --m3-tilt: -1deg; }
+
+  .m3-radial__card { padding: 8px; border-radius: 16px; }
+  .m3-radial__card img { border-radius: 10px; }
+  .m3-radial__caption { gap: 1px; padding: 10px 4px 2px; }
+  .m3-radial__name { font-size: 0.9375rem; }
+  .m3-radial__meta { font-size: 0.75rem; }
 }
+
+@keyframes m3-slide {
+  to { transform: translate3d(calc(var(--m3-radial-pitch) * -1), 0, 0); }
+}
+
+@media (max-width: 380px) {
+  .m3-radial {
+    --m3-radial-w: 204px;
+    --m3-radial-gap: 14px;
+  }
+  .m3-radial__name { font-size: 0.9375rem; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .m3-radial__wheel { animation: none; will-change: auto; }
   .m3-radial__card img { transition: none; }
+  .m3-radial { --m3-radial-depth: 0; }
+  /* The phone layout is already a flat row; stopping the slide is enough,
+     and the track keeps its scroll so every project stays reachable. */
+  @media (max-width: 640px) {
+    .m3-radial { overflow-x: auto; overscroll-behavior-x: contain; }
+    .m3-radial__wheel { animation: none; }
+  }
 }
 
 /* backface-visibility is deliberately not set here: the scenes apply it

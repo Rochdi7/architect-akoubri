@@ -1,3 +1,5 @@
+import { useEffect, useRef } from 'react';
+
 /**
  * Testimonial wall — the CodeSommet "Sites that did the job" layout.
  *
@@ -9,8 +11,33 @@
  * The scroll is pure CSS: each column holds its cards twice and animates
  * translateY from 0 to -50%, which loops seamlessly. Column 2 runs in
  * reverse so adjacent columns drift apart rather than in lockstep.
+ *
+ * Durations are per-column so the three never sync up, and are shortened on
+ * a phone: only one column is visible there, so the same pace that reads as
+ * a gentle drift across three columns reads as barely moving on one.
  */
 export default function Testimonials({ items }) {
+  const wall = useRef(null);
+
+  // Press-to-pause, the touch counterpart of the CSS :hover pause. Bound
+  // here rather than as React props so the listeners can be passive — a
+  // non-passive touchstart on a scrolling section costs scroll performance.
+  useEffect(() => {
+    const el = wall.current;
+    if (!el) return;
+    const pause = () => el.classList.add('is-paused');
+    const resume = () => el.classList.remove('is-paused');
+    const opts = { passive: true };
+    el.addEventListener('touchstart', pause, opts);
+    el.addEventListener('touchend', resume, opts);
+    el.addEventListener('touchcancel', resume, opts);
+    return () => {
+      el.removeEventListener('touchstart', pause);
+      el.removeEventListener('touchend', resume);
+      el.removeEventListener('touchcancel', resume);
+    };
+  }, []);
+
   // Round-robin into three columns so each gets a mix of sources.
   const columns = [[], [], []];
   items.forEach((t, i) => columns[i % 3].push(t));
@@ -31,7 +58,10 @@ export default function Testimonials({ items }) {
         </div>
       </div>
 
-      <div className="testimonial-wall mx-auto flex h-[22rem] max-w-6xl justify-center gap-4 px-4 sm:h-[26rem] md:h-[34rem] md:gap-5 md:px-6">
+      <div
+        ref={wall}
+        className="testimonial-wall mx-auto flex h-[22rem] max-w-6xl justify-center gap-4 px-4 sm:h-[26rem] md:h-[34rem] md:gap-5 md:px-6"
+      >
         {columns.map((col, i) => (
           <div
             key={i}
@@ -41,7 +71,14 @@ export default function Testimonials({ items }) {
           >
             <div
               className={`wall-col ${i === 1 ? 'wall-col--reverse' : ''}`}
-              style={{ animationDuration: `${[46, 58, 52][i]}s` }}
+              /* Two durations per column: the phone one wins inside the
+                 mobile media query. A custom property rather than JS state
+                 keeps the breakpoint in CSS, where the rest of the wall's
+                 responsive behaviour already lives. */
+              style={{
+                '--dur': `${[30, 38, 34][i]}s`,
+                '--dur-phone': `${[20, 26, 23][i]}s`,
+              }}
             >
               {/* Rendered twice so the -50% loop is seamless. */}
               {[...col, ...col].map((t, j) => (

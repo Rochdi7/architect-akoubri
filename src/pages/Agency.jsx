@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { stats, journey, agencyFaq } from '../data/projects';
+import Accordion from '../components/Accordion';
 import { useReveal } from '../hooks/useReveal';
 import { useInkFill } from '../hooks/useInkFill';
 import { useTrace } from '../hooks/useTrace';
@@ -268,13 +269,13 @@ function CoreValues() {
               key={v.title}
               data-reveal
               data-reveal-delay={(i % 3) * 80}
-              className="reveal zv-card text-center"
+              className="reveal zv-card zv-icon-card zv-icon-card--center text-center"
             >
-              <span className="zv-icon mx-auto">
+              <span className="zv-icon">
                 <ValueIcon name={v.icon} />
               </span>
-              <h3 className="zv-h5 mt-6">{v.title}</h3>
-              <p className="zv-small zv-muted mt-3">{v.text}</p>
+              <h3 className="zv-h5">{v.title}</h3>
+              <p className="zv-small zv-muted">{v.text}</p>
             </div>
           ))}
         </div>
@@ -304,26 +305,17 @@ function Faq() {
           </div>
         </div>
 
-        <div className="space-y-4">
-          {agencyFaq.map((f, i) => (
-            <details
-              key={f.q}
-              data-reveal
-              data-reveal-delay={i * 60}
-              className="reveal zv-accordion group"
-            >
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-5 p-6">
-                <span className="zv-h5">{f.q}</span>
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[var(--zv-border)] transition-transform duration-300 ease-arch group-open:rotate-180">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <path d="m6 9 6 6 6-6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </span>
-              </summary>
-              <p className="zv-body zv-muted px-6 pb-6">{f.a}</p>
-            </details>
-          ))}
-        </div>
+        <Accordion
+          items={agencyFaq}
+          summaryClass="flex cursor-pointer list-none items-center justify-between gap-3 p-4 sm:gap-5 sm:p-6"
+          renderIcon={() => (
+            <span className="zv-acc-icon zv-acc-icon-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[var(--zv-border)] sm:h-9 sm:w-9">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="m6 9 6 6 6-6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </span>
+          )}
+        />
       </div>
     </section>
   );

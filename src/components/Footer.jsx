@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { projects } from '../data/projects';
 import AkoubriMark from './AkoubriMark';
+import { business } from '../data/business';
 
 /**
  * Footer — a dark rounded card inset from the page edges, with the studio
@@ -16,7 +17,7 @@ export default function Footer() {
   return (
     <footer className="pt-2">
       {/* CTA band, on the paper ground above the card */}
-      <div className="shell pb-12 md:pb-24">
+      <div className="shell pb-14 sm:pb-16 md:pb-24">
         <div className="grid gap-7 border-t border-line pt-12 md:gap-10 md:pt-16 lg:grid-cols-[1.4fr_1fr] lg:items-end">
           <div data-reveal className="reveal">
             <span className="eyebrow">Parlons-en</span>
@@ -40,12 +41,16 @@ export default function Footer() {
       </div>
 
       {/* Dark card */}
-      <div className="px-[var(--gutter)] pb-[var(--gutter)]">
+      <div className="footer-shell px-[var(--gutter)] pb-[var(--gutter)]">
         <div className="footer-card relative mx-auto max-w-shell overflow-hidden bg-ink">
           <div className="px-6 pb-7 pt-10 sm:px-10 sm:pb-8 sm:pt-12 md:px-14 md:pb-10 md:pt-16">
-            <div className="grid grid-cols-2 gap-x-6 gap-y-9 sm:gap-x-8 sm:gap-y-10 lg:grid-cols-[1.3fr_1fr_1fr_1fr] lg:gap-8 lg:gap-y-8">
+            {/* Identity stacks above the menus on phones and tablets, then
+                sits beside them from lg up — the reference layout, where the
+                three link columns stay a single spread-out row at every width
+                instead of wrapping one column onto its own line. */}
+            <div className="flex flex-col gap-9 sm:gap-10 lg:flex-row lg:items-start lg:gap-8">
               {/* Identity */}
-              <div className="col-span-2 lg:col-span-1">
+              <div className="lg:w-[30%] lg:shrink-0">
                 <Mark />
                 <p className="mt-5 max-w-xs text-sm leading-relaxed on-dark-soft sm:mt-6 sm:text-base">
                   Cabinet d'architecture et de design d'intérieur. Résidences,
@@ -66,7 +71,11 @@ export default function Footer() {
                 </div>
               </div>
 
-              <FooterCol title="Navigation">
+              {/* Menu columns: one row, spread edge to edge. gap-x is small so
+                  three columns fit a 320px card; the labels are short enough
+                  not to wrap at that width. */}
+              <div className="flex w-full flex-wrap gap-x-4 gap-y-8 sm:flex-nowrap sm:justify-between sm:gap-x-6 lg:flex-1 lg:gap-x-8">
+              <FooterCol title="Navigation" className="w-[45%] shrink-0 sm:w-auto">
                 <FooterLink to="/">Accueil</FooterLink>
                 <FooterLink to="/projets">Projets</FooterLink>
                 <FooterLink to="/agence">Agence</FooterLink>
@@ -75,7 +84,7 @@ export default function Footer() {
                 <FooterLink to="/contact">Contact</FooterLink>
               </FooterCol>
 
-              <FooterCol title="Projets">
+              <FooterCol title="Projets" className="w-[45%] shrink-0 sm:w-auto">
                 {projects.map((p) => (
                   <FooterLink key={p.slug} to={`/projets/${p.slug}`}>
                     {p.name}
@@ -83,35 +92,45 @@ export default function Footer() {
                 ))}
               </FooterCol>
 
-              <FooterCol title="Contact" wide listClass="grid grid-cols-2 gap-x-6 gap-y-2.5 sm:gap-y-3 lg:block lg:space-y-3">
-                <li className="col-span-2 lg:col-auto">
-                  <a href="mailto:contact@akoubri.com" className="text-sm on-dark-soft transition-colors hover:text-[#e6b083]">
-                    contact@akoubri.com
+              <FooterCol title="Contact" className="w-full sm:w-auto" listClass="space-y-2.5 sm:space-y-3">
+                <li>
+                  <a href={`mailto:${business.email}`} className="block break-words text-sm on-dark-soft transition-colors hover:text-[var(--clay)]">
+                    {business.email}
                   </a>
                 </li>
                 <li>
-                  <a href="tel:+212600000000" className="text-sm on-dark-soft transition-colors hover:text-[#e6b083]">
-                    +212 6 00 00 00 00
+                  <a href={business.phoneHref} className="text-sm on-dark-soft transition-colors hover:text-[var(--clay)]">
+                    {business.phone}
                   </a>
                 </li>
-                <li className="col-span-2 text-sm leading-relaxed on-dark-soft lg:col-auto">
-                  Marrakech &amp; Casablanca
-                  <br />
-                  Maroc
+                <li>
+                  <a
+                    href={business.maps.link}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="block text-sm leading-relaxed on-dark-soft transition-colors hover:text-[var(--clay)]"
+                  >
+                    {business.addressLines.map((line) => (
+                      <span key={line} className="block">
+                        {line}
+                      </span>
+                    ))}
+                  </a>
                 </li>
               </FooterCol>
+              </div>
             </div>
 
-            <div className="mt-10 flex flex-col gap-3 border-t border-[rgba(250,248,245,0.12)] pt-6 text-xs on-dark-muted sm:mt-14 sm:text-sm md:flex-row md:items-center md:justify-between md:gap-6">
+            <div className="mt-8 flex flex-col gap-3 border-t border-[rgba(250,248,245,0.12)] pt-5 text-xs on-dark-muted sm:mt-14 sm:pt-6 sm:text-sm md:flex-row md:items-center md:justify-between md:gap-6">
               <span>
                 © {year} <span className="on-dark">Akoubri</span>. Tous droits réservés.
               </span>
               <nav className="flex flex-wrap items-center gap-x-4 gap-y-1.5">
-                <Link to="/mentions-legales" className="transition-colors hover:text-[#e6b083]">
+                <Link to="/mentions-legales" className="transition-colors hover:text-[var(--clay)]">
                   Mentions légales
                 </Link>
                 <span aria-hidden="true" className="opacity-40">·</span>
-                <Link to="/confidentialite" className="transition-colors hover:text-[#e6b083]">
+                <Link to="/confidentialite" className="transition-colors hover:text-[var(--clay)]">
                   Confidentialité
                 </Link>
               </nav>
@@ -128,9 +147,9 @@ export default function Footer() {
   );
 }
 
-function FooterCol({ title, children, wide, listClass }) {
+function FooterCol({ title, children, className, listClass }) {
   return (
-    <div className={wide ? 'col-span-2 lg:col-span-1' : undefined}>
+    <div className={`min-w-0 ${className || ''}`}>
       <div className="mb-4 text-sm font-semibold on-dark sm:mb-5 sm:text-base">{title}</div>
       <ul className={listClass || 'space-y-2.5 sm:space-y-3'}>{children}</ul>
     </div>
@@ -140,7 +159,7 @@ function FooterCol({ title, children, wide, listClass }) {
 function FooterLink({ to, children }) {
   return (
     <li>
-      <Link to={to} className="text-sm on-dark-soft transition-colors hover:text-[#e6b083]">
+      <Link to={to} className="text-sm on-dark-soft transition-colors hover:text-[var(--clay)]">
         {children}
       </Link>
     </li>
@@ -154,7 +173,7 @@ function Social({ label, href, children, stroke }) {
       target="_blank"
       rel="noopener noreferrer"
       aria-label={label}
-      className="on-dark transition-colors duration-300 hover:text-[#e6b083]"
+      className="on-dark transition-colors duration-300 hover:text-[var(--clay)]"
     >
       <svg
         width="22"

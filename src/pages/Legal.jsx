@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useReveal } from '../hooks/useReveal';
+import { business } from '../data/business';
 
 /**
  * Mentions légales.
@@ -11,13 +12,13 @@ import { useReveal } from '../hooks/useReveal';
 
 const identity = [
   { term: 'Raison sociale', desc: '[RAISON SOCIALE] — [FORME JURIDIQUE, ex. SARL]' },
-  { term: 'Siège social', desc: '[ADRESSE COMPLÈTE], Marrakech, Maroc' },
+  { term: 'Siège social', desc: business.addressOneLine },
   { term: 'Capital social', desc: '[MONTANT] MAD' },
   { term: 'Registre du commerce', desc: 'RC n° [NUMÉRO] — Tribunal de commerce de [VILLE]' },
   { term: 'Identifiant commun (ICE)', desc: '[NUMÉRO ICE]' },
   { term: 'Identifiant fiscal', desc: '[NUMÉRO IF]' },
   { term: 'Directeur de la publication', desc: '[NOM DU RESPONSABLE]' },
-  { term: 'Contact', desc: 'contact@akoubri.com — +212 6 00 00 00 00' },
+  { term: 'Contact', desc: `${business.email} — ${business.phone}` },
 ];
 
 export default function Legal() {

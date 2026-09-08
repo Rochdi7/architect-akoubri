@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { services, stats, projects } from '../data/projects';
+import Accordion from '../components/Accordion';
 import { useReveal } from '../hooks/useReveal';
 import { useVolets } from '../hooks/useVolets';
 import { useInkFill } from '../hooks/useInkFill';
@@ -174,25 +175,18 @@ export default function Services() {
             <span className="zv-subtitle">Questions</span>
             <h2 className="zv-h2 mt-5">Avant de nous écrire</h2>
           </div>
-          <div className="space-y-4">
-            {faq.map((f, i) => (
-              <details
-                key={f.q}
-                data-reveal
-                data-reveal-delay={i * 70}
-                className="reveal zv-accordion group"
-              >
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-6 p-6">
-                  <span className="zv-h5">{f.q}</span>
-                  <span className="relative h-4 w-4 shrink-0">
-                    <span className="absolute top-1/2 block h-px w-full bg-[var(--zv-primary)]" />
-                    <span className="absolute left-1/2 block h-full w-px bg-[var(--zv-primary)] transition-transform duration-300 ease-arch group-open:rotate-90 group-open:opacity-0" />
-                  </span>
-                </summary>
-                <p className="zv-body zv-muted max-w-2xl px-6 pb-6">{f.a}</p>
-              </details>
-            ))}
-          </div>
+          <Accordion
+            items={faq}
+            stagger={70}
+            summaryClass="flex cursor-pointer list-none items-center justify-between gap-4 p-4 sm:gap-6 sm:p-6"
+            bodyClass="zv-body zv-muted max-w-2xl px-6 pb-6"
+            renderIcon={() => (
+              <span className="relative h-4 w-4 shrink-0">
+                <span className="absolute top-1/2 block h-px w-full bg-[var(--zv-primary)]" />
+                <span className="zv-acc-icon zv-acc-icon-bar absolute left-1/2 block h-full w-px bg-[var(--zv-primary)]" />
+              </span>
+            )}
+          />
         </div>
       </section>
 
