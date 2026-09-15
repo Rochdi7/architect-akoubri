@@ -88,23 +88,24 @@ function splitWords(el) {
       frag.appendChild(span);
     });
     const placeholder = document.createComment('m3-ink');
+    // Snapshot the fragment's children *before* insertion: inserting a
+    // DocumentFragment empties it, so a snapshot taken afterwards is [] and
+    // the restore would put the original text back beside the spans, doubling
+    // the heading on every rebuild (resize, breakpoint change).
+    const inserted = Array.from(frag.childNodes);
     node.parentNode.replaceChild(placeholder, node);
     placeholder.parentNode.insertBefore(frag, placeholder);
-    originals.push({ node, placeholder, inserted: Array.from(frag.childNodes) });
+    originals.push({ node, placeholder, inserted });
   });
 
+  let restored = false;
   const restore = () => {
-    originals.forEach(({ node, placeholder }) => {
-      let cur = placeholder.previousSibling;
-      // Remove everything this split inserted before the placeholder.
-      const ours = new Set();
-      originals.forEach((o) => o.placeholder === placeholder && o.inserted.forEach((x) => ours.add(x)));
-      while (cur && ours.has(cur)) {
-        const prev = cur.previousSibling;
-        cur.remove();
-        cur = prev;
-      }
-      placeholder.parentNode.replaceChild(node, placeholder);
+    // mm.revert() and ctx.revert() can both reach this; run it once.
+    if (restored) return;
+    restored = true;
+    originals.forEach(({ node, placeholder, inserted }) => {
+      inserted.forEach((x) => x.remove());
+      if (placeholder.parentNode) placeholder.parentNode.replaceChild(node, placeholder);
     });
     el.normalize();
   };

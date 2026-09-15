@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import InkTitle from './InkTitle';
 import { Link } from 'react-router-dom';
 
 /**
@@ -66,11 +67,11 @@ export default function Showcase({ items }) {
         <div className="mb-8 flex flex-wrap items-end justify-between gap-6 md:mb-14">
           <div data-reveal className="reveal mx-auto max-w-2xl text-center md:mx-0 md:text-left">
             <span className="eyebrow eyebrow--centered justify-center md:justify-start">Intérieurs</span>
-            <h2 className="display-md mt-5 uppercase leading-[0.95] md:mt-6">
+            <InkTitle className="display-md mt-5 uppercase leading-[0.95] md:mt-6">
               Les espaces que
               <br />
               vous imaginez
-            </h2>
+            </InkTitle>
             <p className="mt-4 text-ink-soft md:hidden">
               Des volumes clairs, des matières franches et une lumière pensée
               pièce par pièce.
@@ -98,8 +99,16 @@ export default function Showcase({ items }) {
         onTouchEnd={onTouchEnd}
       >
         <div className="slab-row">
-          {/* Left preview — trapezoid leaning right */}
-          <figure className="slab slab--left" aria-hidden="true">
+          {/* Left preview — trapezoid leaning right. It widens on hover, so
+              it is also clickable: a panel that opens up under the pointer
+              but does nothing when clicked reads as broken. Kept out of the
+              a11y tree — the arrows, dots and keyboard already page the
+              carousel, so this is a pointer shortcut, not a new control. */}
+          <figure
+            className="slab slab--left"
+            aria-hidden="true"
+            onClick={() => go(-1)}
+          >
             <img key={at(i - 1).src} src={at(i - 1).src} alt="" loading="lazy" />
           </figure>
 
@@ -131,8 +140,13 @@ export default function Showcase({ items }) {
             </figcaption>
           </figure>
 
-          {/* Right preview — trapezoid leaning left */}
-          <figure className="slab slab--right" aria-hidden="true">
+          {/* Right preview — trapezoid leaning left. Clickable for the same
+              reason as its mirror above. */}
+          <figure
+            className="slab slab--right"
+            aria-hidden="true"
+            onClick={() => go(1)}
+          >
             <img key={at(i + 1).src} src={at(i + 1).src} alt="" loading="lazy" />
           </figure>
         </div>

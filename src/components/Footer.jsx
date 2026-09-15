@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import InkTitle from './InkTitle';
 import { projects } from '../data/projects';
 import AkoubriMark from './AkoubriMark';
 import { business } from '../data/business';
@@ -21,11 +22,11 @@ export default function Footer() {
         <div className="grid gap-7 border-t border-line pt-12 md:gap-10 md:pt-16 lg:grid-cols-[1.4fr_1fr] lg:items-end">
           <div data-reveal className="reveal">
             <span className="eyebrow">Parlons-en</span>
-            <h2 className="display-lg mt-6 max-w-2xl uppercase leading-[0.95]">
+            <InkTitle className="display-lg mt-6 max-w-2xl uppercase leading-[0.95]">
               Un terrain, un plan,
               <br />
               une idée&nbsp;?
-            </h2>
+            </InkTitle>
           </div>
           <div data-reveal data-reveal-delay="120" className="reveal lg:text-right">
             <p className="mb-6 leading-relaxed text-ink-soft md:mb-7 lg:ml-auto lg:max-w-sm">
@@ -57,16 +58,16 @@ export default function Footer() {
                   villas et espaces de travail au Maroc.
                 </p>
                 <div className="mt-6 flex items-center gap-5 sm:mt-7 sm:gap-4">
-                  <Social label="Instagram" href="https://instagram.com/" stroke>
+                  <Social label="Instagram" href={business.social.instagram} stroke>
                     <rect x="3" y="3" width="18" height="18" rx="5" />
                     <circle cx="12" cy="12" r="4" />
                     <circle cx="17" cy="7" r="1.1" fill="currentColor" stroke="none" />
                   </Social>
-                  <Social label="LinkedIn" href="https://linkedin.com/">
+                  <Social label="LinkedIn" href={business.social.linkedin}>
                     <path d="M4.5 3A1.5 1.5 0 1 0 4.5 6a1.5 1.5 0 0 0 0-3ZM3 8.5h3V21H3zM9 8.5h2.9v1.7h.05c.4-.75 1.4-1.55 2.85-1.55 3.05 0 3.6 2 3.6 4.6V21h-3v-5.4c0-1.3 0-2.95-1.8-2.95s-2.05 1.4-2.05 2.85V21H9z" />
                   </Social>
-                  <Social label="Pinterest" href="https://pinterest.com/">
-                    <path d="M12 2a10 10 0 0 0-3.6 19.3c-.1-.8-.15-2 .03-2.9l1.17-4.95s-.3-.6-.3-1.5c0-1.4.8-2.45 1.8-2.45.85 0 1.26.64 1.26 1.4 0 .85-.54 2.13-.82 3.31-.24.99.5 1.8 1.47 1.8 1.77 0 3.13-1.87 3.13-4.56 0-2.38-1.71-4.05-4.16-4.05a4.3 4.3 0 0 0-4.5 4.32c0 .85.33 1.77.74 2.27.08.1.09.19.07.29l-.28 1.1c-.04.19-.15.23-.34.14-1.25-.58-2.03-2.4-2.03-3.87 0-3.15 2.29-6.04 6.6-6.04 3.46 0 6.16 2.47 6.16 5.77 0 3.44-2.17 6.21-5.18 6.21-1.01 0-1.96-.53-2.29-1.15l-.62 2.37c-.22.87-.83 1.95-1.24 2.61A10 10 0 1 0 12 2Z" />
+                  <Social label={`WhatsApp ${business.phone}`} href={business.social.whatsapp}>
+                    <path d="M12.04 2C6.6 2 2.17 6.43 2.17 11.87c0 1.74.46 3.44 1.32 4.94L2 22l5.34-1.4a9.83 9.83 0 0 0 4.7 1.2h.01c5.44 0 9.87-4.43 9.87-9.87 0-2.64-1.03-5.12-2.9-6.98A9.8 9.8 0 0 0 12.04 2Zm0 1.8c2.15 0 4.17.84 5.69 2.36a8 8 0 0 1 2.36 5.7c0 4.46-3.63 8.08-8.09 8.08a8.2 8.2 0 0 1-4.16-1.14l-.3-.18-3.09.81.82-3.01-.19-.31a8.06 8.06 0 0 1-1.24-4.3c0-4.45 3.63-8.08 8.2-8.08Zm-3.1 4.06c-.14 0-.37.06-.57.27-.2.2-.75.73-.75 1.79s.77 2.08.88 2.22c.11.14 1.5 2.3 3.66 3.22.51.22.91.35 1.22.45.51.16.98.14 1.35.09.41-.06 1.27-.52 1.45-1.02.18-.5.18-.94.13-1.02-.05-.09-.2-.14-.4-.25-.21-.1-1.27-.62-1.46-.7-.2-.07-.34-.1-.48.1-.14.21-.55.7-.68.84-.12.14-.25.16-.46.05-.2-.1-.87-.32-1.65-1.02-.61-.54-1.02-1.22-1.14-1.42-.13-.2-.02-.32.09-.42.09-.09.2-.24.31-.36.1-.12.13-.2.2-.34.07-.14.03-.26-.02-.36-.05-.1-.46-1.16-.64-1.58-.16-.42-.33-.36-.46-.37h-.4Z" />
                   </Social>
                 </div>
               </div>
@@ -78,6 +79,7 @@ export default function Footer() {
               <FooterCol title="Navigation" className="w-[45%] shrink-0 sm:w-auto">
                 <FooterLink to="/">Accueil</FooterLink>
                 <FooterLink to="/projets">Projets</FooterLink>
+                <FooterLink to="/maquette-3d">Maquette 3D</FooterLink>
                 <FooterLink to="/agence">Agence</FooterLink>
                 <FooterLink to="/services">Services</FooterLink>
                 <FooterLink to="/journal">Journal</FooterLink>

@@ -1,4 +1,5 @@
-import { useEffect, useId, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 
 /**
  * Select — a listbox that replaces the native <select>.
@@ -13,6 +14,14 @@ import { useEffect, useId, useRef, useState } from 'react';
  * hand: focus management, type-ahead, and the full keyboard map. On
  * touch the popup is a bottom sheet, since a dropdown anchored to a
  * field near the fold would open off-screen.
+ *
+ * The popup renders in a portal on document.body. It has to: any ancestor
+ * carrying a transform, filter, or `will-change: transform` becomes the
+ * containing block for `position: fixed`, and the scroll-reveal wrapper
+ * these forms sit in does exactly that — which stranded the sheet in the
+ * middle of the form column and shrank the scrim to the form's box. Out
+ * on the body there is no ancestor left to trap it, so desktop anchoring
+ * is done with measured viewport coordinates instead of `top: 100%`.
  */
 export default function Select({
   value,
@@ -27,6 +36,8 @@ export default function Select({
 }) {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(-1);
+  const [sheet, setSheet] = useState(false);
+  const [rect, setRect] = useState(null);
   const rootRef = useRef(null);
   const listRef = useRef(null);
   const buttonRef = useRef(null);
@@ -38,10 +49,44 @@ export default function Select({
   const selected = items.findIndex((o) => o.value === value);
   const current = selected >= 0 ? items[selected] : null;
 
+  const isSheet = () => window.matchMedia('(max-width: 639px)').matches;
+
+  /* Anchor the desktop dropdown by measuring the button in viewport
+     coordinates. The portal escapes the form's stacking context, so
+     `top: 100%` no longer refers to anything useful. Flips above the
+     button when the space below cannot hold the list. */
+  const place = useCallback(() => {
+    const el = buttonRef.current;
+    if (!el) return;
+
+    if (isSheet()) {
+      setSheet(true);
+      setRect(null);
+      return;
+    }
+
+    const b = el.getBoundingClientRect();
+    const GAP = 6;
+    const MAX = 264;
+    const below = window.innerHeight - b.bottom - GAP - 8;
+    const above = b.top - GAP - 8;
+    const flip = below < Math.min(MAX, 160) && above > below;
+
+    setSheet(false);
+    setRect({
+      left: b.left,
+      width: b.width,
+      top: flip ? undefined : b.bottom + GAP,
+      bottom: flip ? window.innerHeight - b.top + GAP : undefined,
+      maxHeight: Math.max(120, Math.min(MAX, flip ? above : below)),
+    });
+  }, []);
+
   /* Opening lands the highlight on the current value, or the first row. */
   const openList = (index) => {
     if (disabled) return;
     setActive(index ?? (selected >= 0 ? selected : 0));
+    place();
     setOpen(true);
   };
 
@@ -63,23 +108,29 @@ export default function Select({
   useEffect(() => {
     if (!open) return;
 
+    /* The list lives in a portal now, so "inside" means either the field
+       or the popup — a DOM-only check against the root would treat every
+       click on an option as an outside click. */
     const onPointerDown = (e) => {
-      if (!rootRef.current?.contains(e.target)) close(false);
-    };
-
-    /* On desktop the popup is anchored under the button, so a scroll that
-       moves the button leaves it stranded. The sheet is fixed-position and
-       has a scrim over the page, so there is nothing to chase there — and
-       closing on scroll would dismiss it the moment a touch drag begins. */
-    const anchored = !window.matchMedia('(max-width: 639px)').matches;
-    const onScroll = (e) => {
-      if (listRef.current?.contains(e.target)) return; // reading the list
+      if (rootRef.current?.contains(e.target)) return;
+      if (listRef.current?.contains(e.target)) return;
       close(false);
     };
-    const onResize = () => close(false);
+
+    /* On desktop the list is pinned to measured coordinates, so a scroll
+       that moves the button has to move it too — it follows rather than
+       vanishing. The sheet is bottom-anchored with a scrim, so there is
+       nothing to chase there, and closing on scroll would dismiss it the
+       moment a touch drag began. */
+    const onScroll = (e) => {
+      if (listRef.current?.contains(e.target)) return; // reading the list
+      if (isSheet()) return;
+      place();
+    };
+    const onResize = () => place();
 
     document.addEventListener('pointerdown', onPointerDown);
-    if (anchored) window.addEventListener('scroll', onScroll, true);
+    window.addEventListener('scroll', onScroll, true);
     window.addEventListener('resize', onResize);
 
     return () => {
@@ -87,19 +138,25 @@ export default function Select({
       window.removeEventListener('scroll', onScroll, true);
       window.removeEventListener('resize', onResize);
     };
-  }, [open]);
+  }, [open, place]);
 
   /* While the sheet is up, the page behind it must not scroll away under
      the user's thumb. Desktop keeps its scrollbar — locking there would
      shift the layout as the gutter disappears. */
   useEffect(() => {
-    if (!open || !window.matchMedia('(max-width: 639px)').matches) return;
+    if (!open || !sheet) return;
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     return () => {
       document.body.style.overflow = prev;
     };
-  }, [open]);
+  }, [open, sheet]);
+
+  /* Re-measure before paint, so the list never shows at stale
+     coordinates for a frame after the button moves or the list grows. */
+  useLayoutEffect(() => {
+    if (open) place();
+  }, [open, place]);
 
   /* Keep the highlighted row in view when arrowing past the fold. */
   useEffect(() => {
@@ -201,8 +258,8 @@ export default function Select({
         <Chevron />
       </button>
 
-      {open && (
-        <>
+      {open && createPortal(
+        <div className="zv-select-portal" data-sheet={sheet || undefined}>
           {/* Scrim, touch only — the sheet needs a ground to sit against. */}
           <div className="zv-select-scrim" onClick={() => close(false)} aria-hidden="true" />
 
@@ -213,6 +270,17 @@ export default function Select({
             tabIndex={-1}
             aria-activedescendant={active >= 0 ? `${listId}-${active}` : undefined}
             className="zv-select-list"
+            style={
+              sheet || !rect
+                ? undefined
+                : {
+                    left: `${rect.left}px`,
+                    width: `${rect.width}px`,
+                    top: rect.top !== undefined ? `${rect.top}px` : undefined,
+                    bottom: rect.bottom !== undefined ? `${rect.bottom}px` : undefined,
+                    maxHeight: `${rect.maxHeight}px`,
+                  }
+            }
           >
             {items.map((o, i) => (
               <li
@@ -235,7 +303,8 @@ export default function Select({
               </li>
             ))}
           </ul>
-        </>
+        </div>,
+        document.body,
       )}
     </div>
   );

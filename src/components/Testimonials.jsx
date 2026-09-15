@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import InkTitle from './InkTitle';
 
 /**
  * Testimonial wall — the CodeSommet "Sites that did the job" layout.
@@ -49,9 +50,9 @@ export default function Testimonials({ items }) {
           <p className="text-[13px] font-bold uppercase tracking-[0.12em] text-clay">
             Références
           </p>
-          <h2 className="mt-3 font-display text-3xl tracking-tight md:text-4xl">
+          <InkTitle className="mt-3 font-display text-3xl tracking-tight md:text-4xl">
             Ce qu'en disent les maîtres d'ouvrage
-          </h2>
+          </InkTitle>
           <p className="mt-4 text-lg text-ink-soft">
             Promoteurs, entreprises et particuliers, après livraison.
           </p>

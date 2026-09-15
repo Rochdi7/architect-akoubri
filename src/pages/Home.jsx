@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import InkTitle from '../components/InkTitle';
 import { Link } from 'react-router-dom';
 import { projects, services, stats, process, testimonials, showcase, agencyFaq } from '../data/projects';
 import Accordion from '../components/Accordion';
@@ -26,7 +27,7 @@ export default function Home() {
     <>
       <Hero />
       <Marks />
-      <DesignStories />
+      <DesignStories />   {/* links to the 3D stage, now its own page  */}
       <Featured />        {/* PROTECTED — Projets récents          */}
       <ImpactBand />
       <Portfolio />
@@ -98,12 +99,15 @@ function Hero() {
       {/* Copy — bottom-left, as in the reference banner. */}
       <div className="shell relative z-10 w-full">
         <div className="flex flex-wrap items-end justify-between gap-8">
-          <h1
+          <InkTitle
+            as="h1"
+            play
+            dark
             data-reveal
             className="reveal zv-h1 max-w-[620px] text-white"
           >
             Cabinet d'architecture &amp; design d'intérieur
-          </h1>
+          </InkTitle>
 
           <div data-reveal data-reveal-delay="140" className="reveal max-w-md">
             <p className="zv-body text-white/85">
@@ -164,16 +168,25 @@ function DesignStories() {
     <section className="zv zv-section pt-0">
       <div className="shell">
         <div data-reveal className="reveal mb-8 flex flex-wrap items-start justify-between gap-6 md:mb-24">
-          <h2 className="zv-h2 max-w-[555px]">
+          <InkTitle className="zv-h2 max-w-[555px]">
             Les lieux que vous imaginez, tenus jusqu'au chantier
-          </h2>
-          <p className="zv-body zv-muted max-w-[473px]">
-            Chaque projet est modélisé et rendu avant d'être construit. Vous
-            arbitrez sur des images fidèles, pas sur des intentions.
-          </p>
+          </InkTitle>
+          <div className="max-w-[473px]">
+            <p className="zv-body zv-muted">
+              Chaque projet est modélisé et rendu avant d'être construit. Vous
+              arbitrez sur des images fidèles, pas sur des intentions.
+            </p>
+            <Link
+              to="/maquette-3d"
+              className="mt-5 inline-flex items-center gap-2 border-b border-line pb-1 text-[12px] font-medium uppercase tracking-[0.14em] text-ink transition-colors hover:border-clay hover:text-clay"
+            >
+              Explorer la maquette 3D
+              <ArrowNE />
+            </Link>
+          </div>
         </div>
 
-        <div className="grid gap-3 lg:grid-cols-[1fr_281px_281px]">
+        <div className="zv-tile-row grid gap-3 lg:grid-cols-[1fr_281px_281px]">
           <Link
             to="/projets/le-sentier"
             data-reveal
@@ -238,7 +251,7 @@ function ImpactBand() {
       <div className="shell">
         <div data-reveal className="reveal mb-9 max-w-[540px] lg:mb-14">
           <span className="zv-subtitle">En chiffres</span>
-          <h2 className="zv-h2 mt-4 lg:mt-5">Douze ans de projets livrés</h2>
+          <InkTitle className="zv-h2 mt-4 lg:mt-5">Douze ans de projets livrés</InkTitle>
         </div>
 
         {/* On phones the four figures read as a 2×2 table: a single hairline
@@ -280,9 +293,9 @@ function Portfolio() {
       <div className="shell">
         <div data-reveal className="reveal zv-section-head">
           <span className="zv-subtitle">Portfolio</span>
-          <h2 className="zv-h2 mt-5">
+          <InkTitle className="zv-h2">
             Un aperçu du niveau de finition que nous visons
-          </h2>
+          </InkTitle>
         </div>
 
         <div ref={axo} className="m3-axo">
@@ -361,7 +374,7 @@ function CoreValues() {
       <div className="shell">
         <div data-reveal className="reveal zv-section-head">
           <span className="zv-subtitle">Convictions</span>
-          <h2 className="zv-h2 mt-5">Ce en quoi nous croyons</h2>
+          <InkTitle className="zv-h2">Ce en quoi nous croyons</InkTitle>
         </div>
 
         <div className="grid gap-4 md:grid-cols-3">
@@ -396,11 +409,11 @@ function Faq() {
       <div className="shell grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
         <div className="lg:sticky lg:top-32 lg:self-start">
           <span data-reveal className="reveal zv-subtitle">FAQ</span>
-          <h2 data-reveal data-reveal-delay="40" className="reveal zv-h2 mt-5">
+          <InkTitle data-reveal data-reveal-delay="40" className="reveal zv-h2 mt-5">
             Questions
             <br />
             fréquentes
-          </h2>
+          </InkTitle>
           <div data-reveal data-reveal-delay="90" className="reveal mt-8">
             <Link to="/contact" className="zv-btn zv-btn-outline">
               Poser la vôtre
@@ -473,7 +486,7 @@ function GetInTouch() {
         <div className="mx-auto max-w-[560px]">
           <div data-reveal className="reveal text-center">
             <span className="zv-subtitle">Parlons-en</span>
-            <h2 className="zv-h2 mt-5">Démarrons votre projet</h2>
+            <InkTitle className="zv-h2 mt-5">Démarrons votre projet</InkTitle>
             <p className="zv-body zv-muted mx-auto mt-4 max-w-md">
               Décrivez-nous le terrain, le programme et l&apos;échéance. Nous
               revenons vers vous sous 48&nbsp;heures ouvrées.
@@ -517,7 +530,7 @@ function Featured() {
         <div className="mb-5 flex flex-wrap items-end justify-between gap-x-4 gap-y-3 sm:mb-12 sm:gap-6">
           <div data-reveal className="reveal">
             <span className="eyebrow">Sélection</span>
-            <h2 className="display-md mt-6">Projets récents</h2>
+            <InkTitle className="display-md mt-6">Projets récents</InkTitle>
           </div>
           <Link data-reveal data-reveal-delay="100" to="/projets" className="reveal btn btn-ghost shrink-0">
             Tous les projets
@@ -531,6 +544,49 @@ function Featured() {
       <div data-reveal data-reveal-delay="140" className="reveal">
         <RadialMarquee projects={projects} />
       </div>
+
+      {/* The arc only occupies the top of its 600px box, so the band beneath
+          the centre card read as dead ground. It gets an index of what is on
+          the wheel — the cards turn, so a reader who wants a specific project
+          would otherwise have to wait for it to come round — plus a line
+          naming the scroll-to-spin behaviour, which is undiscoverable.
+
+          Deliberately not a figure strip: the section immediately below is
+          "En chiffres", which already carries the years/projects/m²/cities
+          counts. */}
+      <div className="shell">
+        <div data-reveal data-reveal-delay="180" className="reveal m3-radial-foot">
+          <p className="m3-radial-foot__hint">
+            <span className="m3-radial-foot__dot" aria-hidden="true" />
+            La roue tourne au fil du défilement
+          </p>
+          <ul className="m3-radial-foot__index">
+            {projects.map((p, i) => (
+              <li key={p.slug}>
+                <Link to={`/projets/${p.slug}`} className="m3-radial-foot__link">
+                  {/* Phone-only: the stacked list needs an ordinal to read as
+                      an index rather than four loose links. Hidden on desktop,
+                      where the vertical rules already do that job. */}
+                  <span className="m3-radial-foot__num" aria-hidden="true">
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                  <span className="m3-radial-foot__text">
+                    <span className="m3-radial-foot__name">{p.name}</span>
+                    <span className="m3-radial-foot__meta">
+                      {p.subtitle} · {p.year}
+                    </span>
+                  </span>
+                  <span className="m3-radial-foot__chev" aria-hidden="true">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                      <path d="M9 5l7 7-7 7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
     </section>
   );
 }
@@ -541,7 +597,7 @@ function Services() {
       <div className="shell">
         <div data-reveal className="reveal zv-section-head">
           <span className="zv-subtitle">Ce que nous faisons</span>
-          <h2 className="zv-h2 mt-5">Quatre métiers, un seul interlocuteur</h2>
+          <InkTitle className="zv-h2">Quatre métiers, un seul interlocuteur</InkTitle>
         </div>
 
         <div className="grid gap-5 sm:grid-cols-2">
@@ -579,7 +635,7 @@ function Process() {
       <div className="shell">
         <div data-reveal className="reveal zv-section-head">
           <span className="zv-subtitle">Méthode</span>
-          <h2 className="zv-h2 mt-5">Comment on travaille</h2>
+          <InkTitle className="zv-h2">Comment on travaille</InkTitle>
         </div>
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {process.map((s, i) => (

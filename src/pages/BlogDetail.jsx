@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import InkTitle from '../components/InkTitle';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import { formatDate, getPost, sortedPosts } from '../data/posts';
 import { useReveal } from '../hooks/useReveal';
@@ -179,7 +180,7 @@ export default function BlogDetail() {
         <div className="shell">
           <div data-reveal className="reveal zv-section-head">
             <span className="zv-subtitle">Poursuivre</span>
-            <h2 className="zv-h2 mt-5">À lire ensuite</h2>
+            <InkTitle className="zv-h2">À lire ensuite</InkTitle>
           </div>
 
           <div className="grid gap-6 md:grid-cols-2 lg:gap-8">

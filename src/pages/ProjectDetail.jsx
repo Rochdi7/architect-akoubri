@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import InkTitle from '../components/InkTitle';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import { getProject, projects } from '../data/projects';
 import { useReveal } from '../hooks/useReveal';
@@ -102,6 +103,7 @@ export default function ProjectDetail() {
                   className="aspect-[4/3] w-full object-cover sm:aspect-auto sm:min-h-[420px] md:min-h-[619px]"
                 />
                 <span className="absolute inset-0 transition-colors duration-500 group-hover:bg-black/10" />
+                <ExpandBadge count={project.gallery.length} />
               </button>
 
               {lead.map((src, i) => (
@@ -144,7 +146,7 @@ export default function ProjectDetail() {
           <div className="shell">
             <div data-reveal className="reveal zv-section-head">
               <span className="zv-subtitle">Poursuivre</span>
-              <h2 className="zv-h2 mt-5">Projets liés</h2>
+              <InkTitle className="zv-h2">Projets liés</InkTitle>
             </div>
 
             <div className="space-y-4">
@@ -189,7 +191,36 @@ function GalleryTile({ src, index, name, onOpen }) {
         className="w-full object-cover"
       />
       <span className="absolute inset-0 transition-colors duration-500 group-hover:bg-black/10" />
+      <ExpandBadge />
     </button>
+  );
+}
+
+/* Corner affordance telling the visitor the image opens a full-screen
+   carousel. Purely decorative — the whole tile is already the button. */
+function ExpandBadge({ count }) {
+  return (
+    <span
+      aria-hidden="true"
+      className="pointer-events-none absolute right-3 top-3 z-10 flex items-center gap-1.5 rounded-full bg-black/45 px-2.5 py-2 text-white/90 backdrop-blur-sm transition duration-300 group-hover:bg-black/70 group-hover:text-white md:right-4 md:top-4"
+    >
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="h-4 w-4"
+      >
+        <path d="M9 3H3v6M15 3h6v6M9 21H3v-6M15 21h6v-6" />
+      </svg>
+      {count ? (
+        <span className="zv-small text-[11px] font-medium leading-none">
+          {count}
+        </span>
+      ) : null}
+    </span>
   );
 }
 

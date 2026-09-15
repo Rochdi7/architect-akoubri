@@ -44,6 +44,14 @@ export const business = {
   },
 
   rating: { value: 5.0, count: 56 },
+
+  // Profils publics. Le lien WhatsApp part du même numéro que `phone` — wa.me
+  // veut l'E.164 sans « + » ni espaces.
+  social: {
+    instagram: 'https://www.instagram.com/akoubri_architecture_design/',
+    linkedin: 'https://www.linkedin.com/in/akoubri-adnane-a57767372/',
+    whatsapp: 'https://wa.me/212663515723',
+  },
 };
 
 export default business;

@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import InkTitle from '../components/InkTitle';
 import { useReveal } from '../hooks/useReveal';
 import { business } from '../data/business';
 
@@ -30,7 +31,7 @@ export default function Legal() {
         <div className="shell">
           <div data-reveal className="reveal mx-auto max-w-3xl">
             <span className="zv-subtitle">Informations légales</span>
-            <h1 className="zv-h1 mt-5">Mentions légales</h1>
+            <InkTitle as="h1" play className="zv-h1 mt-5">Mentions légales</InkTitle>
             <p className="zv-lead zv-muted mt-5 max-w-xl">
               Éditeur du site, hébergement, propriété intellectuelle et
               conditions d'utilisation de akoubri.com.
@@ -124,7 +125,7 @@ export default function Legal() {
       <section className="zv zv-alt zv-section">
         <div className="shell">
           <div data-reveal className="reveal mx-auto max-w-2xl text-center">
-            <h2 className="zv-h3">Une question sur ces informations&nbsp;?</h2>
+            <InkTitle className="zv-h3">Une question sur ces informations&nbsp;?</InkTitle>
             <p className="zv-lead zv-muted mx-auto mt-5 max-w-md">
               Écrivez-nous, nous répondons sous 48&nbsp;heures ouvrées.
             </p>

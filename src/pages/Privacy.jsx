@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import InkTitle from '../components/InkTitle';
 import { useReveal } from '../hooks/useReveal';
 
 /**
@@ -36,7 +37,7 @@ export default function Privacy() {
         <div className="shell">
           <div data-reveal className="reveal mx-auto max-w-3xl">
             <span className="zv-subtitle">Vos données</span>
-            <h1 className="zv-h1 mt-5">Politique de confidentialité</h1>
+            <InkTitle as="h1" play className="zv-h1 mt-5">Politique de confidentialité</InkTitle>
             <p className="zv-lead zv-muted mt-5 max-w-xl">
               Ce que nous collectons, pourquoi, combien de temps nous le
               conservons, et comment exercer vos droits.
@@ -175,7 +176,7 @@ export default function Privacy() {
       <section className="zv zv-alt zv-section">
         <div className="shell">
           <div data-reveal className="reveal mx-auto max-w-2xl text-center">
-            <h2 className="zv-h3">Une demande concernant vos données&nbsp;?</h2>
+            <InkTitle className="zv-h3">Une demande concernant vos données&nbsp;?</InkTitle>
             <p className="zv-lead zv-muted mx-auto mt-5 max-w-md">
               Un simple e-mail suffit — nous traitons chaque demande
               individuellement.

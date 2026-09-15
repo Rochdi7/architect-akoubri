@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import InkTitle from '../components/InkTitle';
 import { stats, journey, agencyFaq } from '../data/projects';
 import Accordion from '../components/Accordion';
 import { useReveal } from '../hooks/useReveal';
@@ -71,11 +72,11 @@ function SplitHero() {
               </span>
             </div>
 
-            <h1 className="display-lg mt-7 uppercase leading-[0.95] on-dark">
+            <InkTitle as="h1" play dark className="display-lg mt-7 uppercase leading-[0.95] on-dark">
               Une équipe courte,
               <br />
               un interlocuteur
-            </h1>
+            </InkTitle>
 
             <p className="mt-6 max-w-md leading-relaxed on-dark-soft">
               Chaque ligne, chaque matière et chaque ouverture est choisie pour une
@@ -151,9 +152,12 @@ function AboutStats() {
           ))}
         </div>
 
-        {/* Offset image pair */}
-        <div className="mt-14 grid gap-4 md:mt-20 md:grid-cols-[1.5fr_1fr] md:gap-6">
-          <div data-reveal className="reveal relative">
+        {/* Offset image pair. On phones the two renders are staggered — the
+           first inset from the right, the second from the left and pulled up
+           into it — so they read as one composition rather than two stacked
+           blocks. From md up the original side-by-side grid takes over. */}
+        <div className="zv-pair mt-8 grid gap-0 md:mt-20 md:grid-cols-[1.5fr_1fr] md:gap-6">
+          <div data-reveal className="reveal relative z-10 mr-10 sm:mr-16 md:mr-0">
             <div className="zv-media">
               <img
                 src="/media/adostigia/adostigia-05.jpg"
@@ -161,31 +165,38 @@ function AboutStats() {
                 loading="lazy"
                 width="1280"
                 height="720"
-                className="aspect-[16/10] w-full object-cover"
+                className="aspect-[4/5] w-full object-cover sm:aspect-[3/2] md:aspect-[16/10]"
               />
             </div>
-            {/* Floating spec card, as in the reference. */}
-            <div className="absolute bottom-3 left-3 w-40 rounded-2xl border border-[var(--zv-border)] bg-white p-2.5 sm:bottom-6 sm:left-6 sm:w-52 sm:p-3">
-              <div className="zv-small zv-muted">Le Sentier, Marrakech</div>
-              <div className="zv-h5 mt-1">4 200 m²</div>
+            {/* Floating spec card. It hangs off the render's right edge on
+               phones, into the margin the offset above just opened up. */}
+            <div className="absolute right-3 bottom-24 z-10 w-[9.5rem] rounded-2xl border border-[var(--zv-border)] bg-white p-3 shadow-[0_10px_30px_-16px_rgba(20,28,45,0.45)] sm:right-5 sm:bottom-32 sm:w-44 md:inset-auto md:bottom-6 md:left-6 md:right-auto md:z-auto md:w-52 md:p-3 md:shadow-none">
+              <div className="zv-small zv-muted leading-tight">
+                Le Sentier,<br className="md:hidden" /> Marrakech
+              </div>
+              <div className="zv-h5 mt-1.5">4 200 m²</div>
               <img
                 src="/media/le-sentier/sentier-05.jpg"
                 alt=""
                 aria-hidden="true"
                 loading="lazy"
-                className="mt-2 aspect-[16/9] w-full rounded-lg object-cover"
+                className="mt-2.5 hidden aspect-[16/9] w-full rounded-lg object-cover sm:block"
               />
             </div>
           </div>
 
-          <div data-reveal data-reveal-delay="120" className="reveal zv-media md:mt-14">
+          <div
+            data-reveal
+            data-reveal-delay="120"
+            className="reveal zv-media -mt-16 ml-10 sm:-mt-24 sm:ml-16 md:mt-14 md:ml-0"
+          >
             <img
               src="/media/adostigia/adostigia-16.jpg"
               alt="Bureau de direction — noyer et laiton"
               loading="lazy"
               width="1280"
               height="720"
-              className="aspect-[4/3] w-full object-cover md:aspect-auto md:h-full"
+              className="aspect-[4/3] w-full object-cover sm:aspect-[3/2] md:aspect-auto md:h-full"
             />
           </div>
         </div>
@@ -203,11 +214,11 @@ function Journey() {
       <div className="shell grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
         <div className="lg:sticky lg:top-32 lg:self-start">
           <span data-reveal className="reveal zv-subtitle">Parcours</span>
-          <h2 data-reveal data-reveal-delay="40" className="reveal zv-h2 mt-5">
+          <InkTitle data-reveal data-reveal-delay="40" className="reveal zv-h2 mt-5">
             Notre parcours
             <br />
             en cinq étapes
-          </h2>
+          </InkTitle>
           <p data-reveal data-reveal-delay="90" className="reveal zv-body zv-muted mt-5 max-w-sm">
             D'une pièce unique à deux bureaux, une trajectoire construite sur des
             projets livrés plutôt que sur des annonces.
@@ -256,8 +267,8 @@ function CoreValues() {
       <div className="shell">
         <div data-reveal className="reveal zv-section-head">
           <span className="zv-subtitle">Convictions</span>
-          <h2 className="zv-h2 mt-5">Nos convictions</h2>
-          <p className="zv-body zv-muted mx-auto mt-5 max-w-xl">
+          <InkTitle className="zv-h2">Nos convictions</InkTitle>
+          <p className="zv-body zv-muted mx-auto max-w-xl">
             Six principes qui décident de la façon dont nous dessinons, chiffrons
             et suivons un projet.
           </p>
@@ -292,11 +303,11 @@ function Faq() {
       <div className="shell grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16">
         <div className="lg:sticky lg:top-32 lg:self-start">
           <span data-reveal className="reveal zv-subtitle">FAQ</span>
-          <h2 data-reveal data-reveal-delay="40" className="reveal zv-h2 mt-5">
+          <InkTitle data-reveal data-reveal-delay="40" className="reveal zv-h2 mt-5">
             Questions
             <br />
             fréquentes
-          </h2>
+          </InkTitle>
           <div data-reveal data-reveal-delay="90" className="reveal mt-8">
             <Link to="/contact" className="zv-btn zv-btn-outline">
               Poser la vôtre

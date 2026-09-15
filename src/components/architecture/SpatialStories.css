@@ -1,0 +1,740 @@
+/* ═══════════════════════════════════════════════════════════════
+   Spatial Stories — the home-page 3D section
+   ───────────────────────────────────────────────────────────────
+   Sits on the Zenvira tokens (.zv) so it shares the paper ground,
+   the navy ink and the two type faces with its neighbours. Its own
+   rules are scoped to .ss-*; the only global thing it reads is the
+   design-token set in index.css / zenvira.css.
+
+   --ss-p   0..1 scroll progress through the pinned stage, written by
+            SpatialStories.jsx; drives the note reveal, the hint and the
+            counter rule. Forced to 1 under reduced motion.
+   --ss-mx/--ss-my   pointer position, -1..1, for the grid parallax.
+   ═══════════════════════════════════════════════════════════════ */
+
+.ss {
+  position: relative;
+  min-height: 230vh;
+  min-height: 230svh;
+  --ss-p: 0;
+  --ss-mx: 0;
+  --ss-my: 0;
+  --ss-top: clamp(92px, 12vh, 132px);
+}
+
+.ss-stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* ── Ground: a faint drafting grid, fading out toward the edges ── */
+.ss-grid {
+  position: absolute;
+  inset: -6%;
+  background-image:
+    linear-gradient(to right, rgba(15, 36, 62, 0.055) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(15, 36, 62, 0.055) 1px, transparent 1px);
+  background-size: 72px 72px;
+  -webkit-mask-image: radial-gradient(ellipse 58% 56% at 52% 50%, #000 20%, transparent 100%);
+  mask-image: radial-gradient(ellipse 58% 56% at 52% 50%, #000 20%, transparent 100%);
+  transform: translate3d(calc(var(--ss-mx) * -9px), calc(var(--ss-my) * -7px), 0);
+  transition: transform 1200ms var(--ease-arch);
+  pointer-events: none;
+}
+
+/* ── Canvas and the elevation drawing that stands in for it ── */
+.ss-canvas {
+  position: absolute;
+  inset: 0;
+}
+
+.ss-gl {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.ss-drawing {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: calc(var(--ss-top) + 3vh) 9vw 29vh;
+  transition: opacity 1100ms var(--ease-arch);
+}
+
+.ss-drawing.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ss-elev {
+  width: 100%;
+  height: 100%;
+  max-width: 1080px;
+  overflow: visible;
+}
+
+/* ── HTML layer ── */
+.ss-ui {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.ss-ui-inner {
+  position: relative;
+  height: 100%;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  padding-top: var(--ss-top);
+  padding-bottom: clamp(28px, 5vh, 56px);
+}
+
+.ss-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+/* The section heading is the small series label; the tag is an h2 on a
+   page that has its own title and the h1 on the Maquette 3D page, and the
+   rule (0,2,0) beats `.zv h1`/`.zv h2` so it renders as a subtitle. */
+.ss .ss-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--zv-body);
+  font-size: 13px;
+  line-height: 20px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--zv-muted);
+}
+
+.ss .ss-label::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--zv-accent);
+  flex-shrink: 0;
+}
+
+.ss-lede {
+  margin-top: 10px;
+  max-width: 300px;
+  font-size: var(--zv-sub);
+  line-height: 20px;
+  letter-spacing: -0.14px;
+  color: var(--zv-gray-400);
+}
+
+/* Counter: the active number large in the display face, the total small,
+   with a hairline that fills as the stage is scrolled through. */
+.ss-counter {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35em;
+  font-family: var(--zv-display);
+  font-size: 18px;
+  letter-spacing: 0.04em;
+  color: var(--zv-primary);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  position: relative;
+  padding-bottom: 14px;
+}
+
+.ss-counter-n {
+  font-size: 44px;
+  line-height: 1;
+}
+
+.ss-counter-sep {
+  color: var(--zv-gray-100);
+}
+
+.ss-counter::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 72px;
+  height: 1px;
+  background: linear-gradient(to right, var(--zv-accent) calc(var(--ss-p) * 100%), var(--zv-border) 0);
+}
+
+/* ── Project list (right, vertical) ── */
+.ss-nav {
+  pointer-events: auto;
+  align-self: center;
+  justify-self: end;
+}
+
+.ss-nav-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.ss-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 7px 0;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  font-family: var(--zv-body);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--zv-gray-400);
+  transition: color 300ms var(--ease-soft);
+}
+
+.ss-nav-item::after {
+  content: '';
+  width: 18px;
+  height: 1px;
+  background: currentColor;
+  transition: width 450ms var(--ease-arch), background-color 300ms var(--ease-soft);
+}
+
+.ss-nav-num {
+  font-variant-numeric: tabular-nums;
+}
+
+.ss-nav-item:hover {
+  color: var(--zv-primary);
+}
+
+.ss-nav-item[aria-current='true'] {
+  color: var(--zv-primary);
+}
+
+.ss-nav-item[aria-current='true']::after {
+  width: 44px;
+  background: var(--zv-accent);
+}
+
+.ss-nav-item:focus-visible {
+  outline: 2px solid var(--zv-accent);
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+/* ── Title block and CTA (bottom) ── */
+.ss-bottom {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.ss-info {
+  max-width: 560px;
+  transition: opacity 420ms var(--ease-soft), transform 560ms var(--ease-arch);
+}
+
+.ss-info.is-switching {
+  opacity: 0;
+  transform: translateY(12px);
+}
+
+.ss .ss-title {
+  font-size: clamp(2.25rem, 5.4vw, 4.75rem);
+  line-height: 0.96;
+  margin-top: 10px;
+  margin-bottom: 12px;
+}
+
+.ss-meta {
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--zv-muted);
+}
+
+/* The chapter subtitle (apartment number, floor) sits between title and
+   place, in the same small caps but the ink colour. */
+.ss-sub {
+  color: var(--zv-primary);
+  margin-bottom: 4px;
+}
+
+/* The one-line note arrives once the stage has been scrolled through:
+   it belongs to the "project information" beat, after the reveal. */
+.ss-note {
+  --ss-note-in: clamp(0, calc((var(--ss-p) - 0.55) * 3.5), 1);
+  margin-top: 16px;
+  max-width: 420px;
+  font-size: var(--zv-p-sm);
+  line-height: 24px;
+  letter-spacing: -0.16px;
+  color: var(--zv-gray-400);
+  opacity: var(--ss-note-in);
+  transform: translateY(calc((1 - var(--ss-note-in)) * 10px));
+}
+
+.ss-cta {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 10px 0;
+  font-family: var(--zv-body);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--zv-primary);
+  border-bottom: 1px solid var(--zv-border);
+  white-space: nowrap;
+  transition: opacity 420ms var(--ease-soft), border-color 300ms var(--ease-soft), color 300ms var(--ease-soft);
+}
+
+.ss-cta svg {
+  transition: transform 400ms var(--ease-arch);
+}
+
+.ss-cta:hover {
+  color: var(--zv-accent-deep);
+  border-color: var(--zv-accent);
+}
+
+.ss-cta:hover svg {
+  transform: translate(2px, -2px);
+}
+
+.ss-cta.is-switching {
+  opacity: 0;
+}
+
+.ss-cta:focus-visible {
+  outline: 2px solid var(--zv-accent);
+  outline-offset: 4px;
+}
+
+/* ── Viewpoints: a marker where the visitor can step in, and the way
+      back out. Positions are written by the scene on every frame. ── */
+.ss-spots {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.ss-spot {
+  position: absolute;
+  left: 0;
+  top: 0;
+  margin-top: -17px;
+  margin-left: -17px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-top: 0;
+  padding-right: 6px;
+  padding-bottom: 0;
+  padding-left: 0;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  pointer-events: auto;
+  color: var(--zv-primary);
+  font-family: var(--zv-body);
+  font-size: 11px;
+  line-height: 14px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  opacity: 1;
+  transition: opacity 360ms var(--ease-soft);
+}
+
+.ss-spot[data-on='false'] {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ss-spot-dot {
+  position: relative;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid rgba(15, 36, 62, 0.32);
+  background: rgba(247, 243, 236, 0.78);
+  flex-shrink: 0;
+  transition: border-color 300ms var(--ease-soft), transform 400ms var(--ease-arch);
+}
+
+.ss-spot-dot::before {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 1px solid var(--zv-accent);
+  opacity: 0;
+  animation: ss-spot 2.8s var(--ease-soft) infinite;
+}
+
+.ss-spot-dot::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  margin-left: -4px;
+  margin-top: -4px;
+  border-radius: 50%;
+  background: var(--zv-accent);
+}
+
+@keyframes ss-spot {
+  0% { transform: scale(0.7); opacity: 0; }
+  35% { opacity: 0.6; }
+  100% { transform: scale(1.15); opacity: 0; }
+}
+
+.ss-spot-label {
+  padding-top: 3px;
+  padding-right: 8px;
+  padding-bottom: 3px;
+  padding-left: 8px;
+  border-radius: 2px;
+  background: rgba(247, 243, 236, 0.82);
+}
+
+@media (hover: hover) {
+  .ss-spot:hover .ss-spot-dot {
+    border-color: var(--zv-accent);
+    transform: scale(1.08);
+  }
+}
+
+.ss-spot:focus-visible {
+  outline: none;
+}
+
+.ss-spot:focus-visible .ss-spot-dot {
+  outline: 2px solid var(--zv-accent);
+  outline-offset: 3px;
+}
+
+/* The exit and the CTA share the right-hand group of the footer. */
+.ss-actions {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  flex-shrink: 0;
+}
+
+.ss-exit {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-top: 10px;
+  padding-right: 0;
+  padding-bottom: 10px;
+  padding-left: 0;
+  background: none;
+  border: 0;
+  border-bottom: 1px solid var(--zv-accent);
+  cursor: pointer;
+  font-family: var(--zv-body);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--zv-accent-deep);
+  white-space: nowrap;
+}
+
+.ss-exit:focus-visible {
+  outline: 2px solid var(--zv-accent);
+  outline-offset: 4px;
+}
+
+/* Inside a view the scroll hint is moot and the note steps back; the stage
+   itself becomes the look-around surface. */
+.ss[data-view] .ss-hint {
+  display: none;
+}
+
+.ss[data-view] .ss-canvas {
+  cursor: grab;
+  touch-action: none;
+}
+
+.ss[data-view] .ss-canvas[data-grab] {
+  cursor: grabbing;
+}
+
+/* The look-around control, bottom centre where the scroll hint was. */
+.ss-look {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(28px, 5vh, 56px);
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  pointer-events: auto;
+}
+
+.ss-look-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(15, 36, 62, 0.32);
+  background: rgba(247, 243, 236, 0.82);
+  color: var(--zv-primary);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  padding-top: 0;
+  padding-right: 0;
+  padding-bottom: 0;
+  padding-left: 0;
+  touch-action: none;
+  transition: border-color 300ms var(--ease-soft), color 300ms var(--ease-soft);
+}
+
+@media (hover: hover) {
+  .ss-look-btn:hover {
+    border-color: var(--zv-accent);
+    color: var(--zv-accent-deep);
+  }
+}
+
+.ss-look-btn:focus-visible {
+  outline: 2px solid var(--zv-accent);
+  outline-offset: 3px;
+}
+
+.ss-look-label {
+  font-size: 10px;
+  line-height: 14px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--zv-gray-400);
+  white-space: nowrap;
+}
+
+.ss[data-view] .ss-note {
+  opacity: 0.55;
+}
+
+/* ── Scroll hint, bottom centre, gone once the visitor has scrolled ── */
+.ss-hint {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(28px, 5vh, 56px);
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  font-size: 10px;
+  line-height: 14px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--zv-gray-400);
+  opacity: clamp(0, calc(1 - var(--ss-p) * 4), 1);
+}
+
+.ss-hint-line {
+  width: 1px;
+  height: 40px;
+  background: linear-gradient(to bottom, var(--zv-accent), transparent);
+  transform-origin: top;
+  animation: ss-hint 2.6s var(--ease-soft) infinite;
+}
+
+@keyframes ss-hint {
+  0% { transform: scaleY(0); opacity: 0; }
+  30% { transform: scaleY(1); opacity: 1; }
+  70% { transform: scaleY(1); opacity: 1; }
+  100% { transform: scaleY(1) translateY(20px); opacity: 0; }
+}
+
+/* ── Fallback (no WebGL): the drawing is the section, so it may sit a
+      little larger and the hint goes. ── */
+.ss[data-status='fallback'] .ss-hint {
+  display: none;
+}
+
+/* ── Tablet ── */
+@media (max-width: 1023px) {
+  .ss-lede {
+    max-width: 240px;
+  }
+
+  .ss .ss-title {
+    font-size: clamp(2.125rem, 6vw, 3.75rem);
+  }
+}
+
+/* ── Phone: a portrait composition. The model sits in the upper two
+      thirds of the stage (the camera looks below it), the list becomes a
+      row of numbers under the title, the lede goes. ── */
+@media (max-width: 767px) {
+  .ss {
+    min-height: 190vh;
+    min-height: 190svh;
+    --ss-top: 84px;
+  }
+
+  .ss-ui-inner {
+    padding-bottom: 22px;
+  }
+
+  .ss-lede {
+    display: none;
+  }
+
+  .ss-counter {
+    padding-bottom: 12px;
+  }
+
+  .ss-counter-n {
+    font-size: 34px;
+  }
+
+  .ss-counter::after {
+    width: 56px;
+  }
+
+  .ss-drawing {
+    padding: calc(var(--ss-top) + 6vh) 5vw 40vh;
+  }
+
+  .ss-nav {
+    align-self: end;
+    justify-self: start;
+    margin-bottom: 18px;
+  }
+
+  .ss-nav-list {
+    flex-direction: row;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .ss-nav-item {
+    gap: 6px;
+    padding: 8px 0;
+  }
+
+  .ss-nav-title {
+    display: none;
+  }
+
+  .ss-nav-item::after {
+    width: 10px;
+  }
+
+  .ss-nav-item[aria-current='true']::after {
+    width: 22px;
+  }
+
+  .ss-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .ss-actions {
+    flex-wrap: wrap;
+    gap: 6px 22px;
+  }
+
+  /* On a phone the footer is a column; the control sits under the
+     counter, over the view itself. */
+  .ss-look {
+    bottom: auto;
+    top: calc(var(--ss-top) + 64px);
+    gap: 10px;
+  }
+
+  .ss-look-label {
+    display: none;
+  }
+
+  .ss-spot {
+    font-size: 10px;
+  }
+
+  .ss .ss-title {
+    font-size: clamp(2rem, 9.5vw, 2.75rem);
+    margin-top: 8px;
+    margin-bottom: 8px;
+  }
+
+  .ss-note {
+    margin-top: 10px;
+    font-size: 14px;
+    line-height: 21px;
+  }
+
+  .ss-hint {
+    display: none;
+  }
+}
+
+/* ── Reduced motion: no pin, no parallax, no hint; the stage is a single
+      still frame the height of the viewport, with every study complete. ── */
+@media (prefers-reduced-motion: reduce) {
+  .ss {
+    min-height: 0;
+    --ss-p: 1;
+  }
+
+  .ss-stage {
+    position: relative;
+    height: 100vh;
+    height: 100svh;
+    max-height: 920px;
+  }
+
+  .ss-grid {
+    transform: none;
+  }
+
+  .ss-hint,
+  .ss-hint-line {
+    display: none;
+  }
+
+  .ss-spot-dot::before {
+    animation: none;
+  }
+
+  .ss-info,
+  .ss-cta,
+  .ss-drawing,
+  .ss-nav-item::after {
+    transition: none;
+  }
+}

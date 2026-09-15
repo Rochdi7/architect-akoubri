@@ -220,11 +220,39 @@
 .zv-dark .zv-subtitle { color: var(--zv-secondary); }
 
 /* Centred section header block — reference caps these at 555–730px. */
+/* Centred section heading: eyebrow above a title.
+
+   A flex column with a gap, not margins on the children. `.zv-hN` resets
+   `margin: 0` at a specificity that beats a Tailwind `mt-*` on the same
+   element (see the note by the heading reset), so the `mt-5` these headings
+   carried computed to 0 and the eyebrow sat directly on the title's cap
+   height. The gap is on the parent, which nothing overrides.
+
+   Both gaps scale with the viewport: the title runs 72px at desktop and 30px
+   on a phone, so a fixed 60px below it reads as generous under a big title
+   and as a hole under a small one. clamp() ties the space to the type. */
 .zv-section-head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(0.75rem, 1.6vw, 1.25rem);
   text-align: center;
   max-width: 730px;
   margin-inline: auto;
-  margin-bottom: 60px;
+  margin-bottom: clamp(2rem, 5vw, 3.75rem);
+}
+
+/* A two-line title at 72px sets 82px lines — with an all-caps condensed
+   face whose accents (the É in MÉTIERS) rise above the cap line, the
+   descender of one line and the accent of the next nearly collide. Open the
+   leading where the type is large; the 30px phone size already reads fine.
+   Doubled selector to beat `.zv-h2.zv-h2`, which is (0,2,0). */
+@media (min-width: 768px) {
+  .zv-section-head :is(h1, h2, h3).zv-h1,
+  .zv-section-head :is(h1, h2, h3).zv-h2,
+  .zv-section-head :is(h1, h2, h3).zv-h3 {
+    line-height: 1.2;
+  }
 }
 
 /* ── Buttons ───────────────────────────────────────────────────
@@ -997,13 +1025,27 @@ select.zv-field:open {
   transform: rotate(180deg);
 }
 
-/* ── The popup ── */
+/* ── The popup ──
+   Rendered in a portal on <body>, because a transformed or will-change
+   ancestor (the scroll-reveal wrappers wrap these forms) would otherwise
+   become the containing block for `position: fixed` and strand the sheet
+   inside the form column. Desktop coordinates are measured in JS. */
+.zv-select-portal {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  /* The wrapper is only a coordinate space; clicks fall through it to
+     the page, and the scrim below opts back in when it is shown. */
+  pointer-events: none;
+}
+
+.zv-select-portal > * {
+  pointer-events: auto;
+}
+
 .zv-select-list {
-  position: absolute;
-  z-index: 60;
-  top: calc(100% + 6px);
-  left: 0;
-  right: 0;
+  position: fixed;
+  z-index: 1;
   margin: 0;
   padding: 6px;
   list-style: none;
@@ -1011,6 +1053,7 @@ select.zv-field:open {
   overflow-y: auto;
   overscroll-behavior: contain;
   background: var(--zv-white);
+  color: var(--zv-primary);
   border: 1px solid var(--zv-border);
   border-radius: 14px;
   box-shadow: 0 1px 2px rgba(32, 41, 24, 0.04),
@@ -1056,46 +1099,47 @@ select.zv-field:open {
 /* ── Touch: a bottom sheet ──────────────────────────────────────────
    A dropdown anchored to a field low in the viewport opens off-screen on
    a phone. The sheet is also the shape the platform already teaches. */
-@media (max-width: 639px) {
-  .zv-select-scrim {
-    display: block;
-    position: fixed;
-    inset: 0;
-    z-index: 70;
-    background: rgba(32, 41, 24, 0.32);
-    animation: zv-fade-in 200ms var(--ease-soft);
-  }
+.zv-select-portal[data-sheet] .zv-select-scrim {
+  display: block;
+  position: fixed;
+  inset: 0;
+  background: rgba(32, 41, 24, 0.42);
+  animation: zv-fade-in 200ms var(--ease-soft);
+}
 
-  .zv-select-list {
-    position: fixed;
-    z-index: 71;
-    top: auto;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    max-height: 62vh;
-    padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
-    border: 0;
-    border-radius: 20px 20px 0 0;
-    box-shadow: 0 -8px 40px -8px rgba(32, 41, 24, 0.3);
-    animation: zv-sheet-up 240ms var(--ease-arch);
-  }
+.zv-select-portal[data-sheet] .zv-select-list {
+  z-index: 1;
+  top: auto;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: auto;
+  /* Cap by the visible viewport, not by vh: on iOS the URL bar makes vh
+     taller than what the user can actually see, which would push the
+     last row under the chrome. */
+  max-height: min(62dvh, 62vh);
+  padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
+  border: 0;
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 -8px 40px -8px rgba(32, 41, 24, 0.3);
+  animation: zv-sheet-up 240ms var(--ease-arch);
+}
 
-  /* The grabber, so the sheet reads as dismissible. */
-  .zv-select-list::before {
-    content: '';
-    display: block;
-    width: 36px;
-    height: 4px;
-    margin: 4px auto 10px;
-    border-radius: 99px;
-    background: var(--zv-border);
-  }
+/* The grabber, so the sheet reads as dismissible. */
+.zv-select-portal[data-sheet] .zv-select-list::before {
+  content: '';
+  display: block;
+  width: 36px;
+  height: 4px;
+  margin: 4px auto 10px;
+  border-radius: 99px;
+  background: var(--zv-border);
+}
 
-  .zv-select-option {
-    padding: 14px 12px;
-    border-radius: 11px;
-  }
+/* Comfortable touch targets, and room for the thumb at the bottom. */
+.zv-select-portal[data-sheet] .zv-select-option {
+  padding: 15px 14px;
+  border-radius: 12px;
 }
 
 @keyframes zv-fade-in {
@@ -1208,6 +1252,147 @@ select.zv-field:open {
 
 .zv-tile img { transition: transform 900ms var(--ease-arch); }
 .zv-tile:hover img { transform: scale(1.04); }
+
+/* Typed so it can be transitioned; an untyped custom property is not
+   interpolable and would step from 0 to 1 at the halfway point. */
+@property --open {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 0;
+}
+
+/* Hovering one tile widens it and squeezes its neighbours. Pointer-only:
+   on touch a tap leaves :hover stuck and the row would never settle back. */
+@media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
+  /* Flex, not grid: animating grid-template-columns re-runs track sizing on
+     the whole row every frame and visibly stutters. */
+  .zv-tile-row {
+    display: flex;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  /* Each tile owns an --open flag (0 = squeezed, 1 = open) and derives its
+     own width from it. Animating the FLAG rather than the width means every
+     tile's tween starts on the same frame and runs the same curve, so the
+     three widths always sum to the row.
+
+     Driving the widths directly does not work: a tile whose target width is
+     `calc(100% - 586px)` only sees a changed value after a sibling's width
+     has already altered the layout, so its transition started ~175ms late
+     (measured). For that window the row ran ~260px short, a bare strip
+     opened at its right edge, and the growing tile's edge swept left past a
+     stationary cursor — :hover dropped, the tile shrank back, :hover
+     returned, and it flickered instead of settling.
+
+     @property is what makes --open animatable; without the type declaration
+     a custom property is a plain token and jumps at 50%. */
+  .zv-tile-row > .zv-tile {
+    flex: 0 0 auto;
+    --open: 0;
+    width: calc(281px + var(--open) * (100% - 867px));
+    min-width: 0;
+    /* The img goes absolute below, so it no longer sets the tile's height;
+       this restores the md:min-h-[460px] the markup relied on. */
+    height: 460px;
+    transition:
+      --open 620ms cubic-bezier(0.65, 0, 0.35, 1),
+      opacity 620ms cubic-bezier(0.65, 0, 0.35, 1);
+    /* The scroll-reveal stagger (data-reveal-delay) leaves an inline
+       `transition-delay: 90ms/180ms` on tiles 2 and 3. This transition would
+       inherit it, so the tiles started up to 180ms apart, the row ran short
+       for that window, and the hover flickered. Inline styles outrank the
+       stylesheet, so clearing it needs !important. The reveal animation has
+       already finished by the time anything can be hovered, so the stagger
+       loses nothing. */
+    transition-delay: 0s !important;
+  }
+
+  /* Le Sentier leads the row until another tile is hovered. */
+  .zv-tile-row > .zv-tile:first-child { --open: 1; }
+
+  .zv-tile-row:has(> :nth-child(2):hover) > :nth-child(1),
+  .zv-tile-row:has(> :nth-child(3):hover) > :nth-child(1) { --open: 0; }
+
+  .zv-tile-row:has(> :nth-child(2):hover) > :nth-child(2),
+  .zv-tile-row:has(> :nth-child(3):hover) > :nth-child(3) { --open: 1; }
+
+  /* Narrowed tiles fade back a touch so the open one leads the row. */
+  .zv-tile-row:has(> .zv-tile:hover) > .zv-tile:not(:hover) { opacity: 0.72; }
+
+  /* Hold the image to the tile box so it never re-scales mid-tween; the
+     tile's overflow does the cropping instead of the layout engine.
+     Absolute so the img is out of flow and cannot feed its intrinsic width
+     back into the width being animated. */
+  .zv-tile-row > .zv-tile img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  /* Captions of squeezed tiles would wrap badly at 281px, so hold them
+     on one line and let the ellipsis do the trimming. */
+  .zv-tile-row > .zv-tile .zv-tile-cap > span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zv-tile-row > .zv-tile { transition: none; }
+}
+
+/* ── About: offset image pair ──────────────────────────────────
+   Two renders side by side; hovering either widens it and squeezes the
+   other. Same mechanism as the home tile row: both panels animate one
+   shared --open flag and derive their widths from it, so they start on the
+   same frame and always sum to the row. Animating the widths directly
+   desynchronises them and the row briefly runs short, which drops :hover
+   mid-tween and flickers. */
+@media (min-width: 768px) and (hover: hover) and (pointer: fine) {
+  .zv-pair {
+    /* Flex so the two children can be sized from the flag; the grid's
+       1.5fr/1fr is reproduced by the resting --open values below. */
+    display: flex;
+    align-items: stretch;
+  }
+
+  .zv-pair > * {
+    --open: 0;
+    /* Closed 38%, open 62%, minus the 1.5rem gap's share. The two always
+       total 100% of the row, gap included. */
+    flex: 0 0 calc(38% + var(--open) * (24% - 1.5rem));
+    min-width: 0;
+    transition:
+      --open 620ms cubic-bezier(0.65, 0, 0.35, 1),
+      opacity 620ms cubic-bezier(0.65, 0, 0.35, 1);
+    /* The reveal stagger leaves an inline transition-delay (120ms) on the
+       second panel; inheriting it would start the pair apart and reopen the
+       very gap the shared flag closes. Inline styles need !important. */
+    transition-delay: 0s !important;
+  }
+
+  /* The wide render leads until the other is hovered. */
+  .zv-pair > :first-child { --open: 1; }
+
+  .zv-pair:has(> :last-child:hover) > :first-child { --open: 0; }
+  .zv-pair:has(> :last-child:hover) > :last-child { --open: 1; }
+
+  /* The closed panel falls back so the open one leads. */
+  .zv-pair:has(> :hover) > :not(:hover) { opacity: 0.72; }
+
+  /* Panels keep their own intrinsic heights. Forcing height:100% here made
+     the shorter panel's image stop above its container (a grey band under
+     the render) and pushed the floating spec card past the panel's edge,
+     because the second panel is deliberately offset down by md:mt-14. The
+     aspect-ratio utilities in the markup already size these correctly. */
+  .zv-pair { align-items: flex-start; }
+}
 
 /* Caption plate sitting on the image, legible over any render. */
 .zv-tile-cap {
@@ -1366,6 +1551,14 @@ select.zv-field:open {
   -webkit-text-fill-color: transparent;
 }
 
+/* On a navy ground the light-paper pencil grey reads as broken text, so a
+   dark-ground title (InkTitle `dark`) carries its own pencil: the paper
+   tone at low alpha. The hook and the gradient both read --zv-gray-100
+   from the heading itself, so overriding it here is the whole change. */
+.m3-ink-dark {
+  --zv-gray-100: rgba(250, 248, 245, 0.42);
+}
+
 /* Le tracé — the journey timeline's ink line (useTrace). Sits exactly on the
    existing hairline (left 19px, top .75rem, bottom 3rem) between the rule
    (-z-10) and the markers (z-10). Decorative: scaleY(0) until drawn. */
@@ -1392,10 +1585,6 @@ select.zv-field:open {
    Twenty slots put neighbours 18° apart on a flat, wide arc. */
 .m3-radial {
   --m3-radial-n: 20;
-  /* Depth of the lean: 0 keeps the old flat wheel, 1 tips each card back
-     into the screen by --m3-radial-tilt as it leaves the centre. */
-  --m3-radial-depth: 0;
-  --m3-radial-tilt: 0deg;
   --m3-radial-w: 380px;
   --m3-radial-gap: 115px;
   --m3-radial-r: calc(
@@ -1404,8 +1593,6 @@ select.zv-field:open {
   position: relative;
   height: 600px;
   overflow: clip;
-  perspective: 1200px;
-  perspective-origin: 50% 30%;
 }
 .m3-radial__wheel {
   position: absolute;
@@ -1417,7 +1604,6 @@ select.zv-field:open {
   border-radius: 50%;
   animation: m3-spin 110s linear infinite;
   will-change: transform;
-  transform-style: preserve-3d;
 }
 .m3-radial__wheel.is-paused,
 .m3-radial__wheel:has(.m3-radial__card:hover),
@@ -1427,13 +1613,6 @@ select.zv-field:open {
 @keyframes m3-spin {
   to { transform: rotate(-360deg); }
 }
-/* Depth mode: the wheel is a cylinder seen edge-on. Turning it about X
-   carries each card through real depth — swinging toward the reader at the
-   near side and away at the far side — instead of sliding it round a flat
-   disc, where every card stays the same distance from the camera. */
-@keyframes m3-spin-3d {
-  to { transform: rotateX(-360deg); }
-}
 .m3-radial__slot {
   position: absolute;
   left: 50%;
@@ -1442,33 +1621,6 @@ select.zv-field:open {
   margin-left: calc(var(--m3-radial-w) / -2);
   transform-origin: 50% var(--m3-radial-r);
   transform: rotate(calc(var(--i) * 360deg / var(--m3-radial-n)));
-  transform-style: preserve-3d;
-}
-/* ── Depth mode ──────────────────────────────────────────────────
-   Each slot sits on the surface of a cylinder: rotated about X by its share
-   of the circle, then pushed out to the radius along its own Z. The wheel's
-   rotateX carries every card through that depth as it turns, so the near
-   card faces the reader square-on and largest while the ones leaving lean
-   back and shrink. The container's perspective does the foreshortening. */
-@media (max-width: 640px) {
-  .m3-radial__wheel {
-    animation-name: m3-spin-3d;
-    height: 0;
-    top: var(--m3-radial-front);
-  }
-  /* Depth radius, independent of the flat rim: the cylinder must sit well
-     inside the perspective distance or a card crossing the camera plane
-     projects to infinity. Kept to roughly a third of the perspective. */
-  .m3-radial { --m3-radial-r: var(--m3-radial-depth-r); }
-  .m3-radial__slot {
-    top: 0;
-    height: var(--m3-radial-card-h);
-    margin-top: calc(var(--m3-radial-card-h) / -2);
-    transform-origin: 50% 50%;
-    transform:
-      rotateX(calc(var(--i) * -360deg / var(--m3-radial-n)))
-      translateZ(var(--m3-radial-r));
-  }
 }
 .m3-radial__card {
   display: block;
@@ -1506,6 +1658,143 @@ select.zv-field:open {
   line-height: 1.4;
   opacity: 0.7;
 }
+
+/* Footer strip under the wheel (Home.jsx → Featured).
+   The arc sits in the top half of the marquee's 600px box, leaving a wide
+   band of bare sand beneath the centre card. The strip is pulled up into
+   that band by a negative margin — it costs the page no extra height on
+   desktop, it just occupies ground the wheel had already reserved.
+
+   It has to sit ABOVE the wheel in paint order and carry the section's own
+   ground: the outer cards lean far enough down that, left transparent, the
+   rule and the right-hand entries were crossed by a card corner. The band
+   of sand is the wheel's floor — cards pass behind it, not over it. */
+.m3-radial-foot {
+  position: relative;
+  z-index: 1;
+  margin-top: -142px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px 40px;
+  padding-top: 20px;
+  font-family: var(--font-body);
+}
+/* The ground, drawn wider than the shell so it reaches the viewport edges
+   and hides the leaning cards' lower corners along the full rule. Bounded
+   down past the strip by the slack the wheel leaves below it, because the
+   outer cards lean far enough to reappear underneath an exactly-sized mask.
+   It stops well inside the section, so the block below keeps its own
+   ground. */
+.m3-radial-foot::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  bottom: -160px;
+  left: calc(50% - 50vw);
+  width: 100vw;
+  z-index: -1;
+  background: var(--sand);
+  pointer-events: none;
+}
+/* The rule is drawn by the backdrop's top edge so it runs the full width of
+   the viewport, matching the full-bleed wheel above it rather than stopping
+   at the shell's gutters. */
+.m3-radial-foot::after {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: calc(50% - 50vw);
+  width: 100vw;
+  height: 1px;
+  background: var(--line);
+  pointer-events: none;
+}
+.m3-radial-foot__hint {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-size: 0.8125rem;
+  letter-spacing: 0.01em;
+  color: var(--ink-soft);
+}
+/* Small pulsing dot: the one moving thing in the strip, echoing the fact
+   that the wheel above it is live. Stops under reduced motion. */
+.m3-radial-foot__dot {
+  width: 7px;
+  height: 7px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--clay);
+  animation: m3-foot-pulse 2.4s var(--ease-soft) infinite;
+}
+@keyframes m3-foot-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.35; transform: scale(0.7); }
+}
+/* Index of what is on the wheel: a direct route to each project, since a
+   turning card cannot be waited for comfortably. */
+.m3-radial-foot__index {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.m3-radial-foot__index li + li {
+  border-left: 1px solid var(--line);
+}
+.m3-radial-foot__link {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 2px 22px;
+  text-decoration: none;
+  color: inherit;
+  transition: color 400ms var(--ease-soft);
+}
+.m3-radial-foot__index li:last-child .m3-radial-foot__link { padding-right: 0; }
+/* The ordinal and the chevron are phone-only affordances: on desktop the
+   vertical rules already separate the entries and hover carries the link. */
+.m3-radial-foot__num,
+.m3-radial-foot__chev { display: none; }
+.m3-radial-foot__text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.m3-radial-foot__name {
+  font-family: var(--font-display);
+  font-size: 1.0625rem;
+  line-height: 1.15;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: var(--ink);
+  transition: color 400ms var(--ease-soft);
+}
+.m3-radial-foot__meta {
+  font-size: 0.75rem;
+  line-height: 1.3;
+  color: var(--ink-muted);
+}
+.m3-radial-foot__link:hover .m3-radial-foot__name,
+.m3-radial-foot__link:focus-visible .m3-radial-foot__name {
+  color: var(--clay-deep);
+}
+.m3-radial-foot__link:focus-visible {
+  outline: 2px solid var(--clay);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .m3-radial-foot__dot { animation: none; }
+}
+
 @media (max-width: 1023px) {
   /* Tablet: the wheel kept a desktop-sized box (400px) while the cards
      shrank to 300px, so the arc floated in the middle of it. Height is cut
@@ -1520,95 +1809,130 @@ select.zv-field:open {
     margin-bottom: -6px;
   }
   .m3-radial__wheel { top: 8px; }
+  /* Tablet and below the box is trimmed to the arc itself, so there is no
+     slack under the wheel to pull the strip into — it sits below instead. */
+  .m3-radial-foot {
+    margin-top: 28px;
+    gap: 18px 28px;
+  }
+  /* Below desktop the strip sits clear of the arc, so it needs no mask and
+     the rule goes back to the shell width the rest of the page uses. */
+  .m3-radial-foot::before { display: none; }
+  .m3-radial-foot::after { left: 0; width: 100%; }
 }
 @media (max-width: 640px) {
-  /* Phones drop the wheel entirely. An arc that reads well on a wide screen
-     has to curve hard to show three cards in 320-390px, and that steep step
-     swings the outer captions down and rotates them diagonally — the text
-     ends up climbing out of the box. So on a phone the cards run along a
-     flat baseline instead, each given a small static tilt: the same
-     "sheets fanned on a board" idea, laid out linearly rather than radially,
-     so every caption stays horizontal and legible.
-
-     The track slides one card-pitch and repeats. Twenty slots hold four
-     unique projects, so the loop is seamless at any offset. */
-  .m3-radial {
-    --m3-radial-w: 232px;
-    --m3-radial-gap: 16px;
-    --m3-radial-pitch: calc(var(--m3-radial-w) + var(--m3-radial-gap));
-    height: auto;
-    margin-top: 0;
-    margin-bottom: 0;
-    padding-block: 22px;
-    perspective: none;
+  /* Phone: a single stacked list, not a 2x2 grid. The quadrant version read
+     as a spreadsheet — four cells of unequal text with a cross of rules
+     through the middle — and one entry ('Maison individuelle · 2024') always
+     wrapped to two lines, so the two rows never matched. Stacked rows give
+     every name the full width, so nothing wraps, and the ordinal + chevron
+     make each row read as a tappable route into the project rather than a
+     table cell. Rows are 56px tall: comfortably past the 44px touch target. */
+  .m3-radial-foot {
+    margin-top: 8px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
   }
-
-  /* The circle becomes a row. Width/height/margins from the wheel rules are
-     all radius-derived, so they are unset rather than overridden. */
-  .m3-radial__wheel {
-    position: relative;
-    left: auto;
-    top: auto;
-    width: max-content;
-    height: auto;
-    margin-left: 0;
-    border-radius: 0;
-    display: flex;
+  .m3-radial-foot__hint {
+    font-size: 0.6875rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+  }
+  .m3-radial-foot__index {
+    display: block;
+    border-top: 1px solid var(--line);
+  }
+  .m3-radial-foot__index li {
+    border-bottom: 1px solid var(--line);
+  }
+  .m3-radial-foot__index li + li { border-left: 0; }
+  .m3-radial-foot__link,
+  .m3-radial-foot__index li:last-child .m3-radial-foot__link {
+    flex-direction: row;
     align-items: center;
-    gap: var(--m3-radial-gap);
-    /* Start half a card left of centre so a card sits mid-viewport. */
-    padding-left: max(16px, calc(50vw - var(--m3-radial-w) / 2));
-    animation-name: m3-slide;
-    animation-duration: 26s;
-    transform-style: flat;
+    gap: 14px;
+    min-height: 56px;
+    padding: 12px 2px;
   }
-
-  .m3-radial__slot {
-    position: relative;
-    left: auto;
-    top: auto;
-    width: var(--m3-radial-w);
-    flex: 0 0 var(--m3-radial-w);
-    margin-left: 0;
-    transform-origin: 50% 50%;
-    transform-style: flat;
-    /* Alternating lean, a little deeper on every third card so the row
-       reads as scattered rather than zig-zagged. */
-    transform: rotate(var(--m3-tilt, 0deg));
+  /* Tabular figures so 01..04 sit on one vertical edge with the names. */
+  .m3-radial-foot__num {
+    display: block;
+    flex: none;
+    width: 1.6em;
+    font-family: var(--font-body);
+    font-size: 0.6875rem;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.06em;
+    color: var(--clay);
   }
-  .m3-radial__slot:nth-child(3n + 1) { --m3-tilt: -2.5deg; }
-  .m3-radial__slot:nth-child(3n + 2) { --m3-tilt: 1.75deg; }
-  .m3-radial__slot:nth-child(3n + 3) { --m3-tilt: -1deg; }
+  .m3-radial-foot__text {
+    flex: 1 1 auto;
+    gap: 2px;
+  }
+  .m3-radial-foot__name { font-size: 1rem; }
+  .m3-radial-foot__meta { font-size: 0.6875rem; }
+  .m3-radial-foot__chev {
+    display: flex;
+    flex: none;
+    align-items: center;
+    color: var(--ink-muted);
+    transition: transform 400ms var(--ease-soft), color 400ms var(--ease-soft);
+  }
+  /* :active, not :hover — on a phone a tap leaves :hover stuck on the last
+     row touched. */
+  .m3-radial-foot__link:active .m3-radial-foot__chev {
+    transform: translateX(3px);
+    color: var(--clay-deep);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .m3-radial-foot__chev { transition: none; }
+  }
+}
+@media (max-width: 640px) {
+  /* Phones run the same wheel as desktop, only smaller: the cards keep
+     turning with the rim, so the neighbours lean into the frame like fanned
+     sheets and the centre one sits upright. Twenty slots keep the 18° step,
+     so a neighbour's caption tilts 18° — accepted, that is the look. The
+     radius follows from the card pitch, so shrinking the cards tightens the
+     wheel by itself. Only slivers of the neighbours fit a 390px screen, which
+     is the point: the centre card is the one being read. */
+  .m3-radial {
+    --m3-radial-w: 210px;
+    /* Room between neighbours. The gap also feeds the radius, so widening
+       it pushes the leaning cards out sideways AND lets them drop a little
+       further — their inner corners no longer graze the centre card. */
+    --m3-radial-gap: 64px;
+    height: 244px;
+    margin-top: -14px;
+    margin-bottom: 0;
+  }
+  .m3-radial__wheel { top: 6px; animation-duration: 90s; }
 
   .m3-radial__card { padding: 8px; border-radius: 16px; }
   .m3-radial__card img { border-radius: 10px; }
-  .m3-radial__caption { gap: 1px; padding: 10px 4px 2px; }
-  .m3-radial__name { font-size: 0.9375rem; }
-  .m3-radial__meta { font-size: 0.75rem; }
-}
-
-@keyframes m3-slide {
-  to { transform: translate3d(calc(var(--m3-radial-pitch) * -1), 0, 0); }
+  .m3-radial__caption { gap: 1px; padding: 9px 4px 2px; }
+  .m3-radial__name { font-size: 0.875rem; }
+  .m3-radial__meta {
+    font-size: 0.6875rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
 
 @media (max-width: 380px) {
   .m3-radial {
-    --m3-radial-w: 204px;
-    --m3-radial-gap: 14px;
+    --m3-radial-w: 190px;
+    --m3-radial-gap: 56px;
+    height: 228px;
   }
-  .m3-radial__name { font-size: 0.9375rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .m3-radial__wheel { animation: none; will-change: auto; }
   .m3-radial__card img { transition: none; }
-  .m3-radial { --m3-radial-depth: 0; }
-  /* The phone layout is already a flat row; stopping the slide is enough,
-     and the track keeps its scroll so every project stays reachable. */
-  @media (max-width: 640px) {
-    .m3-radial { overflow-x: auto; overscroll-behavior-x: contain; }
-    .m3-radial__wheel { animation: none; }
-  }
 }
 
 /* backface-visibility is deliberately not set here: the scenes apply it
@@ -1669,13 +1993,13 @@ select.zv-field:open {
   justify-content: center;
   /* Top padding clears the fixed close button. */
   padding: 72px 16px 16px;
-  background: rgba(32, 41, 24, 0);
+  background: rgba(15, 36, 62, 0);
   backdrop-filter: blur(0px);
   perspective: 1600px;
   transition: background 320ms ease, backdrop-filter 320ms ease;
 }
 .m3-lb.m3-lb-in {
-  background: rgba(32, 41, 24, 0.95);
+  background: rgba(15, 36, 62, 0.95);
   backdrop-filter: blur(4px);
 }
 
@@ -1700,14 +2024,24 @@ select.zv-field:open {
   opacity: 1;
 }
 
-.m3-lb__figure { margin: 0; max-height: 100%; }
+/* Fixed stage. Every slide occupies exactly the same box so the panel,
+   the caption and the arrows never shift as the reader pages through —
+   the gallery mixes 16:9, 3:2 and square frames. The box is sized from
+   the viewport but capped by a 16:9 ratio, and the image is `contain`ed
+   inside it, so a taller frame letterboxes rather than cropping. */
+.m3-lb__figure {
+  margin: 0;
+  /* Room for the caption and, on a phone, the arrow bar below it. */
+  --m3-lb-h: min(calc(100vh - 200px), calc((100vw - 32px) / 16 * 9));
+  width: calc(var(--m3-lb-h) / 9 * 16);
+  max-width: 100%;
+  height: var(--m3-lb-h);
+}
 
 .m3-lb__img {
   display: block;
-  /* Room for the caption and, on a phone, the arrow bar below it. */
-  max-height: calc(100vh - 200px);
-  width: auto;
-  max-width: 100%;
+  width: 100%;
+  height: 100%;
   border-radius: 16px;
   object-fit: contain;
   backface-visibility: hidden;
@@ -1784,7 +2118,7 @@ select.zv-field:open {
    the vertical middle and anchored to the viewport edges. */
 @media (min-width: 640px) {
   .m3-lb { padding: 16px; }
-  .m3-lb__img { max-height: 80vh; }
+  .m3-lb__figure { --m3-lb-h: min(80vh, calc((100vw - 32px) / 16 * 9)); }
   .m3-lb__close { position: fixed; right: 20px; top: 20px; }
   .m3-lb__panel { flex-direction: row; gap: 0; }
   .m3-lb__navrow { display: contents; }

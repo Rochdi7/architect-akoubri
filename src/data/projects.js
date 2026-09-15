@@ -27,6 +27,9 @@ export const projects = [
       "L'entrée est traitée comme un seuil urbain : une marquise en métal sombre, un éclairage linéaire encastré, et une signalétique en laiton brossé qui capte le moindre reflet nocturne.",
     ],
     cover: img('le-sentier', 5, 'sentier'),
+    // Second frame revealed on card hover: the entrance seen at night, a
+    // different subject to the daytime facade rather than a near-duplicate.
+    hover: img('le-sentier', 9, 'sentier'),
     gallery: range(1, 13).map((n) => img('le-sentier', n, 'sentier')),
   },
   {
@@ -47,6 +50,8 @@ export const projects = [
       "En profondeur, les bureaux de direction basculent vers le noyer et le laiton sombre. Les salles de réunion sont traitées en absorption acoustique intégrale : plafond suspendu, textile mural, tapis épais. Le silence y est un matériau de projet.",
     ],
     cover: img('adostigia', 2, 'adostigia'),
+    // Hover moves from the travertin reception to the walnut director's office.
+    hover: img('adostigia', 16, 'adostigia'),
     gallery: range(1, 22).map((n) => img('adostigia', n, 'adostigia')),
   },
   {

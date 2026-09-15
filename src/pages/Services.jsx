@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import InkTitle from '../components/InkTitle';
 import { services, stats, projects } from '../data/projects';
 import Accordion from '../components/Accordion';
 import { useReveal } from '../hooks/useReveal';
@@ -173,7 +174,7 @@ export default function Services() {
         <div className="shell grid gap-12 lg:grid-cols-[0.7fr_1.3fr] lg:gap-20">
           <div data-reveal className="reveal lg:sticky lg:top-32 lg:self-start">
             <span className="zv-subtitle">Questions</span>
-            <h2 className="zv-h2 mt-5">Avant de nous écrire</h2>
+            <InkTitle className="zv-h2 mt-5">Avant de nous écrire</InkTitle>
           </div>
           <Accordion
             items={faq}

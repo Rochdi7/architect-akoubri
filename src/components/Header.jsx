@@ -6,6 +6,7 @@ import { business } from '../data/business';
 const nav = [
   { to: '/', label: 'Accueil', end: true },
   { to: '/projets', label: 'Projets' },
+  { to: '/maquette-3d', label: 'Maquette 3D' },
   { to: '/agence', label: 'Agence' },
   { to: '/services', label: 'Services' },
   { to: '/journal', label: 'Journal' },
@@ -67,7 +68,7 @@ export default function Header() {
                   to={item.to}
                   end={item.end}
                   className={({ isActive }) =>
-                    `relative rounded-full px-5 py-2 text-sm font-medium transition-colors duration-200 ${
+                    `relative rounded-full px-3.5 py-2 text-sm font-medium transition-colors duration-200 xl:px-5 ${
                       isActive ? 'text-ink' : 'text-ink-soft hover:text-ink'
                     }`
                   }
@@ -75,7 +76,7 @@ export default function Header() {
                   {({ isActive }) => (
                     <>
                       {item.label}
-                      {isActive && <span className="absolute inset-x-5 bottom-1 h-px bg-clay" />}
+                      {isActive && <span className="absolute inset-x-3.5 bottom-1 h-px bg-clay xl:inset-x-5" />}
                     </>
                   )}
                 </NavLink>

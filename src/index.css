@@ -415,7 +415,32 @@ summary::-webkit-details-marker { display: none; }
   background: var(--sand);
 }
 
-/* Frosted tag that floats over card media (CodeSommet badge). */
+/* Typed so GSAP's tween interpolates them instead of stepping. An untyped
+   custom property is an unparsed token: it would flip at the halfway point
+   and the sheen would blink across the pill rather than sweep it. */
+@property --media-tag-sheen {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: -120%;
+}
+
+@property --media-tag-sheen-o {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 0;
+}
+
+/* Frosted tag that floats over card media.
+
+   Dark ink glass rather than the white-on-white it replaces: white text on
+   rgba(255,255,255,0.18) had nothing to sit against over a bright render —
+   on Le Sentier's daytime sky the panel and the type were both near-white
+   and the label all but vanished. Tinting the glass with the brand navy at
+   high alpha keeps white text legible over a blown-out sky AND over a dark
+   interior, which a translucent light panel cannot do in both directions.
+
+   The saturate() lifts the colour the blur washes out, so the panel still
+   reads as glass over the image rather than as flat paint. */
 .media-tag {
   position: absolute;
   top: 1rem;
@@ -426,10 +451,48 @@ summary::-webkit-details-marker { display: none; }
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: #fff;
-  background: rgba(255, 255, 255, 0.18);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(15, 36, 62, 0.58);
+  border: 1px solid rgba(255, 255, 255, 0.22);
   border-radius: 999px;
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(12px) saturate(140%);
+  -webkit-backdrop-filter: blur(12px) saturate(140%);
+  /* A hairline inner highlight along the top edge — the cue that reads as a
+     lit glass rim. Kept inside the pill so it cannot dirty the card. */
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    0 2px 10px rgba(15, 36, 62, 0.22);
+  /* GSAP drives these on card hover; the declarations give the first frame a
+     number to interpolate from and are the resting state without the chunk. */
+  transform: translateZ(0);
+  will-change: auto;
+}
+
+/* The sheen that sweeps the pill on hover. A pseudo-element rather than a
+   background-position tween: it can be clipped to the pill's radius and
+   composited on its own layer, so the sweep never repaints the image under
+   it. --media-tag-sheen is the travel, driven by GSAP from -120% to 120%. */
+.media-tag::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(
+    115deg,
+    transparent 38%,
+    rgba(255, 255, 255, 0.38) 50%,
+    transparent 62%
+  );
+  transform: translateX(var(--media-tag-sheen, -120%));
+  opacity: var(--media-tag-sheen-o, 0);
+}
+
+/* Fallback where backdrop-filter is unavailable: drop to an opaque panel so
+   the label never sits on a wash of the image with no contrast at all. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .media-tag {
+    background: rgba(15, 36, 62, 0.82);
+  }
 }
 
 /* ── Testimonial wall ─────────────────────────────────────────────
@@ -707,6 +770,16 @@ summary::-webkit-details-marker { display: none; }
   clip-path: polygon(0 0, 100% 0, 70% 100%, 0 100%);
 }
 
+/* The side previews page the carousel when tapped. `manipulation` drops the
+   ~300ms double-tap-to-zoom wait, so the slide changes on the first tap
+   instead of feeling laggy; vertical page scrolling still works because the
+   swipe handler only claims gestures that are mostly horizontal. */
+.slab--left,
+.slab--right {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
 .slab--left img,
 .slab--right img {
   /* The previews are decorative crops — nudge the focal point inward
@@ -718,6 +791,79 @@ summary::-webkit-details-marker { display: none; }
 .slab--main {
   flex: 1 1 auto;
   border-radius: 20px;
+}
+
+/* Hover-to-expand, pointer devices only.
+   Each slab derives its width from an --open flag (0 = preview, 1 = open)
+   rather than animating flex-basis or width directly. Animating the widths
+   themselves desynchronises them: a panel whose target size depends on a
+   sibling's resolved width only starts once that sibling has already moved,
+   so the row runs short for that window and the growing panel's edge slides
+   out from under a stationary cursor, dropping :hover and flickering. One
+   shared numeric flag keeps every panel on the same frame and the same
+   curve, so the three always add up to the row.
+   Widths: previews 27%, centre the remainder, matching the resting design. */
+@media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
+  .slab-row > .slab {
+    --open: 0;
+    /* The three widths must total the row exactly, gaps included, or the row
+       overflows its container and shifts sideways as panels open (it did:
+       27/73/27 came to 127% and pushed 383px past the shell).
+       Closed panels sit at 20%, so the open one takes `60% - 2.5rem` and the
+       three plus two 1.25rem gaps land on exactly 100%. Squeezing the closed
+       pair from the resting 27% to 20% is what buys the open panel its extra
+       width — without it "expanding" would land narrower than the centre
+       slab already is. */
+    flex: 0 0 calc(20% + var(--open) * (40% - 2.5rem));
+    transition:
+      --open 620ms cubic-bezier(0.65, 0, 0.35, 1),
+      opacity 620ms cubic-bezier(0.65, 0, 0.35, 1);
+    /* Any reveal stagger on an ancestor must not leak in here: an inherited
+       transition-delay would start the panels apart and re-open the gap the
+       shared flag exists to close. */
+    transition-delay: 0s !important;
+  }
+
+  .slab-row > .slab--main { --open: 1; }
+
+  /* Hovering a preview opens it and hands the centre back to preview width. */
+  .slab-row:has(> .slab--left:hover) > .slab--left,
+  .slab-row:has(> .slab--right:hover) > .slab--right { --open: 1; }
+
+  .slab-row:has(> .slab--left:hover) > .slab--main,
+  .slab-row:has(> .slab--right:hover) > .slab--main { --open: 0; }
+
+  /* The unopened panels fade back so the wide one leads. */
+  .slab-row:has(> .slab--left:hover) > .slab:not(.slab--left),
+  .slab-row:has(> .slab--right:hover) > .slab:not(.slab--right) { opacity: 0.72; }
+
+  /* A preview that can be clicked should say so. */
+  .slab-row > .slab--left,
+  .slab-row > .slab--right { cursor: pointer; }
+
+  /* The diagonal cut is what makes a preview read as a preview. Once one is
+     opened it is the main panel for that moment, so it straightens out. */
+  .slab-row > .slab--left,
+  .slab-row > .slab--right {
+    transition:
+      --open 620ms cubic-bezier(0.65, 0, 0.35, 1),
+      opacity 620ms cubic-bezier(0.65, 0, 0.35, 1),
+      clip-path 620ms cubic-bezier(0.65, 0, 0.35, 1);
+  }
+
+  .slab-row > .slab--left:hover {
+    -webkit-clip-path: polygon(4% 0, 100% 0, 100% 100%, 0 100%);
+    clip-path: polygon(4% 0, 100% 0, 100% 100%, 0 100%);
+  }
+
+  .slab-row > .slab--right:hover {
+    -webkit-clip-path: polygon(0 0, 100% 0, 96% 100%, 0 100%);
+    clip-path: polygon(0 0, 100% 0, 96% 100%, 0 100%);
+  }
+
+  /* Previews are dimmed by default; the open one comes up to full. */
+  .slab-row > .slab--left:hover img,
+  .slab-row > .slab--right:hover img { opacity: 1; }
 }
 
 /* Slide-in on paging. Direction depends on which way the user moved. */
@@ -960,5 +1106,49 @@ summary::-webkit-details-marker { display: none; }
   }
   .akoubri-mark mask g[opacity] {
     opacity: 1 !important;
+  }
+}
+
+/* ── Retour en haut ─────────────────────────────────────────────────────
+   Fixed bottom-right on every page, mounted once in App. Sized and coloured
+   like the copper primary button so it reads as part of the same family.
+
+   The at-rest state here is the VISIBLE one on purpose: if the motion chunk
+   never loads the control still works. useBackToTop hides it and drives the
+   reveal itself, which is also why nothing below sets opacity or transform —
+   GSAP owns both once it is in play. */
+.back-to-top {
+  position: fixed;
+  right: var(--gutter);
+  bottom: var(--gutter);
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 999px;
+  background: var(--clay);
+  color: var(--paper);
+  box-shadow: 0 10px 30px rgba(15, 36, 62, 0.22);
+  transition: background 320ms var(--ease-soft), box-shadow 320ms var(--ease-soft);
+}
+
+/* A tap leaves :hover stuck on touch devices, so the lift is desktop-only. */
+@media (hover: hover) {
+  .back-to-top:hover {
+    background: var(--clay-deep);
+    box-shadow: 0 14px 34px rgba(15, 36, 62, 0.3);
+  }
+}
+
+.back-to-top:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+
+@media (min-width: 768px) {
+  .back-to-top {
+    width: 3.25rem;
+    height: 3.25rem;
   }
 }

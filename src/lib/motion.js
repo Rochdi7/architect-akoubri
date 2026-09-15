@@ -21,7 +21,7 @@ export const CONDITIONS = {
 /* One shared promise so every scene on a page resolves the same chunk; a
    failed load is forgotten so a later mount can retry. */
 let pending = null;
-export function loadMotion() {
+function importMotion() {
   if (!pending) {
     pending = import('./gsap').catch((err) => {
       pending = null;
@@ -29,6 +29,83 @@ export function loadMotion() {
     });
   }
   return pending;
+}
+
+/* ── Deferred fetch ───────────────────────────────────────────────────────
+   The chunk is not on the critical path: nothing above the fold needs it, so
+   the request waits rather than competing with the fonts and the hero image
+   during the initial load.
+
+   The catch is that it must not wait for the *scroll itself*. A set piece
+   sits a screen or two down; if the fetch only started on the first wheel
+   tick, the chunk would still be in flight as the section came into view and
+   its reveal would be missed entirely. So the gate opens on the earliest
+   signal that the reader is engaging at all — a pointer moving over the page,
+   a key, a touch — which in practice lands hundreds of milliseconds before
+   any scrolling begins, and falls back to an idle timer for a session where
+   nothing moves at all. By the time a scene is actually reached, GSAP is
+   there.
+
+   All listeners are passive and one-shot. A scene already inside the viewport
+   on load bypasses the gate entirely (see `useGsapScene`). Once anything
+   opens it, it stays open for the rest of the session. */
+let gate = null;
+
+const INTENT = [
+  'pointermove',
+  'pointerdown',
+  'wheel',
+  'touchstart',
+  'touchmove',
+  'keydown',
+  'scroll',
+];
+
+/* A reader who has not moved anything at all still gets the chunk eventually,
+   so a keyboard-free, mouse-free session is not left unanimated. Long enough
+   that the load itself is well past — this is a backstop, not the main path;
+   in practice `pointermove` opens the gate first. */
+const IDLE_MS = 6000;
+
+/* One gate for the whole session, created on first use and never torn down.
+
+   It must be shared rather than per-caller: several scenes wait on it at
+   once, and under StrictMode each of them mounts, cleans up and mounts
+   again. A per-caller gate would let the first cleanup remove the listeners
+   the second mount is still waiting on, and nothing would ever resolve. */
+function openWhenEngaged() {
+  if (gate) return gate;
+  if (typeof window === 'undefined') return (gate = Promise.resolve());
+
+  // Already scrolled (a reload part-way down, or a #hash landing).
+  if (window.scrollY > 0) return (gate = Promise.resolve());
+
+  gate = new Promise((resolve) => {
+    const aborter = new AbortController();
+    let timer = 0;
+    const fire = () => {
+      clearTimeout(timer);
+      aborter.abort();
+      resolve();
+    };
+    INTENT.forEach((ev) =>
+      window.addEventListener(ev, fire, { passive: true, once: true, signal: aborter.signal })
+    );
+    timer = setTimeout(fire, IDLE_MS);
+  });
+  return gate;
+}
+
+/* Request the chunk. `now: true` skips the scroll gate — used by scenes that
+   are already on screen, where waiting would mean a visible pop-in. */
+export function loadMotion({ now = false } = {}) {
+  if (now) {
+    // An on-screen scene needs it immediately; mark the gate open so every
+    // other waiting scene proceeds too rather than sitting on a gesture.
+    gate = Promise.resolve();
+    return importMotion();
+  }
+  return openWhenEngaged().then(importMotion);
 }
 
 /* Lazy images (the site sets width/height everywhere, but a late decode can
@@ -61,7 +138,7 @@ function refreshAfterImages(ScrollTrigger, scope, signal) {
    The page is fully laid out and visible before any of this runs. A start
    state is only ever applied by GSAP itself, so a chunk that never arrives
    leaves the site looking correct, just unanimated. */
-export function useGsapScene(scopeRef, build, deps = []) {
+export function useGsapScene(scopeRef, build, deps = [], { defer = false } = {}) {
   useEffect(() => {
     if (!MOTION_3D || !scopeRef.current) return undefined;
 
@@ -71,7 +148,17 @@ export function useGsapScene(scopeRef, build, deps = []) {
     let settle = 0;
     const aborter = new AbortController();
 
-    loadMotion()
+    // A scene already inside (or just below) the viewport must not wait on a
+    // gesture — it would pop in mid-read. Anything further down rides the
+    // scroll gate, so the chunk stays off the critical path on load.
+    // `defer` is for a scope whose position says nothing about when it
+    // animates — a viewport-fixed control, say, which sits at the top of the
+    // box model but only reveals far down the page.
+    const box = scopeRef.current.getBoundingClientRect();
+    const near =
+      !defer && box.top < window.innerHeight * 1.5 && box.bottom > 0;
+
+    loadMotion({ now: near })
       .then((lib) => {
         const scope = scopeRef.current;
         if (cancelled || !scope) return;

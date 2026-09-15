@@ -2,8 +2,10 @@ import { useEffect } from 'react';
 import { Route, Routes, useLocation, useNavigationType } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
+import BackToTop from './components/BackToTop';
 import Home from './pages/Home';
 import Projects from './pages/Projects';
+import Maquette from './pages/Maquette';
 import ProjectDetail from './pages/ProjectDetail';
 import Agency from './pages/Agency';
 import Services from './pages/Services';
@@ -19,6 +21,7 @@ import { getPost } from './data/posts';
 const TITLES = {
   '/': "Akoubri — Cabinet d'architecture & design d'intérieur",
   '/projets': 'Projets — Akoubri',
+  '/maquette-3d': 'Maquette 3D — Akoubri',
   '/agence': 'L\'agence — Akoubri',
   '/services': 'Services — Akoubri',
   '/contact': 'Contact — Akoubri',
@@ -37,6 +40,7 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/projets" element={<Projects />} />
           <Route path="/projets/:slug" element={<ProjectDetail />} />
+          <Route path="/maquette-3d" element={<Maquette />} />
           <Route path="/agence" element={<Agency />} />
           <Route path="/services" element={<Services />} />
           <Route path="/contact" element={<Contact />} />
@@ -48,6 +52,7 @@ export default function App() {
         </Routes>
       </main>
       <Footer />
+      <BackToTop />
     </>
   );
 }

@@ -320,6 +320,41 @@ Si `prefers-reduced-motion` est actif ou si l'API n'existe pas, **tout est
 affiché immédiatement** — jamais masqué.
 
 <details>
+<summary><b>Spatial Stories — la maquette 3D de la page d'accueil</b></summary>
+
+<br />
+
+`src/components/architecture/` · six volumes d'étude en **three.js**, présentés
+comme en revue de projet : une maquette sur son socle, une liste de projets,
+un titre, une localisation.
+
+- **Les bâtiments sont des données**, pas du code de rendu : chaque projet est
+  une liste de *pièces* (boîtes et colonnes en mètres) dans
+  `src/data/spatialStories.js`, écrite avec quelques aides (`mass`, `slab`,
+  `openings`, `columns`, `fins`…). La scène ne connaît que des pièces.
+- **Une seule géométrie** de boîte et une de cylindre, mises à l'échelle ;
+  dix matériaux partagés ; arêtes en filet d'encre. Une maquette coûte
+  quelques centaines d'`Object3D`, aucune ressource GPU propre.
+- **Rien dans le bundle initial** : `three` vit dans son propre chunk
+  (`three-*.js`, ≈ 120 Ko gzip) demandé par `import()` quand la section
+  approche à 600 px du viewport. Avant, et sans WebGL utilisable, une
+  **élévation SVG** dessinée depuis les mêmes données tient la place.
+- **La boucle ne tourne que si la scène est à l'écran** ; la carte d'ombres
+  n'est redessinée que quand la maquette change ; le ratio de pixels baisse
+  tout seul si les images dépassent ~26 ms.
+- **Récit au défilement** : la section s'épingle sur un peu plus d'un écran ;
+  la caméra tourne d'un tiers de tour et se relève, la masse secondaire
+  (`phase: 2`) se pose, puis la note du projet apparaît.
+- **Téléphone** : composition portrait dédiée (caméra plus haute, maquette
+  dans les deux tiers supérieurs, liste en rangée de numéros), détails fins
+  omis, ombres 1024 px, pas de parallaxe.
+- **`prefers-reduced-motion`** : pas d'épinglage, caméra fixe, chaque
+  maquette affichée complète et au repos ; les boutons de la liste restent
+  au clavier (flèches, Home, End).
+
+</details>
+
+<details>
 <summary><b>Le carrousel d'intérieurs — trapèzes en miroir</b></summary>
 
 <br />
@@ -569,6 +604,8 @@ Build mesuré (`npm run build`, 1,55 s) :
   et respectent `prefers-reduced-motion` **et** `navigator.connection.saveData` —
   une grille de clips ne décode jamais quatre vidéos simultanément sur téléphone.
 - Le fond du hero est un extrait recompressé de 1,3 Mo, pas le film source.
+- **`three` (≈ 120 Ko gzip) est dans un chunk à part**, chargé par la section
+  Spatial Stories seulement quand elle approche — jamais au premier écran.
 - `width` et `height` sont posés sur **toutes** les images → aucun décalage de mise en page.
 
 > [!TIP]
@@ -623,25 +660,15 @@ Build mesuré (`npm run build`, 1,55 s) :
 - [ ] Ajouter une error boundary — une erreur de rendu vide actuellement toute la SPA
 
 <details>
-<summary><b>Exploration — ajouter de la 3D</b></summary>
+<summary><b>Exploration — ajouter de la 3D · fait</b></summary>
 
 <br />
 
-Le cabinet vend des images de synthèse : une expérience 3D sur le site ne serait
-pas décorative, elle serait **la thèse du métier rendue littérale**.
-
-Le compromis central : `three` tree-shaken pèse ~100 Ko gzip, soit **plus que le
-site entier**. La règle serait donc absolue — **la 3D ne doit jamais toucher le
-bundle initial** :
-
-```js
-const Viewer = lazy(() => import('./components/Model3D'));
-```
-
-Puis déclenchement au clic ou à l'intersection, exactement comme les vidéos de
-carte le font déjà. À noter : la CSP interdisant les CDN, la librairie devra être
-empaquetée ; et Draco/Meshopt tournant en worker, `worker-src 'self' blob:`
-deviendrait probablement nécessaire.
+Réalisé sous la forme de la section **Spatial Stories** de la page d'accueil
+(voir « Interactions notables »). La règle tenue : `three` n'entre jamais dans
+le bundle initial — chunk séparé, `import()` à l'intersection, élévation SVG en
+attendant et en repli. Pas de Draco/Meshopt ni de worker : les maquettes sont
+procédurales, il n'y a aucun fichier 3D à charger.
 
 </details>
 

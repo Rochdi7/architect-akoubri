@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { useCardHover } from '../hooks/useCardHover';
 
 /**
  * Project card — the CodeSommet our-work card anatomy: a white shell with
@@ -12,6 +13,10 @@ import { Link } from 'react-router-dom';
  */
 export default function ProjectCard({ project, delay = 0 }) {
   const videoRef = useRef(null);
+  // Only projects with a second frame get the swap; Villa Bambou has a single
+  // render and Zahiya's well is a video, so both keep their static cover.
+  const swap = Boolean(project.hover) && !project.video;
+  const wellRef = useCardHover(swap);
 
   useEffect(() => {
     const v = videoRef.current;
@@ -39,10 +44,10 @@ export default function ProjectCard({ project, delay = 0 }) {
   }, []);
 
   return (
-    <article data-reveal data-reveal-delay={delay} className="reveal">
-      <Link to={`/projets/${project.slug}`} className="group block">
-        <div className="media-card">
-          <div className="media-well aspect-[16/10]">
+    <article data-reveal data-reveal-delay={delay} className="reveal h-full">
+      <Link to={`/projets/${project.slug}`} className="group block h-full">
+        <div className="media-card flex h-full flex-col">
+          <div ref={wellRef} className="media-well aspect-[16/10]">
             {project.video ? (
               <video
                 ref={videoRef}
@@ -57,19 +62,44 @@ export default function ProjectCard({ project, delay = 0 }) {
                 tabIndex={-1}
               />
             ) : (
-              <img
-                src={project.cover}
-                alt={`${project.name} — ${project.subtitle}`}
-                loading="lazy"
-                width="1280"
-                height="800"
-                className="h-full w-full object-cover transition-transform duration-[1200ms] ease-arch group-hover:scale-105"
-              />
+              <>
+                <img
+                  data-card-img="base"
+                  src={project.cover}
+                  alt={`${project.name} — ${project.subtitle}`}
+                  loading="lazy"
+                  width="1280"
+                  height="800"
+                  /* The CSS zoom stays on cards without a swap. Where GSAP
+                     drives the pair it would fight the tween for the same
+                     transform, so it is dropped for those. */
+                  className={`h-full w-full object-cover ${
+                    swap ? '' : 'transition-transform duration-[1200ms] ease-arch group-hover:scale-105'
+                  }`}
+                />
+                {swap && (
+                  <img
+                    data-card-img="over"
+                    src={project.hover}
+                    alt=""
+                    aria-hidden="true"
+                    loading="lazy"
+                    width="1280"
+                    height="800"
+                    /* Starts hidden; GSAP sets the initial scale and drives
+                       both. A Tailwind scale-* utility here would write
+                       --tw-scale-* vars that GSAP's own transform cannot
+                       compose with, and the zoom would silently never apply.
+                       Without the chunk this frame simply never shows. */
+                    className="absolute inset-0 h-full w-full object-cover opacity-0"
+                  />
+                )}
+              </>
             )}
             <span className="media-tag">{project.category}</span>
           </div>
 
-          <div className="px-4 py-4 sm:px-5">
+          <div className="flex flex-1 flex-col px-4 py-4 sm:px-5">
             <div className="flex items-start justify-between gap-4">
               <h3 className="font-display text-xl transition-colors group-hover:text-clay sm:text-2xl">
                 {project.name}
@@ -81,7 +111,10 @@ export default function ProjectCard({ project, delay = 0 }) {
             <p className="mt-1 text-sm text-ink-soft">
               {project.subtitle} · {project.location}
             </p>
-            <p className="mt-3 text-sm leading-relaxed text-ink-soft">
+            {/* grow pushes the meta row to the card’s foot, so the rules
+                line up across a row whether the excerpt runs two lines or
+                three. */}
+            <p className="mt-3 grow text-sm leading-relaxed text-ink-soft">
               {project.excerpt}
             </p>
             <div className="mt-4 flex flex-wrap gap-x-5 gap-y-1.5 border-t border-line pt-4 text-xs text-ink-muted">

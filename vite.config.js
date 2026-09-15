@@ -19,6 +19,10 @@ export default defineConfig({
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom', 'react-router-dom'],
+          // three.js is only ever reached through the dynamic import in
+          // components/architecture/SpatialStories.jsx, so this chunk is
+          // fetched when the section nears the viewport, never up front.
+          three: ['three'],
         },
       },
     },
