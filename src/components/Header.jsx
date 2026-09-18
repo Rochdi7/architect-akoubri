@@ -1,21 +1,23 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import AkoubriMark from './AkoubriMark';
+import QuoteModal from './QuoteModal';
 import { business } from '../data/business';
 
 const nav = [
   { to: '/', label: 'Accueil', end: true },
   { to: '/projets', label: 'Projets' },
-  { to: '/maquette-3d', label: 'Maquette 3D' },
   { to: '/agence', label: 'Agence' },
   { to: '/services', label: 'Services' },
-  { to: '/journal', label: 'Journal' },
+  { to: '/services/permis-de-construire-marrakech', label: 'Permis' },
+  // { to: '/journal', label: 'Journal' },  // masqué — à remettre plus tard
   { to: '/contact', label: 'Contact' },
 ];
 
 export default function Header() {
   const [hidden, setHidden] = useState(false);
   const [open, setOpen] = useState(false);
+  const [quote, setQuote] = useState(false);
   const { pathname } = useLocation();
 
   // Hide-on-scroll-down / show-on-scroll-up, same behaviour as the
@@ -84,9 +86,9 @@ export default function Header() {
             </nav>
 
             <div className="relative z-10 flex items-center gap-2 pr-1">
-              <Link to="/contact" className="btn-cta">
+              <button type="button" onClick={() => setQuote(true)} className="btn-cta">
                 Demander un devis
-              </Link>
+              </button>
             </div>
           </div>
         </div>
@@ -139,16 +141,20 @@ export default function Header() {
               </Link>
             </div>
 
-            <Link
-              to="/contact"
-              aria-label="Nous contacter"
+            {/* The phone's only always-visible CTA — the drawer button is
+                two taps away. Opens the dialog rather than routing to
+                /contact, which the nav already reaches. */}
+            <button
+              type="button"
+              onClick={() => { setOpen(false); setQuote(true); }}
+              aria-label="Demander un devis"
               className="relative z-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-ink text-[var(--paper)] transition-colors hover:bg-clay"
             >
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <path d="M4 6h16v12H4z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
                 <path d="m4 7 8 6 8-6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
-            </Link>
+            </button>
           </div>
         </div>
       </header>
@@ -194,15 +200,25 @@ export default function Header() {
               </NavLink>
             ))}
           </nav>
-          <Link to="/contact" className="btn btn-primary mt-8 w-full">
+          {/* The drawer closes first: it owns a body scroll lock of its own,
+              and leaving both up would have the two restore it in whichever
+              order they happen to unmount. */}
+          <button
+            type="button"
+            onClick={() => { setOpen(false); setQuote(true); }}
+            className="btn btn-primary mt-8 w-full"
+          >
             Demander un devis
-          </Link>
+          </button>
           <div className="mt-7 space-y-1 text-sm text-ink-muted">
             <a href={`mailto:${business.email}`} className="block hover:text-clay">{business.email}</a>
             <a href={business.phoneHref} className="block hover:text-clay">{business.phone}</a>
+            <a href={business.phone2Href} className="block hover:text-clay">{business.phone2}</a>
           </div>
         </div>
       </div>
+
+      <QuoteModal open={quote} onClose={() => setQuote(false)} />
     </>
   );
 }

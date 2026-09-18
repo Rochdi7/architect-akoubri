@@ -22,7 +22,7 @@ export const posts = [
     author: 'Akoubri',
     excerpt:
       "Honoraires au pourcentage, au forfait, à la vacation : trois façons de facturer la même mission. Ce qu'il faut vérifier avant de signer, ligne par ligne.",
-    cover: '/media/adostigia/adostigia-01.jpg',
+    cover: '/media/projets/akoubri_adostigia-reception-01.webp',
     body: [
       {
         kind: 'p',
@@ -51,7 +51,7 @@ export const posts = [
       },
       {
         kind: 'image',
-        src: '/media/adostigia/adostigia-08.jpg',
+        src: '/media/projets/akoubri_adostigia-director-office-08.webp',
         alt: "Plans et échantillons de matières posés sur une table de réunion",
         caption: 'Une phase de conception se mesure en arbitrages, pas en heures.',
       },
@@ -80,7 +80,7 @@ export const posts = [
     author: 'Akoubri',
     excerpt:
       "Une image de synthèse n'est pas un argument de vente. C'est un outil d'arbitrage qui déplace les mauvaises surprises de la phase chantier vers la phase conception, là où elles ne coûtent presque rien.",
-    cover: '/media/adostigia/adostigia-22.jpg',
+    cover: '/media/projets/akoubri_adostigia-waiting-lounge-22.webp',
     body: [
       {
         kind: 'p',
@@ -93,7 +93,7 @@ export const posts = [
       },
       {
         kind: 'image',
-        src: '/media/zahiya/zahiya-12.jpg',
+        src: '/media/projets/akoubri_zahiya-entrance-signage-01.webp',
         alt: "Séjour rendu en images de synthèse, lumière de fin de journée",
         caption: 'Zahiya — étude de lumière rasante sur le séjour, avant validation des baies.',
       },
@@ -131,7 +131,7 @@ export const posts = [
     author: 'Akoubri',
     excerpt:
       "À cette latitude, le soleil n'est pas un agrément : c'est une contrainte structurante. Loggias profondes, brise-soleil et béton teinté — comment la façade du Sentier a été calée sur la course du soleil.",
-    cover: '/media/le-sentier/sentier-05.jpg',
+    cover: '/media/projets/akoubri_le-sentier-toiture-piscine-atlas-01.webp',
     body: [
       {
         kind: 'p',
@@ -144,7 +144,7 @@ export const posts = [
       },
       {
         kind: 'image',
-        src: '/media/le-sentier/sentier-09.jpg',
+        src: '/media/projets/akoubri_le-sentier-toiture-piscine-crepuscule-03.webp',
         alt: 'Loggias profondes en béton teinté sur la façade du Sentier',
         caption: "Deux mètres de retrait : l'ombre portée protège la baie sans obstruer la vue.",
       },
@@ -181,7 +181,7 @@ export const posts = [
     author: 'Akoubri',
     excerpt:
       "Travertin, noyer, laiton brossé : trois matières qui vieillissent bien, et la méthode que nous suivons pour les arbitrer avec un maître d'ouvrage sans y passer six mois.",
-    cover: '/media/adostigia/adostigia-16.jpg',
+    cover: '/media/projets/akoubri_adostigia-director-office-16.webp',
     body: [
       {
         kind: 'p',
@@ -194,7 +194,7 @@ export const posts = [
       },
       {
         kind: 'image',
-        src: '/media/adostigia/adostigia-11.jpg',
+        src: '/media/projets/akoubri_adostigia-director-office-11.webp',
         alt: 'Mur de travertin rainuré rétroéclairé et comptoir en pierre claire',
         caption: 'Travertin rainuré et rétroéclairage : la matière fait le décor, rien n’est rapporté.',
       },
@@ -231,7 +231,7 @@ export const posts = [
     author: 'Akoubri',
     excerpt:
       "Entre le dépôt du dossier et l'autorisation, il se passe rarement ce qui était prévu. Les étapes, les délais observés et les trois causes de retard que l'on peut éviter en amont.",
-    cover: '/media/le-sentier/sentier-02.jpg',
+    cover: '/media/projets/akoubri_le-sentier-entrance-signage-02.webp',
     body: [
       {
         kind: 'p',
@@ -255,7 +255,7 @@ export const posts = [
       },
       {
         kind: 'image',
-        src: '/media/le-sentier/sentier-11.jpg',
+        src: '/media/projets/akoubri_le-sentier-rooftop-bar-11.webp',
         alt: "Immeuble résidentiel en cours d'étude, vue d'angle",
         caption: "Le règlement d'urbanisme décide de la volumétrie avant l'architecte.",
       },
@@ -283,7 +283,7 @@ export const posts = [
     author: 'Akoubri',
     excerpt:
       "Dans un plateau de bureaux, l'acoustique décide du confort bien avant la couleur des murs. Ce que nous avons appris en traitant les salles de réunion du siège Adostigia en absorption intégrale.",
-    cover: '/media/adostigia/adostigia-14.jpg',
+    cover: '/media/projets/akoubri_adostigia-director-office-desk-14.webp',
     body: [
       {
         kind: 'p',
@@ -296,7 +296,7 @@ export const posts = [
       },
       {
         kind: 'image',
-        src: '/media/adostigia/adostigia-19.jpg',
+        src: '/media/projets/akoubri_adostigia-director-office-19.webp',
         alt: 'Salle de réunion traitée en absorption acoustique, textile mural et tapis épais',
         caption: 'Plafond suspendu, textile mural, tapis épais : trois surfaces, une seule intention.',
       },

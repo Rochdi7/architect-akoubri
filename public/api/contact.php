@@ -12,7 +12,7 @@
 declare(strict_types=1);
 
 // ── Configure ────────────────────────────────────────────────────────────
-$TO      = 'contact@akoubri.com';   // <-- change to the real recipient
+$TO      = 'akoubriarchi@gmail.com';
 $SUBJECT = 'Nouvelle demande — site Akoubri';
 // On Hostinger the From address must belong to your own domain or the mail
 // is rejected as spoofed. Create this mailbox in hPanel first.

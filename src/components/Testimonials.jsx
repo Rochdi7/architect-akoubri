@@ -163,8 +163,9 @@ function XMark() {
   );
 }
 
-// "Youssef Benali" → "YB". Monogram discs stand in for photos, since
-// inventing portraits of clients who did not sit for one would be a lie.
+// "Khaoula Janane" → "KJ". Monogram discs stand in for photos: Google
+// review avatars are not ours to redistribute, and inventing portraits of
+// clients who did not sit for one would be a lie.
 function initials(name) {
   return name
     .split(/\s+/)

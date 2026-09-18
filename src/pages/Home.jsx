@@ -10,6 +10,7 @@ import Testimonials from '../components/Testimonials';
 import Showcase from '../components/Showcase';
 import { useAxonometric } from '../hooks/useAxonometric';
 import { useFloorPlates } from '../hooks/useFloorPlates';
+import { usePageMeta } from '../hooks/usePageMeta';
 
 /* Home — laid out on the Zenvira reference homepage.
 
@@ -23,6 +24,12 @@ import { useFloorPlates } from '../hooks/useFloorPlates';
 export default function Home() {
   useReveal();
 
+  usePageMeta({
+    description:
+      "Cabinet d'architecture à Marrakech : conception architecturale, accompagnement au permis de construire, suivi de chantier, design d'intérieur et images de synthèse.",
+    canonical: '/',
+  });
+
   return (
     <>
       <Hero />
@@ -34,7 +41,11 @@ export default function Home() {
       <Showcase items={showcase} />   {/* PROTECTED — Les espaces  */}
       <CoreValues />
       <Services />
-      <Testimonials items={testimonials} />  {/* PROTECTED         */}
+      {/* PROTECTED — le mur d'avis. Les citations non vérifiées ont été
+          retirées (testimonials === []) : on masque la section plutôt que
+          d'afficher un titre au-dessus du vide. Elle revient telle quelle
+          dès que de vrais avis sont remis dans data/projects.js. */}
+      {testimonials.length > 0 && <Testimonials items={testimonials} />}
       <Process />
       <Faq />
       <GetInTouch />
@@ -64,7 +75,7 @@ function Hero() {
       {/* Media layer */}
       <div className="absolute inset-0 z-0">
         <img
-          src="/media/video/hero-poster.jpg"
+          src="/media/projets/akoubri_zahiya-facade-loop-poster.webp"
           alt=""
           aria-hidden="true"
           className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ${
@@ -76,8 +87,8 @@ function Hero() {
           className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ${
             ready ? 'opacity-100' : 'opacity-0'
           }`}
-          src="/media/video/hero-loop.mp4"
-          poster="/media/video/hero-poster.jpg"
+          src="/media/projets/akoubri_zahiya-facade-loop.mp4"
+          poster="/media/projets/akoubri_zahiya-facade-loop-poster.webp"
           autoPlay
           loop
           muted
@@ -111,7 +122,8 @@ function Hero() {
 
           <div data-reveal data-reveal-delay="140" className="reveal max-w-md">
             <p className="zv-body text-white/85">
-              Résidences, villas et espaces de travail. De l'esquisse au
+              Résidences, villas et espaces de travail à Marrakech. De la
+              conception architecturale au permis de construire, puis au
               chantier, avec des images de synthèse pour décider sur pièces
               plutôt que sur promesse.
             </p>
@@ -174,15 +186,25 @@ function DesignStories() {
           <div className="max-w-[473px]">
             <p className="zv-body zv-muted">
               Chaque projet est modélisé et rendu avant d'être construit. Vous
-              arbitrez sur des images fidèles, pas sur des intentions.
+              arbitrez sur des images fidèles, pas sur des intentions — de la
+              conception jusqu'au dépôt du dossier.
             </p>
-            <Link
-              to="/maquette-3d"
-              className="mt-5 inline-flex items-center gap-2 border-b border-line pb-1 text-[12px] font-medium uppercase tracking-[0.14em] text-ink transition-colors hover:border-clay hover:text-clay"
-            >
-              Explorer la maquette 3D
-              <ArrowNE />
-            </Link>
+            <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-3">
+              <Link
+                to="/projets"
+                className="inline-flex items-center gap-2 border-b border-line pb-1 text-[12px] font-medium uppercase tracking-[0.14em] text-ink transition-colors hover:border-clay hover:text-clay"
+              >
+                Voir les projets
+                <ArrowNE />
+              </Link>
+              <Link
+                to="/services/permis-de-construire-marrakech"
+                className="inline-flex items-center gap-2 border-b border-line pb-1 text-[12px] font-medium uppercase tracking-[0.14em] text-ink transition-colors hover:border-clay hover:text-clay"
+              >
+                Permis de construire à Marrakech
+                <ArrowNE />
+              </Link>
+            </div>
           </div>
         </div>
 
@@ -194,8 +216,8 @@ function DesignStories() {
             aria-label="Le Sentier — voir le projet"
           >
             <img
-              src="/media/le-sentier/sentier-05.jpg"
-              alt="Le Sentier — façade principale"
+              src="/media/projets/akoubri_le-sentier-toiture-piscine-atlas-01.webp"
+              alt="Toiture-terrasse du Sentier : piscine à débordement bordée d'une terrasse en bois et de bains de soleil, Atlas enneigé à l'horizon"
               width="1388"
               height="1000"
               className="h-full min-h-[320px] w-full object-cover md:min-h-[460px]"
@@ -210,8 +232,8 @@ function DesignStories() {
           </Link>
 
           {[
-            { slug: 'zahiya', src: '/media/zahiya/zahiya-12.jpg', name: 'Zahiya', meta: 'Résidence · Marrakech' },
-            { slug: 'adostigia', src: '/media/adostigia/adostigia-22.jpg', name: 'Adostigia', meta: 'Siège social · Casablanca' },
+            { slug: 'zahiya', src: '/media/projets/akoubri_zahiya-entrance-signage-01.webp', name: 'Zahiya', meta: 'Résidence · Marrakech' },
+            { slug: 'adostigia', src: '/media/projets/akoubri_adostigia-reception-01.webp', name: 'Adostigia', meta: 'Aménagement de bureaux · Marrakech' },
           ].map((p, i) => (
             <Link
               key={p.slug}
@@ -250,8 +272,8 @@ function ImpactBand() {
     <section className="zv zv-dark zv-section zv-stat-band">
       <div className="shell">
         <div data-reveal className="reveal mb-9 max-w-[540px] lg:mb-14">
-          <span className="zv-subtitle">En chiffres</span>
-          <InkTitle className="zv-h2 mt-4 lg:mt-5">Douze ans de projets livrés</InkTitle>
+          <span className="zv-subtitle">Domaines</span>
+          <InkTitle className="zv-h2 mt-4 lg:mt-5">Quatre familles de projets</InkTitle>
         </div>
 
         {/* On phones the four figures read as a 2×2 table: a single hairline
@@ -302,30 +324,30 @@ function Portfolio() {
         <div className="grid gap-4 lg:grid-cols-2 m3-axo-grid">
           <div className="m3-axo-tile">
           <Link
-            to="/projets/villa-bambou"
+            to="/projets/le-sentier"
             data-reveal
             className="reveal zv-tile"
-            aria-label="Villa Bambou — voir le projet"
+            aria-label="Le Sentier — voir le projet"
           >
             <img
-              src="/media/villa/villa-01.jpg"
-              alt="Villa Bambou — vue sur la piscine"
+              src="/media/projets/akoubri_le-sentier-toiture-brasero-07.webp"
+              alt="Piscine de la toiture-terrasse du Sentier au crépuscule, bains de soleil alignés et chaîne de l'Atlas enneigée à l'horizon"
               loading="lazy"
               width="1280"
               height="1400"
               className="h-full min-h-[380px] w-full object-cover lg:min-h-[620px]"
             />
             <span className="zv-tile-cap">
-              <span className="zv-h5 block">Villa Bambou</span>
-              <span className="zv-small">Maison individuelle · Marrakech</span>
+              <span className="zv-h5 block">Le Sentier</span>
+              <span className="zv-small">Toiture-terrasse · Marrakech</span>
             </span>
           </Link>
           </div>
 
           <div className="grid gap-4 m3-axo-grid">
             {[
-              { slug: 'adostigia', src: '/media/adostigia/adostigia-16.jpg', name: 'Adostigia', meta: 'Bureau de direction · Casablanca' },
-              { slug: 'zahiya', src: '/media/zahiya/zahiya-01.jpg', name: 'Zahiya', meta: 'Séjour livré · Marrakech' },
+              { slug: 'adostigia', src: '/media/projets/akoubri_adostigia-director-office-16.webp', name: 'Adostigia', meta: 'Bureau de direction · Marrakech' },
+              { slug: 'farraj', src: '/media/projets/akoubri_farraj-vue-aerienne-10.webp', name: 'Farraj', meta: 'Conserverie · Marrakech' },
             ].map((p, i) => (
               <div key={p.slug} className="m3-axo-tile">
               <Link
@@ -573,7 +595,12 @@ function Featured() {
                   <span className="m3-radial-foot__text">
                     <span className="m3-radial-foot__name">{p.name}</span>
                     <span className="m3-radial-foot__meta">
-                      {p.subtitle} · {p.year}
+                      {/* `year` est null sur tous les projets depuis la
+                          reprise des données : il affichait « Résidence · »
+                          avec un séparateur orphelin. On reprend le couple
+                          subtitle · location utilisé par ProjectCard et la
+                          roue, dont les deux valeurs sont renseignées. */}
+                      {p.subtitle} · {p.location}
                     </span>
                   </span>
                   <span className="m3-radial-foot__chev" aria-hidden="true">

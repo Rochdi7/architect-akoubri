@@ -20,9 +20,13 @@ const budgets = [
 ];
 
 const missions = [
+  'Permis de construire',
   'Architecture',
   "Design d'intérieur",
   'Images de synthèse',
+  'Faisabilité & esquisse',
+  'Dossier de consultation',
+  'Suivi de chantier',
   'Mission complète',
 ];
 
@@ -138,7 +142,7 @@ export default function ContactForm({ compact = false, submitLabel, className = 
                   className="zv-field"
                   autoComplete="tel"
                   inputMode="tel"
-                  placeholder="06 00 00 00 00"
+                  placeholder="06 12 34 56 78"
                 />
               </Field>
               <Field label="Mission souhaitée">

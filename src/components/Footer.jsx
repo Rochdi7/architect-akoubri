@@ -19,17 +19,25 @@ export default function Footer() {
     <footer className="pt-2">
       {/* CTA band, on the paper ground above the card */}
       <div className="shell pb-14 sm:pb-16 md:pb-24">
-        <div className="grid gap-7 border-t border-line pt-12 md:gap-10 md:pt-16 lg:grid-cols-[1.4fr_1fr] lg:items-end">
+        {/* Phone rhythm is deliberately uneven: a tighter gap binds the title
+            block to its paragraph, while pt-9 keeps the divider from stacking
+            with the preceding section's own bottom margin. The even 28px/48px
+            desktop values return from md up. */}
+        <div className="grid gap-6 border-t border-line pt-9 sm:pt-10 md:gap-10 md:pt-16 lg:grid-cols-[1.4fr_1fr] lg:items-end">
           <div data-reveal className="reveal">
             <span className="eyebrow">Parlons-en</span>
-            <InkTitle className="display-lg mt-6 max-w-2xl uppercase leading-[0.95]">
+            {/* leading-[1.05] on a phone: display-lg lands at 28px there, and
+                the desktop 0.95 put the leading *below* the glyph size, so the
+                two lines collided. Tight 0.95 returns from md up, where the
+                type is large enough to carry it. */}
+            <InkTitle className="display-lg mt-3 max-w-2xl uppercase leading-[1.05] sm:mt-5 md:mt-6 md:leading-[0.95]">
               Un terrain, un plan,
               <br />
               une idée&nbsp;?
             </InkTitle>
           </div>
           <div data-reveal data-reveal-delay="120" className="reveal lg:text-right">
-            <p className="mb-6 leading-relaxed text-ink-soft md:mb-7 lg:ml-auto lg:max-w-sm">
+            <p className="mb-7 leading-relaxed text-ink-soft md:mb-7 lg:ml-auto lg:max-w-sm">
               Premier échange sans engagement. On vous dit franchement si le projet
               tient debout — techniquement et budgétairement.
             </p>
@@ -79,10 +87,12 @@ export default function Footer() {
               <FooterCol title="Navigation" className="w-[45%] shrink-0 sm:w-auto">
                 <FooterLink to="/">Accueil</FooterLink>
                 <FooterLink to="/projets">Projets</FooterLink>
-                <FooterLink to="/maquette-3d">Maquette 3D</FooterLink>
                 <FooterLink to="/agence">Agence</FooterLink>
                 <FooterLink to="/services">Services</FooterLink>
-                <FooterLink to="/journal">Journal</FooterLink>
+                <FooterLink to="/services/permis-de-construire-marrakech">
+                  Permis de construire
+                </FooterLink>
+                {/* Journal masqué — à remettre plus tard */}
                 <FooterLink to="/contact">Contact</FooterLink>
               </FooterCol>
 
@@ -103,6 +113,11 @@ export default function Footer() {
                 <li>
                   <a href={business.phoneHref} className="text-sm on-dark-soft transition-colors hover:text-[var(--clay)]">
                     {business.phone}
+                  </a>
+                </li>
+                <li>
+                  <a href={business.phone2Href} className="text-sm on-dark-soft transition-colors hover:text-[var(--clay)]">
+                    {business.phone2}
                   </a>
                 </li>
                 <li>

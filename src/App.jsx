@@ -5,10 +5,10 @@ import Footer from './components/Footer';
 import BackToTop from './components/BackToTop';
 import Home from './pages/Home';
 import Projects from './pages/Projects';
-import Maquette from './pages/Maquette';
 import ProjectDetail from './pages/ProjectDetail';
 import Agency from './pages/Agency';
 import Services from './pages/Services';
+import Permis from './pages/Permis';
 import Contact from './pages/Contact';
 import Blog from './pages/Blog';
 import BlogDetail from './pages/BlogDetail';
@@ -21,10 +21,11 @@ import { getPost } from './data/posts';
 const TITLES = {
   '/': "Akoubri — Cabinet d'architecture & design d'intérieur",
   '/projets': 'Projets — Akoubri',
-  '/maquette-3d': 'Maquette 3D — Akoubri',
   '/agence': 'L\'agence — Akoubri',
-  '/services': 'Services — Akoubri',
-  '/contact': 'Contact — Akoubri',
+  '/services': "Services d'architecture à Marrakech | Permis de construire & design intérieur — Akoubri",
+  '/services/permis-de-construire-marrakech':
+    'Permis de construire à Marrakech | Accompagnement architecte — Akoubri',
+  '/contact': 'Architecte à Marrakech | Demander un accompagnement — Akoubri',
   '/journal': "Journal — Notes d'agence — Akoubri",
   '/mentions-legales': 'Mentions légales — Akoubri',
   '/confidentialite': 'Politique de confidentialité — Akoubri',
@@ -40,10 +41,18 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/projets" element={<Projects />} />
           <Route path="/projets/:slug" element={<ProjectDetail />} />
-          <Route path="/maquette-3d" element={<Maquette />} />
           <Route path="/agence" element={<Agency />} />
           <Route path="/services" element={<Services />} />
+          <Route
+            path="/services/permis-de-construire-marrakech"
+            element={<Permis />}
+          />
           <Route path="/contact" element={<Contact />} />
+          {/* Journal — masqué : ni le header ni le footer n'y mènent, et
+              l'index /journal reste hors sitemap. Seul l'article sur le
+              permis de construire est ressorti (sitemap + liens depuis la
+              page Permis), parce qu'il porte le sujet. Les routes restent
+              montées pour tout réactiver en remettant les liens. */}
           <Route path="/journal" element={<Blog />} />
           <Route path="/journal/:slug" element={<BlogDetail />} />
           <Route path="/mentions-legales" element={<Legal />} />

@@ -2,11 +2,18 @@ import { useMemo, useState } from 'react';
 import { projects } from '../data/projects';
 import { useReveal } from '../hooks/useReveal';
 import { useInkFill } from '../hooks/useInkFill';
+import { usePageMeta } from '../hooks/usePageMeta';
 import ProjectCard from '../components/ProjectCard';
 
 export default function Projects() {
   const [filter, setFilter] = useState('Tous');
   const ink = useInkFill({ play: true });
+
+  usePageMeta({
+    description:
+      "Projets d'architecture à Marrakech : résidences, villas, aménagement de bureaux, unités industrielles et maisons d'hôte. Conception architecturale et images de synthèse.",
+    canonical: '/projets',
+  });
 
   const categories = useMemo(
     () => ['Tous', ...Array.from(new Set(projects.map((p) => p.category)))],
@@ -32,8 +39,9 @@ export default function Projects() {
             data-reveal-delay="140"
             className="reveal zv-lead zv-muted mx-auto mt-6 max-w-xl"
           >
-            Résidences, sièges sociaux et maisons individuelles. Chaque projet est
-            présenté avec ses images de synthèse et ses données de programme.
+            Résidences, aménagement de bureaux, bâtiments industriels et
+            hébergement touristique. Chaque projet est présenté avec ses images
+            de synthèse et les données de programme vérifiées.
           </p>
 
           {/* Filter pills */}

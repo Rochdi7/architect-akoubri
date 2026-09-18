@@ -19,7 +19,7 @@ const identity = [
   { term: 'Identifiant commun (ICE)', desc: '[NUMÉRO ICE]' },
   { term: 'Identifiant fiscal', desc: '[NUMÉRO IF]' },
   { term: 'Directeur de la publication', desc: '[NOM DU RESPONSABLE]' },
-  { term: 'Contact', desc: `${business.email} — ${business.phone}` },
+  { term: 'Contact', desc: `${business.email} — ${business.phone} / ${business.phone2}` },
 ];
 
 export default function Legal() {

@@ -1,37 +1,52 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import InkTitle from '../components/InkTitle';
 import { services, stats, projects } from '../data/projects';
 import Accordion from '../components/Accordion';
 import { useReveal } from '../hooks/useReveal';
 import { useVolets } from '../hooks/useVolets';
 import { useInkFill } from '../hooks/useInkFill';
+import { usePageMeta } from '../hooks/usePageMeta';
+import { business } from '../data/business';
 
 // Frames for the banner ticker, drawn from across the project renders.
 const ticker = [
-  '/media/le-sentier/sentier-05.jpg',
-  '/media/zahiya/zahiya-12.jpg',
-  '/media/adostigia/adostigia-22.jpg',
-  '/media/villa/villa-01.jpg',
-  '/media/adostigia/adostigia-16.jpg',
-  '/media/zahiya/zahiya-01.jpg',
+  '/media/projets/akoubri_le-sentier-toiture-piscine-atlas-01.webp',
+  '/media/projets/akoubri_zahiya-entrance-signage-01.webp',
+  '/media/projets/akoubri_adostigia-reception-01.webp',
+  '/media/projets/akoubri_maison-dhote-terrace-lounge-07.webp',
+  '/media/projets/akoubri_le-sentier-toiture-bar-pergola-06.webp',
+  '/media/projets/akoubri_farraj-vue-aerienne-10.webp',
 ];
 
-// One reference image per service, drawn from the project renders.
+/* One reference image per service, chosen for what it demonstrates rather
+   than for being the prettiest frame:
+   01 Architecture      — a collective amenity level: structure, terrace, view
+   02 Design d'intérieur— a finished interior showing materials and light
+   03 Images de synthèse— the aerial the 3D film was made from
+   04 Direction artistique — signage: an identity applied to a building  */
 const shots = [
-  { src: '/media/le-sentier/sentier-05.jpg', alt: 'Façade Le Sentier — architecture résidentielle' },
-  { src: '/media/zahiya/zahiya-12.jpg', alt: 'Séjour Zahiya — design d\'intérieur' },
-  { src: '/media/adostigia/adostigia-22.jpg', alt: 'Salon corporate — image de synthèse' },
-  { src: '/media/adostigia/adostigia-01.jpg', alt: 'Signalétique en laiton sur mur de travertin' },
+  {
+    src: '/media/projets/akoubri_le-sentier-toiture-piscine-atlas-01.webp',
+    alt: "Toiture-terrasse du Sentier : piscine à débordement, terrasse en bois et Atlas enneigé à l'horizon",
+  },
+  {
+    src: '/media/projets/akoubri_zahiya-living-dining-07.webp',
+    alt: "Séjour et salle à manger d'un appartement Zahiya, corniches lumineuses et menuiseries en noyer",
+  },
+  {
+    src: '/media/projets/akoubri_farraj-vue-aerienne-10.webp',
+    alt: "Vue aérienne de synthèse de la conserverie Farraj, bâtiments disposés en L autour d'une aire de manœuvre",
+  },
+  {
+    src: '/media/projets/akoubri_zahiya-entrance-signage-01.webp',
+    alt: "Enseigne lumineuse « ZAHIYA RESIDENCE » sur un bardage vertical sombre, à l'entrée de la résidence",
+  },
 ];
-
-// Bar heights for the trust graph, in the reference's staggered order
-// (short, tall, medium, shortest) — the row is bottom-aligned, so the
-// varying heights are what give the section its skyline.
-const BAR_HEIGHTS = ['150px', '288px', '205px', '107px'];
 
 const faq = [
   {
-    q: 'Travaillez-vous en dehors de Marrakech et Casablanca ?',
+    q: 'Travaillez-vous en dehors de Marrakech ?',
     a: "Oui. Nous suivons des chantiers partout au Maroc. Au-delà de 200 km, nous calons un rythme de visites groupées pour maîtriser les frais de déplacement.",
   },
   {
@@ -54,6 +69,12 @@ export default function Services() {
   const ink = useInkFill();
   const heroInk = useInkFill({ play: true });
 
+  usePageMeta({
+    description:
+      "Missions d'architecture à Marrakech et au Maroc : conception architecturale, permis de construire, suivi de chantier, design d'intérieur, images de synthèse et direction artistique.",
+    canonical: '/services',
+  });
+
   return (
     <>
       {/* ── Banner: centred title over a drifting image strip ── */}
@@ -64,8 +85,15 @@ export default function Services() {
               Une architecture ancrée dans le lieu, l'usage et la matière
             </h1>
             <p className="zv-lead zv-muted mx-auto mt-5 max-w-xl">
-              Mission complète ou intervention ciblée. Nous adaptons le périmètre à
-              l'état d'avancement de votre projet.
+              Mission complète ou intervention ciblée, à Marrakech et partout au
+              Maroc. De la conception architecturale à l'accompagnement au{' '}
+              <Link
+                to="/services/permis-de-construire-marrakech"
+                className="border-b border-[var(--zv-primary)] pb-0.5 transition-opacity hover:opacity-70"
+              >
+                permis de construire
+              </Link>
+              , puis au suivi de chantier et au design d'intérieur.
             </p>
           </div>
         </div>
@@ -104,22 +132,20 @@ export default function Services() {
             </h2>
           </div>
 
-          <div className="grid grid-cols-2 items-end gap-x-3 gap-y-6 sm:gap-4 lg:grid-cols-4">
+          {/* `stats` now carries the four programme families rather than the
+              old unverified figures, so the staggered bar heights (which only
+              made sense against numbers) are gone: each entry is a titled
+              card with its one-line definition. */}
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {stats.map((s, i) => (
               <div
                 key={s.label}
                 data-reveal
                 data-reveal-delay={i * 90}
-                className="reveal flex flex-col gap-2 sm:gap-3"
+                className="reveal border-t border-[var(--zv-border)] pt-6"
               >
-                {/* The height is a custom property, not an inline height:
-                    below sm the stylesheet ignores it and lets the bar size
-                    to its label, which otherwise spills past a 107px bar. */}
-                <div className="zv-graph" style={{ '--bar-h': BAR_HEIGHTS[i] }}>
-                  <span className="zv-graph-line" />
-                  <span className="zv-graph-label">{s.label}</span>
-                </div>
-                <div className="zv-h3">{s.value}</div>
+                <div className="zv-h4">{s.value}</div>
+                <p className="zv-small zv-muted mt-3">{s.label}</p>
               </div>
             ))}
           </div>
@@ -163,6 +189,17 @@ export default function Services() {
                     </li>
                   ))}
                 </ul>
+
+                {/* Only the Architecture row carries the permit link: it is
+                    the mission the permit actually belongs to. */}
+                {s.title === 'Architecture' && (
+                  <Link
+                    to="/services/permis-de-construire-marrakech"
+                    className="zv-small mt-7 inline-flex items-center gap-2 border-b border-[var(--zv-primary)] pb-1 font-medium transition-opacity hover:opacity-70"
+                  >
+                    Notre accompagnement au permis de construire à Marrakech
+                  </Link>
+                )}
               </div>
             </div>
           ))}
@@ -270,7 +307,7 @@ function CtaWithCards() {
             {status === 'error' && (
               <p role="alert" className="zv-small mb-6 rounded-xl border border-red-700 bg-red-50 px-4 py-3 text-red-800">
                 L'envoi a échoué. Écrivez-nous à{' '}
-                <a href="mailto:contact@akoubri.com" className="underline">contact@akoubri.com</a>.
+                <a href={`mailto:${business.email}`} className="underline">{business.email}</a>.
               </p>
             )}
 

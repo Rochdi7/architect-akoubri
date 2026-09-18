@@ -4,6 +4,7 @@ import { stats, journey, agencyFaq } from '../data/projects';
 import Accordion from '../components/Accordion';
 import { useReveal } from '../hooks/useReveal';
 import { useInkFill } from '../hooks/useInkFill';
+import { usePageMeta } from '../hooks/usePageMeta';
 import { useTrace } from '../hooks/useTrace';
 
 const values = [
@@ -42,11 +43,21 @@ const values = [
 export default function Agency() {
   useReveal();
 
+  usePageMeta({
+    description:
+      "Agence d'architecture à Marrakech : résidentiel, tertiaire, industriel et hospitalité. Conception architecturale, permis de construire, suivi de chantier et design d'intérieur.",
+    canonical: '/agence',
+  });
+
   return (
     <>
       <SplitHero />
       <AboutStats />
-      <Journey />
+      {/* Journey — les jalons datés ont été retirés faute de vérification
+          (journey === []). La section reste montée : elle se réaffichera
+          d'elle-même dès que le parcours sera confirmé et remis dans
+          data/projects.js. */}
+      {journey.length > 0 && <Journey />}
       <CoreValues />
       <Faq />
     </>
@@ -94,8 +105,8 @@ function SplitHero() {
 
           <div data-reveal data-reveal-delay="120" className="reveal overflow-hidden rounded-[28px]">
             <img
-              src="/media/zahiya/zahiya-01.jpg"
-              alt="Séjour livré — plâtre lisse et grès cérame grand format"
+              src="/media/projets/akoubri_zahiya-living-dining-07.webp"
+              alt="Séjour et salle à manger d'un appartement Zahiya : table ovale en bois, suspension linéaire et corniches lumineuses"
               width="1280"
               height="853"
               fetchPriority="high"
@@ -127,8 +138,9 @@ function AboutStats() {
               cette contrainte le sujet du projet.
             </h2>
             <p className="zv-lead zv-muted mt-6 max-w-3xl">
-              Nous travaillons avec un vocabulaire court : béton teinté, travertin,
-              noyer, laiton. Ce qui fait un projet, ce n'est pas le nombre de gestes,
+              Nous travaillons avec un vocabulaire court : enduit minéral, pierre
+              claire cannelée, noyer, marbre sombre, liège et bambou selon les
+              programmes. Ce qui fait un projet, ce n'est pas le nombre de gestes,
               c'est la justesse d'un seul — une loggia assez profonde, une corniche
               lumineuse bien placée, un seuil qui donne envie d'entrer.
             </p>
@@ -160,8 +172,8 @@ function AboutStats() {
           <div data-reveal className="reveal relative z-10 mr-10 sm:mr-16 md:mr-0">
             <div className="zv-media">
               <img
-                src="/media/adostigia/adostigia-05.jpg"
-                alt="Salle de réunion — travail sur plans"
+                src="/media/projets/akoubri_adostigia-reception-01.webp"
+                alt="Accueil Adostigia : enseigne en relief sur panneau de marbre sombre rétroéclairé et murs de pierre claire cannelée"
                 loading="lazy"
                 width="1280"
                 height="720"
@@ -174,9 +186,9 @@ function AboutStats() {
               <div className="zv-small zv-muted leading-tight">
                 Le Sentier,<br className="md:hidden" /> Marrakech
               </div>
-              <div className="zv-h5 mt-1.5">4 200 m²</div>
+              <div className="zv-h5 mt-1.5">Résidence</div>
               <img
-                src="/media/le-sentier/sentier-05.jpg"
+                src="/media/projets/akoubri_le-sentier-toiture-piscine-atlas-01.webp"
                 alt=""
                 aria-hidden="true"
                 loading="lazy"
@@ -191,8 +203,8 @@ function AboutStats() {
             className="reveal zv-media -mt-16 ml-10 sm:-mt-24 sm:ml-16 md:mt-14 md:ml-0"
           >
             <img
-              src="/media/adostigia/adostigia-16.jpg"
-              alt="Bureau de direction — noyer et laiton"
+              src="/media/projets/akoubri_maison-dhote-terrace-lounge-07.webp"
+              alt="Terrasse de la maison d'hôte : banquette filante le long d'un mur en pierre sèche, sous un plafond de bambou"
               loading="lazy"
               width="1280"
               height="720"

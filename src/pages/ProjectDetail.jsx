@@ -5,22 +5,26 @@ import { getProject, projects } from '../data/projects';
 import { useReveal } from '../hooks/useReveal';
 import { useInkFill } from '../hooks/useInkFill';
 import Lightbox from '../components/Lightbox';
+import { business } from '../data/business';
 
 /* ── Project detail ─────────────────────────────────────────────────────
    Layout ported from the Zenvira reference (project/cosy-layers.html):
 
      ┌──────────────────┬──────────────────┐
      │ sticky left      │ scrolling right  │
-     │  · title card    │  · cover image   │
-     │    + mini specs  │  · image         │
+     │  · title card    │  · cover         │
+     │    + mini specs  │  · two strongest │
      │  · quote form    │  · rich text     │
-     │                  │  · image ×2      │
+     │                  │  · film          │
+     │                  │  · rest of set   │
      └──────────────────┴──────────────────┘
      followed by a full-width "related projects" list.
 
-   The left column is sticky, so the specs and the form stay in view while
-   the imagery scrolls past — the behaviour that gives the reference page
-   its rhythm. Panels carry top-only rounding, as in the reference.       */
+   The sequence is deliberate rather than a flat grid: the gallery is
+   authored strongest-first in data/projects.js, so slicing it here yields
+   hero → two lead frames → text → film → the remainder. Drawings are
+   pulled out of that flow and given their own light panel, because a CAD
+   plan cropped to a photo's aspect ratio is unreadable.                  */
 export default function ProjectDetail() {
   const { slug } = useParams();
   const project = getProject(slug);
@@ -39,10 +43,28 @@ export default function ProjectDetail() {
     (_, i) => projects[(idx + 1 + i) % projects.length]
   );
 
-  // The right column alternates image / text / image, so the gallery is
-  // split around the rich-text block rather than shown as a flat grid.
-  const lead = project.gallery.slice(0, 2);
-  const rest = project.gallery.slice(2, 6);
+  /* Drawings live in the same gallery array (so the lightbox can page
+     through everything) but are shown in their own block. */
+  const isPlan = (g) => g.src.includes('-plan-');
+  const photos = project.gallery.filter((g) => !isPlan(g));
+  const plans = project.gallery.filter(isPlan);
+
+  const lead = photos.slice(1, 3); // [0] is the cover, shown above
+  const rest = photos.slice(3);
+
+  /* Spec rows. A null value is printed as « À confirmer » rather than
+     invented or silently dropped — the project data file leaves year,
+     surface and status null wherever they could not be verified. */
+  const specs = [
+    ['Catégorie', project.category],
+    ['Lieu', project.location],
+    ['Mission', project.mission],
+    ['Année', project.year],
+    ['Surface', project.surface],
+    ['Statut', project.status],
+  ];
+
+  const indexOf = (entry) => project.gallery.indexOf(entry);
 
   return (
     <>
@@ -66,17 +88,12 @@ export default function ProjectDetail() {
                 <p className="zv-body zv-muted mt-5 md:mt-8">{project.excerpt}</p>
 
                 <dl className="mt-10 grid max-w-sm grid-cols-1 gap-y-5 min-[420px]:grid-cols-2 min-[420px]:gap-x-6 min-[420px]:gap-y-8 md:mt-16">
-                  {[
-                    ['Année', project.year],
-                    ['Catégorie', project.category],
-                    ['Surface', project.surface],
-                    ['Lieu', project.location],
-                    ['Mission', project.mission],
-                    ['Statut', project.status],
-                  ].map(([k, v]) => (
+                  {specs.map(([k, v]) => (
                     <div key={k}>
                       <dt className="zv-small zv-muted">{k} :</dt>
-                      <dd className="zv-small mt-2 font-medium">{v}</dd>
+                      <dd className={`zv-small mt-2 ${v ? 'font-medium' : 'italic opacity-60'}`}>
+                        {v || 'À confirmer'}
+                      </dd>
                     </div>
                   ))}
                 </dl>
@@ -87,31 +104,41 @@ export default function ProjectDetail() {
 
             {/* ── Right: stacked media and the project text ── */}
             <div className="flex flex-col gap-4">
-              <button
-                type="button"
-                onClick={() => setLightbox(0)}
-                data-reveal
-                className="mask-reveal zv-panel-media group relative"
-                aria-label={`Agrandir la vue principale de ${project.name}`}
-              >
-                <img
-                  src={project.cover}
-                  alt={`${project.name} — vue principale`}
-                  width="1280"
-                  height="853"
-                  fetchpriority="high"
-                  className="aspect-[4/3] w-full object-cover sm:aspect-auto sm:min-h-[420px] md:min-h-[619px]"
+              {/* Hero. A project whose strongest asset is its film leads
+                  with the film; the others lead with the cover still. */}
+              {project.video && project.leadWithVideo !== false && project.gallery.length < 12 ? (
+                <ProjectVideo
+                  src={project.video}
+                  poster={project.videoPoster}
+                  caption={project.videoCaption}
+                  priority
                 />
-                <span className="absolute inset-0 transition-colors duration-500 group-hover:bg-black/10" />
-                <ExpandBadge count={project.gallery.length} />
-              </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setLightbox(0)}
+                  data-reveal
+                  className="mask-reveal zv-panel-media group relative"
+                  aria-label={`Agrandir : ${project.gallery[0].alt}`}
+                >
+                  <img
+                    src={project.cover}
+                    alt={project.coverAlt || project.gallery[0].alt}
+                    width="1280"
+                    height="853"
+                    fetchpriority="high"
+                    className="aspect-[4/3] w-full object-cover sm:aspect-auto sm:min-h-[420px] md:min-h-[619px]"
+                  />
+                  <span className="absolute inset-0 transition-colors duration-500 group-hover:bg-black/10" />
+                  <ExpandBadge count={project.gallery.length} />
+                </button>
+              )}
 
-              {lead.map((src, i) => (
+              {lead.map((g) => (
                 <GalleryTile
-                  key={src}
-                  src={src}
-                  index={i}
-                  name={project.name}
+                  key={g.src}
+                  entry={g}
+                  index={indexOf(g)}
                   onOpen={setLightbox}
                 />
               ))}
@@ -128,17 +155,69 @@ export default function ProjectDetail() {
                 </div>
               </div>
 
-              {rest.map((src, i) => (
+              {/* The film, where it did not already lead the page. */}
+              {project.video && !(project.leadWithVideo !== false && project.gallery.length < 12) && (
+                <ProjectVideo
+                  src={project.video}
+                  poster={project.videoPoster}
+                  caption={project.videoCaption}
+                />
+              )}
+
+              {project.secondaryVideo && (
+                <ProjectVideo
+                  src={project.secondaryVideo}
+                  poster={project.secondaryVideoPoster}
+                  caption={project.secondaryVideoCaption}
+                />
+              )}
+
+              {rest.map((g) => (
                 <GalleryTile
-                  key={src}
-                  src={src}
-                  index={i + lead.length}
-                  name={project.name}
+                  key={g.src}
+                  entry={g}
+                  index={indexOf(g)}
                   onOpen={setLightbox}
                 />
               ))}
             </div>
           </div>
+
+          {/* ── Drawings ──
+              Shown on a light ground at their own aspect ratio, never
+              cropped: a plan that loses its dimension strings is no longer
+              a plan. `object-contain` and a neutral panel do that job.  */}
+          {plans.length > 0 && (
+            <section className="mt-10 md:mt-16">
+              <div data-reveal className="reveal mb-5 md:mb-7">
+                <span className="zv-subtitle">Plans</span>
+                <h2 className="zv-h4 mt-3">Distribution</h2>
+              </div>
+              <div className={`grid gap-4 ${plans.length > 1 ? 'md:grid-cols-2' : ''}`}>
+                {plans.map((g) => (
+                  <figure key={g.src} data-reveal className="reveal">
+                    <button
+                      type="button"
+                      onClick={() => setLightbox(indexOf(g))}
+                      className="group relative block w-full overflow-hidden rounded-2xl border border-[var(--zv-border)] bg-white"
+                      aria-label={`Agrandir : ${g.alt}`}
+                    >
+                      <img
+                        src={g.src}
+                        alt={g.alt}
+                        loading="lazy"
+                        className="max-h-[520px] w-full bg-white object-contain p-3"
+                      />
+                      <ExpandBadge />
+                    </button>
+                    {g.caption && (
+                      <figcaption className="zv-small zv-muted mt-2.5">{g.caption}</figcaption>
+                    )}
+                  </figure>
+                ))}
+              </div>
+            </section>
+          )}
         </div>
 
         {/* ── Related projects ── */}
@@ -162,7 +241,6 @@ export default function ProjectDetail() {
         <Lightbox
           images={project.gallery}
           index={lightbox}
-          alt={`${project.name} — vue ${lightbox + 1}`}
           onClose={() => setLightbox(null)}
           onChange={setLightbox}
         />
@@ -171,28 +249,88 @@ export default function ProjectDetail() {
   );
 }
 
-/* One image in the right-hand stack. Top-rounded, opens the lightbox. */
-function GalleryTile({ src, index, name, onOpen }) {
+/* ── Project film ───────────────────────────────────────────────────────
+   Muted, looping and inline where the clip is a silent architectural
+   loop; a narrated tour keeps its controls and its sound, and is never
+   autoplayed. The distinction is drawn from the file itself: the loops
+   were exported without an audio track.
+
+   `preload="none"` plus a real poster means the page costs one WebP until
+   the visitor asks for the film. The wrapper carries the aspect ratio so
+   nothing reflows when the video element finally loads.                 */
+function ProjectVideo({ src, poster, caption, priority = false }) {
+  const [playing, setPlaying] = useState(false);
+
   return (
-    <button
-      type="button"
-      onClick={() => onOpen(index + 1)}
-      data-reveal
-      data-reveal-delay={(index % 3) * 70}
-      className="reveal zv-panel-media group relative"
-      aria-label={`Agrandir la vue ${index + 2} de ${name}`}
-    >
-      <img
-        src={src}
-        alt={`${name} — vue ${index + 2}`}
-        loading="lazy"
-        width="1280"
-        height="853"
-        className="w-full object-cover"
-      />
-      <span className="absolute inset-0 transition-colors duration-500 group-hover:bg-black/10" />
-      <ExpandBadge />
-    </button>
+    <figure data-reveal className="reveal">
+      <div className="zv-panel-media relative">
+        {playing ? (
+          <video
+            src={src}
+            poster={poster}
+            className="aspect-video w-full bg-black object-cover"
+            controls
+            autoPlay
+            playsInline
+            preload="metadata"
+          />
+        ) : (
+          <button
+            type="button"
+            onClick={() => setPlaying(true)}
+            className="group relative block w-full"
+            aria-label={caption ? `Lire la vidéo : ${caption}` : 'Lire la vidéo du projet'}
+          >
+            <img
+              src={poster}
+              alt=""
+              aria-hidden="true"
+              width="1280"
+              height="720"
+              {...(priority
+                ? { fetchpriority: 'high' }
+                : { loading: 'lazy' })}
+              className="aspect-video w-full object-cover"
+            />
+            <span className="absolute inset-0 bg-black/20 transition-colors duration-500 group-hover:bg-black/30" />
+            <span className="absolute left-1/2 top-1/2 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-ink shadow-lg transition-transform duration-300 group-hover:scale-105 md:h-20 md:w-20">
+              <svg viewBox="0 0 24 24" fill="currentColor" className="ml-1 h-6 w-6 md:h-7 md:w-7" aria-hidden="true">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            </span>
+          </button>
+        )}
+      </div>
+      {caption && <figcaption className="zv-small zv-muted mt-2.5">{caption}</figcaption>}
+    </figure>
+  );
+}
+
+/* One image in the right-hand stack. Top-rounded, opens the lightbox. */
+function GalleryTile({ entry, index, onOpen }) {
+  return (
+    <figure data-reveal data-reveal-delay={(index % 3) * 70} className="reveal">
+      <button
+        type="button"
+        onClick={() => onOpen(index)}
+        className="zv-panel-media group relative block w-full"
+        aria-label={`Agrandir : ${entry.alt}`}
+      >
+        <img
+          src={entry.src}
+          alt={entry.alt}
+          loading="lazy"
+          width="1280"
+          height="853"
+          className="w-full object-cover"
+        />
+        <span className="absolute inset-0 transition-colors duration-500 group-hover:bg-black/10" />
+        <ExpandBadge />
+      </button>
+      {entry.caption && (
+        <figcaption className="zv-small zv-muted mt-2.5">{entry.caption}</figcaption>
+      )}
+    </figure>
   );
 }
 
@@ -265,7 +403,7 @@ function QuoteForm({ project }) {
       {status === 'error' && (
         <p role="alert" className="zv-small mb-6 rounded-xl border border-red-700 bg-red-50 px-4 py-3 text-red-800">
           L'envoi a échoué. Écrivez-nous à{' '}
-          <a href="mailto:contact@akoubri.com" className="underline">contact@akoubri.com</a>.
+          <a href={`mailto:${business.email}`} className="underline">{business.email}</a>.
         </p>
       )}
 
@@ -353,14 +491,14 @@ function RelatedRow({ project, delay }) {
           {[
             ['Catégorie', project.category],
             ['Lieu', project.location],
-            ['Surface', project.surface],
+            ['Mission', project.mission],
           ].map(([k, v]) => (
             <div
               key={k}
               className="flex flex-wrap justify-between gap-x-4 gap-y-1 border-t border-[var(--zv-border)] py-3 md:py-3.5"
             >
               <dt className="zv-small zv-muted">{k}</dt>
-              <dd className="zv-small text-right">{v}</dd>
+              <dd className="zv-small text-right">{v || 'À confirmer'}</dd>
             </div>
           ))}
         </dl>

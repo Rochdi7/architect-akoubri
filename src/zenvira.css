@@ -1428,8 +1428,24 @@ select.zv-field:open {
   height: 100%;
 }
 
+/* The four cards carry very different content depths — one line of e-mail
+   against four of postal address — and only three of them have a CTA. Left
+   alone the values end at four different heights and the Horaires column
+   bottom sits empty, which is what makes the strip read ragged.
+
+   The value block is the flexible row, so every card's footer lands on the
+   same line whether or not it has a link to put there. */
+.zv-info-card > .zv-body { flex: 1 1 auto; }
+
+/* Keeps the address off the card's right edge. It still runs four lines —
+   what levels the cards is the flex rule above, not this cap. */
+.zv-info-card .zv-body { max-width: 30ch; }
+
 @media (max-width: 640px) {
   .zv-info-card { padding: 22px 20px; }
+  /* Stacked, each card is full width — the cap would strand the address
+     in a narrow column against acres of empty card. */
+  .zv-info-card .zv-body { max-width: none; }
 }
 
 .zv-info-icon {
@@ -2132,6 +2148,289 @@ select.zv-field:open {
   }
   .m3-lb__nav.is-left  { left: 20px;  transform: translateY(-50%); }
   .m3-lb__nav.is-right { right: 20px; transform: translateY(-50%); }
+}
+
+/* ── Quote dialog ──────────────────────────────────────────────────
+   The header CTA opens the enquiry form in place. Shares the lightbox's
+   entrance vocabulary — a backdrop that fades and blurs, a panel that
+   swings up on rotateX — so the two dialogs read as one system.
+
+   z-index clears the header pill (z-50) and the Select popup's portal
+   (z-200), which has to stay above the dialog: the mission dropdown is
+   opened from inside this panel. */
+.zv-quote {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 16px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  perspective: 1400px;
+  background: rgba(15, 36, 62, 0);
+  backdrop-filter: blur(0px);
+  transition: background-color 360ms var(--ease-soft),
+              backdrop-filter 360ms var(--ease-soft);
+}
+
+.zv-quote.zv-quote-in {
+  background: rgba(15, 36, 62, 0.72);
+  backdrop-filter: blur(5px);
+}
+
+/* Starts tipped away and slightly small, settles flat — same swing as
+   .m3-lb__panel, a touch softer since there is text to read here. */
+.zv-quote__panel {
+  position: relative;
+  width: 100%;
+  /* Wide enough that ContactForm's `sm:flex-row` pairs (name/email,
+     phone/mission) read as real two-up rows rather than two cramped
+     half-columns — which also makes the panel shorter, so the whole
+     form fits without the backdrop having to scroll. */
+  max-width: 860px;
+  margin: auto;
+  padding: 44px 48px 40px;
+  background: var(--zv-bg);
+  border: 1px solid var(--zv-border);
+  border-radius: 24px;
+  box-shadow: 0 2px 6px rgba(15, 36, 62, 0.06),
+              0 32px 80px -16px rgba(15, 36, 62, 0.45);
+  transform: rotateX(10deg) translateY(26px) scale(0.96);
+  opacity: 0;
+  transition: transform 420ms var(--ease-arch), opacity 320ms var(--ease-soft);
+}
+
+.zv-quote-in .zv-quote__panel {
+  transform: rotateX(0deg) translateY(0) scale(1);
+  opacity: 1;
+}
+
+.zv-quote__close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 38px;
+  width: 38px;
+  border-radius: 999px;
+  border: 1px solid var(--zv-border);
+  background: var(--zv-white);
+  color: var(--zv-primary);
+  cursor: pointer;
+  transition: background-color 220ms var(--ease-soft),
+              color 220ms var(--ease-soft),
+              transform 220ms var(--ease-soft);
+}
+
+.zv-quote__close:hover {
+  background: var(--zv-primary);
+  color: var(--zv-white);
+  transform: rotate(90deg);
+}
+
+.zv-quote__close:focus-visible {
+  outline: 2px solid var(--zv-primary);
+  outline-offset: 3px;
+}
+
+.zv-quote__head {
+  margin-bottom: 26px;
+  padding-right: 44px; /* clears the close button */
+}
+
+.zv-quote__eyebrow {
+  margin: 0 0 8px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--zv-gray-400);
+}
+
+.zv-quote__title { margin: 0 0 10px; }
+
+.zv-quote__lede {
+  margin: 0;
+  font-size: var(--zv-p-sm);
+  line-height: 24px;
+  color: var(--zv-gray-400);
+}
+
+.zv-quote__foot {
+  margin: 22px 0 0;
+  font-size: 13px;
+  line-height: 22px;
+  color: var(--zv-gray-400);
+}
+
+.zv-quote__foot a {
+  color: var(--zv-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* The children stagger in behind the panel, so the dialog assembles
+   rather than arriving as one slab. Runs on the open class, not on
+   mount, so it lines up with the panel's swing. */
+.zv-quote-in .zv-quote__head,
+.zv-quote-in .zv-quote__body {
+  animation: zv-quote-rise 500ms var(--ease-arch) both;
+}
+.zv-quote-in .zv-quote__head { animation-delay: 90ms; }
+.zv-quote-in .zv-quote__body { animation-delay: 160ms; }
+
+@keyframes zv-quote-rise {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Tablet and small laptops: the panel is narrower than its max-width
+   here, so the generous side padding would eat the field columns. */
+@media (min-width: 640px) and (max-width: 900px) {
+  .zv-quote__panel { padding: 38px 32px 34px; }
+}
+
+/* Short viewports — a 1024x800 laptop is the common case. The full form
+   runs ~812px tall at the roomy padding, which overflows an 800px window
+   by just enough to cut the footer line. Tightening the vertical rhythm
+   buys back the ~40px rather than narrowing the panel again. */
+@media (min-width: 640px) and (max-height: 860px) {
+  .zv-quote__panel { padding-top: 32px; padding-bottom: 28px; }
+  .zv-quote__head { margin-bottom: 18px; }
+  .zv-quote__foot { margin-top: 16px; }
+}
+
+/* Phone: full-bleed sheet anchored to the bottom, the shape the platform
+   already teaches, with room for the thumb under the submit button. */
+@media (max-width: 639px) {
+  /* flex-start, not flex-end: this form is taller than a phone viewport,
+     and a flex item that overflows its container's *start* edge cannot be
+     scrolled to — the header and title were landing above the top of the
+     screen with no way to reach them. Anchored to the start, the overflow
+     falls downward instead, where the backdrop's own overflow-y can
+     scroll it. `margin-top: auto` keeps the sheet sitting on the bottom
+     edge in the case where it does fit. */
+  /* A centred floating card, inset from all four edges, rather than a
+     full-bleed bottom sheet.
+
+     Centring is only safe because the panel caps itself at the viewport
+     and scrolls internally (see max-height below). A centred flex item
+     that outgrows its container overflows *both* edges, and the top one
+     cannot be scrolled to — the bug that put the title off-screen before.
+     The cap is what makes `center` legal here. */
+  .zv-quote {
+    padding: 14px;
+    align-items: center;
+    /* The panel owns the scroll now, so the backdrop must not also
+       scroll — two nested scrollers fight each other under a thumb. */
+    overflow: hidden;
+  }
+
+  /* ── Phone field rhythm ──
+     .zv-field is a borderless underline designed for a wide two-column
+     page, where surrounding content gives each rule something to belong
+     to. Dropped into a 390px sheet it becomes a sparse column of floating
+     lines with ~140px of air between them: the eye cannot tell which
+     label owns which rule, and five fields fill the screen before the
+     mission select is reached.
+
+     On the phone the fields get a filled surface and a real box instead,
+     which is also the control shape iOS and Android already teach. */
+  .zv-quote .zv-field {
+    min-height: 46px;
+    padding: 11px 14px;
+    background: var(--zv-white);
+    border: 1px solid var(--zv-border);
+    border-radius: 11px;
+    line-height: 22px;
+  }
+  .zv-quote .zv-field:focus {
+    border-color: var(--zv-primary);
+    box-shadow: 0 0 0 3px rgba(15, 36, 62, 0.08);
+  }
+  .zv-quote .zv-field:focus-visible { background-color: var(--zv-white); }
+  .zv-quote .zv-field[aria-invalid='true'] { border-color: #b4342b; }
+  .zv-quote .zv-field[aria-invalid='true']:focus {
+    box-shadow: 0 0 0 3px rgba(180, 52, 43, 0.12);
+  }
+  .zv-quote textarea.zv-field { min-height: 104px; padding-top: 12px; }
+  /* The select button carries .zv-field too; keep its chevron off the edge. */
+  .zv-quote .zv-select-button { padding-right: 10px; }
+
+  /* Halves the 24px flex gap the form sets for desktop, and pulls each
+     label onto its own field. */
+  .zv-quote form .flex.flex-col.gap-6 { gap: 12px; }
+  .zv-quote .zv-small.font-medium { display: block; margin-bottom: 5px; }
+
+  /* The pairs go two-up on the phone as well. ContactForm only pairs them
+     from `sm` up, so on a 390px screen Nom/E-mail and Téléphone/Mission
+     each cost two full rows — four rows of height for four short fields.
+     Side by side they cost two, which is most of what keeps this card on
+     one screen. The gap shrinks to match the narrower columns. */
+  .zv-quote form .flex.flex-col.gap-6.sm\:flex-row {
+    flex-direction: row;
+    gap: 10px;
+  }
+
+  /* Paired columns are ~155px wide, which is narrower than several of the
+     placeholders ("vous@exemple.com" clipped mid-word). Equal basis keeps
+     the two halves even, and the smaller type lets each placeholder finish
+     inside its own box. The 16px floor still applies to the *value* text
+     via .zv-field's max() — this only shrinks the hint. */
+  .zv-quote form .sm\:flex-row > * { flex: 1 1 0; min-width: 0; }
+  .zv-quote form .sm\:flex-row .zv-field::placeholder { font-size: 13px; }
+  .zv-quote form .sm\:flex-row .zv-select-value { font-size: 14px; }
+
+  .zv-quote__panel {
+    margin: 0;
+    max-width: 440px;
+    /* Caps the card at the viewport and lets it scroll inside itself,
+       which is what makes centring safe. dvh first: on iOS `vh` counts
+       the URL bar's area, so a 100vh card hides its own footer. */
+    max-height: min(100%, 100dvh - 28px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 24px 18px calc(22px + env(safe-area-inset-bottom));
+    border-radius: 20px;
+    /* A centred card scales in; only a bottom sheet slides. */
+    transform: translateY(10px) scale(0.97);
+  }
+  .zv-quote-in .zv-quote__panel { transform: translateY(0) scale(1); }
+
+  /* Centred head, matching the card's symmetry. The eyebrow is redundant
+     beside the title and the lede reads fine at two lines. */
+  .zv-quote__head {
+    margin-bottom: 16px;
+    padding-right: 0;
+    text-align: center;
+  }
+  .zv-quote__eyebrow { display: none; }
+  .zv-quote__title { margin-bottom: 6px; }
+  .zv-quote__lede { font-size: 13.5px; line-height: 19px; }
+  .zv-quote__close { top: 10px; right: 10px; height: 32px; width: 32px; }
+  .zv-quote__foot {
+    margin-top: 14px;
+    font-size: 12px;
+    line-height: 18px;
+    text-align: center;
+  }
+  .zv-quote textarea.zv-field { min-height: 84px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zv-quote,
+  .zv-quote__panel,
+  .zv-quote__close { transition: none; }
+  .zv-quote__panel { transform: none; }
+  .zv-quote-in .zv-quote__panel { transform: none; }
+  .zv-quote-in .zv-quote__head,
+  .zv-quote-in .zv-quote__body { animation: none; }
+  .zv-quote__close:hover { transform: none; }
 }
 
 /* Anything clickable that opens the lightbox. The lift is the affordance

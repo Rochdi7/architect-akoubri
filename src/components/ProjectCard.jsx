@@ -13,8 +13,8 @@ import { useCardHover } from '../hooks/useCardHover';
  */
 export default function ProjectCard({ project, delay = 0 }) {
   const videoRef = useRef(null);
-  // Only projects with a second frame get the swap; Villa Bambou has a single
-  // render and Zahiya's well is a video, so both keep their static cover.
+  // Only projects with a second frame get the swap; Villa has a single render
+  // and the video-led cards keep their poster, so both skip it.
   const swap = Boolean(project.hover) && !project.video;
   const wellRef = useCardHover(swap);
 
@@ -53,7 +53,9 @@ export default function ProjectCard({ project, delay = 0 }) {
                 ref={videoRef}
                 className="h-full w-full object-cover"
                 src={project.video}
-                poster={project.cover}
+                /* The poster is a frame from the clip itself, so the card
+                   shows the right subject before the video decodes. */
+                poster={project.videoPoster || project.cover}
                 loop
                 muted
                 playsInline
@@ -66,7 +68,7 @@ export default function ProjectCard({ project, delay = 0 }) {
                 <img
                   data-card-img="base"
                   src={project.cover}
-                  alt={`${project.name} — ${project.subtitle}`}
+                  alt={project.coverAlt || `${project.name} — ${project.subtitle}`}
                   loading="lazy"
                   width="1280"
                   height="800"
@@ -104,9 +106,16 @@ export default function ProjectCard({ project, delay = 0 }) {
               <h3 className="font-display text-xl transition-colors group-hover:text-clay sm:text-2xl">
                 {project.name}
               </h3>
-              <span className="shrink-0 pt-1.5 text-[11px] uppercase tracking-[0.14em] text-ink-muted">
-                {project.year}
-              </span>
+              {/* year/surface/status are null wherever they could not be
+                  verified. Rendering them raw printed an empty span (and an
+                  orphan separator gap); the detail page already prints
+                  « À confirmer », so the card omits the line instead of
+                  showing a blank. */}
+              {project.year && (
+                <span className="shrink-0 pt-1.5 text-[11px] uppercase tracking-[0.14em] text-ink-muted">
+                  {project.year}
+                </span>
+              )}
             </div>
             <p className="mt-1 text-sm text-ink-soft">
               {project.subtitle} · {project.location}
@@ -117,10 +126,12 @@ export default function ProjectCard({ project, delay = 0 }) {
             <p className="mt-3 grow text-sm leading-relaxed text-ink-soft">
               {project.excerpt}
             </p>
-            <div className="mt-4 flex flex-wrap gap-x-5 gap-y-1.5 border-t border-line pt-4 text-xs text-ink-muted">
-              <span>{project.surface}</span>
-              <span>{project.status}</span>
-            </div>
+            {(project.surface || project.status) && (
+              <div className="mt-4 flex flex-wrap gap-x-5 gap-y-1.5 border-t border-line pt-4 text-xs text-ink-muted">
+                {project.surface && <span>{project.surface}</span>}
+                {project.status && <span>{project.status}</span>}
+              </div>
+            )}
           </div>
         </div>
       </Link>

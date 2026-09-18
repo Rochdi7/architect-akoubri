@@ -19,10 +19,9 @@ export default defineConfig({
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom', 'react-router-dom'],
-          // three.js is only ever reached through the dynamic import in
-          // components/architecture/SpatialStories.jsx, so this chunk is
-          // fetched when the section nears the viewport, never up front.
-          three: ['three'],
+          // Le chunk `three` a été retiré avec la page Maquette 3D : plus
+          // personne n'importe three.js, et le nommer ici produisait un
+          // chunk vide. À remettre si SpatialStories est réintégré.
         },
       },
     },

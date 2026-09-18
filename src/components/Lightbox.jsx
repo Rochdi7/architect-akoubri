@@ -18,8 +18,18 @@ import { createPortal } from 'react-dom';
 
 const FLIP_MS = 420;
 
+/* `images` accepts either plain URL strings (the journal article) or
+   { src, alt, caption } entries (the project galleries), so each frame can
+   carry its own description instead of sharing one for the whole set. */
+const entryOf = (item) =>
+  typeof item === 'string' ? { src: item, alt: '', caption: '' } : item;
+
 export default function Lightbox({ images, index, alt, onClose, onChange, caption }) {
   const many = images.length > 1;
+  const current = entryOf(images[index]);
+  // Per-image text wins; the props are the fallback for string galleries.
+  const currentAlt = current.alt || alt || '';
+  const currentCaption = current.caption || caption || '';
   const panelRef = useRef(null);
   const closeRef = useRef(null);
   // The element that had focus before opening, so it can be restored.
@@ -94,7 +104,7 @@ export default function Lightbox({ images, index, alt, onClose, onChange, captio
     <div
       role="dialog"
       aria-modal="true"
-      aria-label={alt}
+      aria-label={currentAlt}
       className={`zv m3-lb ${entered ? 'm3-lb-in' : ''}`}
       onClick={onClose}
     >
@@ -115,15 +125,15 @@ export default function Lightbox({ images, index, alt, onClose, onChange, captio
           <img
             // Re-keyed per image so each page swings in rather than swapping.
             key={index}
-            src={images[index]}
-            alt={alt}
+            src={current.src}
+            alt={currentAlt}
             className={`m3-lb__img ${dir > 0 ? 'from-right' : dir < 0 ? 'from-left' : ''}`}
             style={{ '--m3-lb-flip': `${FLIP_MS}ms` }}
           />
-          {(caption || many) && (
+          {(currentCaption || many) && (
             <figcaption className="m3-lb__cap">
-              {caption}
-              {caption && many ? ' · ' : ''}
+              {currentCaption}
+              {currentCaption && many ? ' · ' : ''}
               {many ? `${index + 1} / ${images.length}` : ''}
             </figcaption>
           )}
