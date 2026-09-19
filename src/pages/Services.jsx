@@ -1,13 +1,11 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import InkTitle from '../components/InkTitle';
-import { services, stats, projects } from '../data/projects';
+import { services, stats } from '../data/projects';
 import Accordion from '../components/Accordion';
-import { useReveal } from '../hooks/useReveal';
 import { useVolets } from '../hooks/useVolets';
 import { useInkFill } from '../hooks/useInkFill';
 import { usePageMeta } from '../hooks/usePageMeta';
-import { business } from '../data/business';
+import GetInTouch from '../components/GetInTouch';
 
 // Frames for the banner ticker, drawn from across the project renders.
 const ticker = [
@@ -16,7 +14,7 @@ const ticker = [
   '/media/projets/akoubri_adostigia-reception-01.webp',
   '/media/projets/akoubri_maison-dhote-terrace-lounge-07.webp',
   '/media/projets/akoubri_le-sentier-toiture-bar-pergola-06.webp',
-  '/media/projets/akoubri_farraj-vue-aerienne-10.webp',
+  '/media/projets/akoubri_farraj-vue-aerienne-03.webp',
 ];
 
 /* One reference image per service, chosen for what it demonstrates rather
@@ -35,7 +33,7 @@ const shots = [
     alt: "Séjour et salle à manger d'un appartement Zahiya, corniches lumineuses et menuiseries en noyer",
   },
   {
-    src: '/media/projets/akoubri_farraj-vue-aerienne-10.webp',
+    src: '/media/projets/akoubri_farraj-vue-aerienne-03.webp',
     alt: "Vue aérienne de synthèse de la conserverie Farraj, bâtiments disposés en L autour d'une aire de manœuvre",
   },
   {
@@ -64,7 +62,6 @@ const faq = [
 ];
 
 export default function Services() {
-  useReveal();
   const volets = useVolets();
   const ink = useInkFill();
   const heroInk = useInkFill({ play: true });
@@ -123,7 +120,7 @@ export default function Services() {
       {/* ── Trust: statement + staggered figure bars ── */}
       <section className="zv zv-section">
         <div className="shell">
-          <div data-reveal className="reveal mx-auto mb-12 max-w-[764px] text-center md:mb-20 lg:mb-32">
+          <div data-reveal className="reveal mx-auto mb-10 max-w-[764px] text-center md:mb-14 lg:mb-20">
             <h2 ref={ink} className="zv-h4">
               De l'esquisse à la réception, nous livrons une architecture tenue —{' '}
               <span className="text-[var(--zv-gray-100)]">
@@ -135,17 +132,26 @@ export default function Services() {
           {/* `stats` now carries the four programme families rather than the
               old unverified figures, so the staggered bar heights (which only
               made sense against numbers) are gone: each entry is a titled
-              card with its one-line definition. */}
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+              card with its one-line definition.
+
+              The index on the rule gives each column a head to hang from —
+              without it the row was four bare words under a hairline, and
+              read as unfinished beneath a centred statement. Two-up on a
+              phone as well: the words are short enough at the h4 size, and
+              four full-width stacked rules made a long, thin list. The
+              caption is capped so it breaks in two even lines on desktop
+              instead of leaving one orphaned word. */}
+          <div className="grid grid-cols-2 gap-x-5 gap-y-9 sm:gap-x-8 lg:grid-cols-4">
             {stats.map((s, i) => (
               <div
                 key={s.label}
                 data-reveal
                 data-reveal-delay={i * 90}
-                className="reveal border-t border-[var(--zv-border)] pt-6"
+                className="reveal border-t border-[var(--zv-primary)] pt-4"
               >
-                <div className="zv-h4">{s.value}</div>
-                <p className="zv-small zv-muted mt-3">{s.label}</p>
+                <span className="zv-subtitle">{String(i + 1).padStart(2, '0')}</span>
+                <div className="zv-h4 mt-5 sm:mt-7">{s.value}</div>
+                <p className="zv-small zv-muted mt-3 max-w-[24ch]">{s.label}</p>
               </div>
             ))}
           </div>
@@ -181,10 +187,13 @@ export default function Services() {
                 </span>
                 <h2 className="zv-h3 mt-6">{s.title}</h2>
                 <p className="zv-lead zv-muted mt-5 max-w-md">{s.text}</p>
-                <ul className="mt-8 grid max-w-md gap-3 border-t border-[var(--zv-border)] pt-7 sm:grid-cols-2">
+                {/* .zv-marker carries its own half-line offset, so the
+                    chevron sits beside line one of a label that wraps rather
+                    than centring on the item or riding its top edge. */}
+                <ul className="mt-8 grid max-w-md gap-x-8 gap-y-3 border-t border-[var(--zv-border)] pt-7 sm:grid-cols-2">
                   {s.points.map((pt) => (
                     <li key={pt} className="zv-small zv-muted flex items-start gap-3">
-                      <span className="h-px w-4 shrink-0 bg-[var(--zv-primary)]" />
+                      <span className="zv-marker" aria-hidden="true" />
                       {pt}
                     </li>
                   ))}
@@ -228,162 +237,7 @@ export default function Services() {
         </div>
       </section>
 
-      <CtaWithCards />
+      <GetInTouch />
     </>
-  );
-}
-
-/* ── CTA with floating project cards ────────────────────────────────────
-   Reference shape: a centred form with four small cards pinned to the
-   corners of the section. The cards are decorative framing, so they are
-   hidden below 1280px (where they would overlap the form) and marked
-   aria-hidden — the same projects are reachable from the nav.          */
-function CtaWithCards() {
-  const [form, setForm] = useState({ first: '', last: '', email: '', message: '' });
-  const [status, setStatus] = useState('idle'); // idle | sending | sent | error
-
-  const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
-
-  const onSubmit = async (ev) => {
-    ev.preventDefault();
-    setStatus('sending');
-    try {
-      const res = await fetch('/api/contact.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: `${form.first} ${form.last}`.trim(),
-          email: form.email,
-          message: form.message,
-        }),
-      });
-      if (!res.ok) throw new Error('bad status');
-      setStatus('sent');
-      setForm({ first: '', last: '', email: '', message: '' });
-    } catch {
-      setStatus('error');
-    }
-  };
-
-  // Corner placements, in the reference's order. `inset-*` values are
-  // relative to the shell, which is given a min-height below so the two
-  // bottom cards have something to anchor to.
-  const spots = [
-    'left-0 top-6',
-    'right-1 top-6',
-    'bottom-16 left-1',
-    'bottom-14 right-1',
-  ];
-
-  return (
-    <section className="zv zv-section relative overflow-hidden">
-      <div className="shell relative xl:min-h-[720px] xl:py-10">
-        {projects.slice(0, 4).map((p, i) => (
-          <div key={p.slug} className={`zv-cta-card ${spots[i]}`} aria-hidden="true">
-            <div className="mb-4 flex items-center gap-2">
-              <CardIcon i={i} />
-              <span className="zv-body font-medium">{p.name}</span>
-            </div>
-            <div className="zv-cta-card-media">
-              <img
-                src={p.cover}
-                alt=""
-                loading="lazy"
-                width="420"
-                height="280"
-                className="aspect-[3/2] w-full object-cover"
-              />
-            </div>
-          </div>
-        ))}
-
-        <div className="relative z-10 mx-auto max-w-[530px] xl:py-8">
-          <form data-reveal className="reveal" onSubmit={onSubmit}>
-            {status === 'sent' && (
-              <p role="status" className="zv-small mb-6 rounded-xl border border-[var(--zv-primary)] bg-white px-4 py-3">
-                Message envoyé. Nous revenons vers vous sous 48 heures ouvrées.
-              </p>
-            )}
-            {status === 'error' && (
-              <p role="alert" className="zv-small mb-6 rounded-xl border border-red-700 bg-red-50 px-4 py-3 text-red-800">
-                L'envoi a échoué. Écrivez-nous à{' '}
-                <a href={`mailto:${business.email}`} className="underline">{business.email}</a>.
-              </p>
-            )}
-
-            <div className="flex flex-col gap-6">
-              <div className="flex flex-col gap-6 sm:flex-row">
-                <label className="block w-full">
-                  <span className="zv-small font-medium">Prénom</span>
-                  <input
-                    type="text"
-                    value={form.first}
-                    onChange={set('first')}
-                    className="zv-field"
-                    autoComplete="given-name"
-                    placeholder="Votre prénom"
-                    required
-                  />
-                </label>
-                <label className="block w-full">
-                  <span className="zv-small font-medium">Nom</span>
-                  <input
-                    type="text"
-                    value={form.last}
-                    onChange={set('last')}
-                    className="zv-field"
-                    autoComplete="family-name"
-                    placeholder="Votre nom"
-                  />
-                </label>
-              </div>
-
-              <label className="block">
-                <span className="zv-small font-medium">E-mail</span>
-                <input
-                  type="email"
-                  value={form.email}
-                  onChange={set('email')}
-                  className="zv-field"
-                  autoComplete="email"
-                  placeholder="vous@exemple.com"
-                  required
-                />
-              </label>
-
-              <label className="block">
-                <span className="zv-small font-medium">Message</span>
-                <textarea
-                  value={form.message}
-                  onChange={set('message')}
-                  className="zv-field"
-                  placeholder="Parlez-nous de votre projet…"
-                  required
-                />
-              </label>
-
-              <button type="submit" className="zv-btn w-full" disabled={status === 'sending'} aria-busy={status === 'sending'}>
-                {status === 'sending' ? 'Envoi…' : 'Démarrer'}
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// Small glyph on each floating card, echoing the reference's icon chips.
-function CardIcon({ i }) {
-  const d = [
-    'M4 20h16M6 20V9l6-4 6 4v11',           // building
-    'M4 8h16v12H4zM4 8l8-4 8 4',            // volume
-    'M3 6h18v12H3zM8 18v2h8v-2',            // screen
-    'M4 16 10 8l4 5 6-8',                   // line
-  ][i % 4];
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d={d} stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
   );
 }

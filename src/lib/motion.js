@@ -108,22 +108,36 @@ export function loadMotion({ now = false } = {}) {
   return openWhenEngaged().then(importMotion);
 }
 
-/* Lazy images (the site sets width/height everywhere, but a late decode can
-   still move a trigger by a pixel or two). One refresh, debounced, once the
-   remaining images in scope have settled. */
-function refreshAfterImages(ScrollTrigger, scope, signal) {
-  const waiting = Array.from(scope.querySelectorAll('img')).filter((img) => !img.complete);
-  if (!waiting.length) return;
+/* Re-measure whenever the page's height changes under a scene.
+
+   Watching only the scene's own images is not enough. A scene whose scope
+   holds no image at all — a bare section head, say — still has its trigger
+   positions invalidated by every lazy image *above* it: a long gallery
+   decodes as the reader scrolls past, the document collapses by a thousand
+   pixels or more, and a scrub measured against the taller page never reaches
+   its start. That is a whole heading left permanently in pencil grey.
+
+   So the signal is the document height itself, which covers in-scope images,
+   images anywhere above, fonts, and any other late reflow, without the scene
+   needing to know what caused it. A ResizeObserver on the body reports those
+   collapses as they happen; the refresh is debounced so a gallery settling
+   image by image costs one measure pass, not twenty.                       */
+function refreshOnReflow(ScrollTrigger, signal) {
+  if (typeof ResizeObserver !== 'function') return;
   let timer;
-  const bump = () => {
+  let last = document.documentElement.scrollHeight;
+  const ro = new ResizeObserver(() => {
+    const h = document.documentElement.scrollHeight;
+    if (h === last) return;
+    last = h;
     clearTimeout(timer);
-    timer = setTimeout(() => ScrollTrigger.refresh(), 120);
-  };
-  waiting.forEach((img) => {
-    img.addEventListener('load', bump, { once: true, signal });
-    img.addEventListener('error', bump, { once: true, signal });
+    timer = setTimeout(() => ScrollTrigger.refresh(), 150);
   });
-  signal.addEventListener('abort', () => clearTimeout(timer));
+  ro.observe(document.body);
+  signal.addEventListener('abort', () => {
+    clearTimeout(timer);
+    ro.disconnect();
+  });
 }
 
 /* Builds one scene inside a gsap.context() bound to `scopeRef`, after the
@@ -169,7 +183,7 @@ export function useGsapScene(scopeRef, build, deps = [], { defer = false } = {})
         // Positions were computed against the layout at mount; the route just
         // changed and scrolled to top, so measure once more now it has settled.
         lib.ScrollTrigger.refresh();
-        refreshAfterImages(lib.ScrollTrigger, scope, aborter.signal);
+        refreshOnReflow(lib.ScrollTrigger, aborter.signal);
         // The chunk usually lands before the self-hosted display font does;
         // triggers measured against the fallback face are off by every
         // heading's reflow. Measure again once the fonts are in.
@@ -200,11 +214,70 @@ export function useGsapScene(scopeRef, build, deps = [], { defer = false } = {})
   }, deps);
 }
 
-/* A `once` ScrollTrigger created when the page is already scrolled past its
-   end (fast scroll on a slow connection, before the chunk arrived) resolves
-   its toggle action to "none" and would leave a from() tween sitting at its
-   hidden start. Jump such a timeline straight to its resting state. */
-export function settleIfPassed(tl) {
-  const st = tl.scrollTrigger;
-  if (st && st.progress >= 1) tl.progress(1);
+/* Replays a one-shot entrance every time its element comes back into view,
+   from either direction.
+
+   `animation` is a tween or timeline the caller owns — NOT one attached to a
+   ScrollTrigger, which would re-record a played tween's start values on
+   refresh. Two triggers drive it with plain play/pause calls:
+
+     zone   `start` → `end`, inset from both viewport edges so the move plays
+            where it can be seen rather than on the first pixel to appear
+     span   the element's whole passage through the viewport; leaving it, by
+            either edge, rewinds the animation while nothing can see it
+
+   Every decision reads the element's real position rather than trigger
+   state: on a fast scroll both triggers fire in the same tick, in creation
+   order, and neither's `isActive` can be trusted from inside the other's
+   callback. A scene built when the page is already scrolled past it starts
+   rewound, so coming back up to it plays the entrance too. */
+export function replayOnScroll({
+  ScrollTrigger,
+  animation,
+  trigger,
+  start = 'top 80%',
+  end = 'bottom 20%',
+}) {
+  const onScreen = () => {
+    const box = trigger.getBoundingClientRect();
+    return box.bottom > 0 && box.top < window.innerHeight;
+  };
+  // Events stay on for the rewind: an animation that paints through
+  // onUpdate (the ink fill, the stat counters) has to repaint its start.
+  //
+  // The span trigger's start/end are resolved from the element's position in
+  // the document, which is not where a *sticky* element is drawn: pinned by a
+  // `position: sticky` ancestor, the title stays at the top of the viewport
+  // while its document box scrolls out from under it. The trigger then reports
+  // a leave and this would rewind a heading the reader is still looking at,
+  // stranding it in pencil grey for the whole length of the sticky run. So the
+  // rewind asks the element where it actually is, exactly as `play` does.
+  const rewind = () => {
+    if (onScreen()) return;
+    animation.pause(0, false);
+  };
+  const play = () => {
+    if (onScreen()) animation.play();
+  };
+
+  ScrollTrigger.create({
+    trigger,
+    start,
+    end,
+    onEnter: play,
+    onEnterBack: play,
+    // Crossed in a single tick, the zone reports enter and leave together
+    // with the element resting in the inset beyond it — still on screen.
+    onLeave: play,
+    onLeaveBack: play,
+  });
+  ScrollTrigger.create({
+    trigger,
+    start: 'top bottom',
+    end: 'bottom top',
+    onLeave: rewind,
+    onLeaveBack: rewind,
+  });
+
+  if (!onScreen()) rewind();
 }

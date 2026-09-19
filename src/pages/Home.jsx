@@ -3,12 +3,12 @@ import InkTitle from '../components/InkTitle';
 import { Link } from 'react-router-dom';
 import { projects, services, stats, process, testimonials, showcase, agencyFaq } from '../data/projects';
 import Accordion from '../components/Accordion';
-import { useReveal } from '../hooks/useReveal';
 import RadialMarquee from '../components/RadialMarquee';
-import ContactForm from '../components/ContactForm';
+import ClientLogos from '../components/ClientLogos';
+import GetInTouch from '../components/GetInTouch';
 import Testimonials from '../components/Testimonials';
 import Showcase from '../components/Showcase';
-import { useAxonometric } from '../hooks/useAxonometric';
+import { useCoupe } from '../hooks/useCoupe';
 import { useFloorPlates } from '../hooks/useFloorPlates';
 import { usePageMeta } from '../hooks/usePageMeta';
 
@@ -22,7 +22,6 @@ import { usePageMeta } from '../hooks/usePageMeta';
    request; its header row is unchanged. Everything else follows the
    reference order, minus its testimonial and pricing blocks.       */
 export default function Home() {
-  useReveal();
 
   usePageMeta({
     description:
@@ -33,7 +32,7 @@ export default function Home() {
   return (
     <>
       <Hero />
-      <Marks />
+      <ClientLogos />
       <DesignStories />   {/* links to the 3D stage, now its own page  */}
       <Featured />        {/* PROTECTED — Projets récents          */}
       <ImpactBand />
@@ -41,10 +40,9 @@ export default function Home() {
       <Showcase items={showcase} />   {/* PROTECTED — Les espaces  */}
       <CoreValues />
       <Services />
-      {/* PROTECTED — le mur d'avis. Les citations non vérifiées ont été
-          retirées (testimonials === []) : on masque la section plutôt que
-          d'afficher un titre au-dessus du vide. Elle revient telle quelle
-          dès que de vrais avis sont remis dans data/projects.js. */}
+      {/* PROTECTED — le mur d'avis : 24 avis Google réels, repris mot pour
+          mot (voir data/projects.js). La garde ne sert qu'à ne pas afficher
+          un titre au-dessus du vide si le tableau venait à être vidé. */}
       {testimonials.length > 0 && <Testimonials items={testimonials} />}
       <Process />
       <Faq />
@@ -54,30 +52,114 @@ export default function Home() {
 }
 
 /* ── Hero ───────────────────────────────────────────────────────────────
-   Reference banner shape: full-bleed media with the title set large and
-   bottom-left in Fjalla One, over a scrim. The video loop is kept — only
-   copy layout changes.                                                   */
+   Full-viewport film banner. Everything reads bottom-up: eyebrow, title,
+   lead and actions stacked on the left; on the right a glass chip naming
+   the project on screen, beside the pause control.
+
+   Three decisions worth keeping:
+
+   · The scrim is directional (zv-hero-scrim), not a flat veil. The film
+     runs from golden hour into dusk and is already dark; a uniform wash
+     crushed it to a silhouette. Weight sits bottom-left under the copy and
+     in a short band under the header — the rest of the frame is left alone.
+   · The footage is a 576px source scaled up, so it is soft. A fine grain
+     layer (zv-hero-grain) makes that softness read as film rather than as
+     a bad upscale. It is a static tile: no blend mode, no per-frame cost.
+   · Moving content that starts by itself must be pausable (WCAG 2.2.2), so
+     there is a real pause button. Reduced-motion and data-saver visitors
+     get the poster and a play button instead of autoplay, and the film
+     stops decoding whenever the hero is scrolled out of view.            */
 function Hero() {
   const [ready, setReady] = useState(false);
+  const [paused, setPaused] = useState(false);
   const videoRef = useRef(null);
+  const sectionRef = useRef(null);
+  // What the visitor asked for, as opposed to what the observer did: a
+  // film paused by hand must stay paused when the hero scrolls back in.
+  const userPaused = useRef(false);
 
-  // Autoplay can be refused (data saver, low power mode). If it is, the
-  // poster simply stays put — the section never shows a blank frame.
+  /* The source reel is portrait (576×1024). Cropping it to the desktop
+     banner throws away most of the frame on a phone, where the hero is
+     itself tall — so two cuts are published from the same footage and the
+     right one is chosen once, before the element mounts. `<source media>`
+     is deliberately avoided: browsers evaluate it only at load, so a
+     desktop that starts narrow keeps the phone file forever after. */
+  const portrait =
+    typeof window !== 'undefined' &&
+    window.matchMedia('(max-aspect-ratio: 3/4)').matches;
+
+  const src = portrait
+    ? '/media/projets/akoubri_le-sentier-hero-portrait.mp4'
+    : '/media/projets/akoubri_le-sentier-hero.mp4';
+  const poster = portrait
+    ? '/media/projets/akoubri_le-sentier-hero-poster-portrait.webp'
+    : '/media/projets/akoubri_le-sentier-hero-poster.webp';
+
   useEffect(() => {
     const v = videoRef.current;
-    if (!v) return;
-    const p = v.play();
-    if (p?.catch) p.catch(() => {});
+    const section = sectionRef.current;
+    if (!v || !section) return undefined;
+
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const saveData = navigator.connection?.saveData;
+    if (reduced || saveData) {
+      // No autoplay: the poster stays, and the button offers the film.
+      userPaused.current = true;
+      setPaused(true);
+      return undefined;
+    }
+
+    const play = () => {
+      const p = v.play();
+      // Autoplay can be refused (low power mode). The poster simply stays
+      // put and the control flips to "play" — never a blank frame.
+      if (p?.catch) p.catch(() => setPaused(true));
+    };
+
+    if (typeof IntersectionObserver === 'undefined') {
+      play();
+      return undefined;
+    }
+
+    // Decode only while the banner is on screen.
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          if (!userPaused.current) play();
+        } else {
+          v.pause();
+        }
+      },
+      { threshold: 0.05 }
+    );
+    io.observe(section);
+    return () => io.disconnect();
   }, []);
 
+  const toggle = () => {
+    const v = videoRef.current;
+    if (!v) return;
+    if (v.paused) {
+      userPaused.current = false;
+      setPaused(false);
+      const p = v.play();
+      if (p?.catch) p.catch(() => setPaused(true));
+    } else {
+      userPaused.current = true;
+      setPaused(true);
+      v.pause();
+    }
+  };
+
   return (
-    <section className="zv zv-hero">
+    <section ref={sectionRef} className="zv zv-hero">
       {/* Media layer */}
       <div className="absolute inset-0 z-0">
         <img
-          src="/media/projets/akoubri_zahiya-facade-loop-poster.webp"
+          src={poster}
           alt=""
           aria-hidden="true"
+          fetchpriority="high"
           className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ${
             ready ? 'opacity-0' : 'opacity-100'
           }`}
@@ -87,86 +169,125 @@ function Hero() {
           className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ${
             ready ? 'opacity-100' : 'opacity-0'
           }`}
-          src="/media/projets/akoubri_zahiya-facade-loop.mp4"
-          poster="/media/projets/akoubri_zahiya-facade-loop-poster.webp"
-          autoPlay
+          src={src}
+          poster={poster}
           loop
           muted
           playsInline
           preload="metadata"
           aria-hidden="true"
           tabIndex={-1}
-          onCanPlay={() => setReady(true)}
+          onPlaying={() => setReady(true)}
         />
-
-        {/* Scrims. The loop is bright daylight footage, so the copy needs
-            more cover than the reference's dark interior still: a heavy
-            bottom gradient carries the title, and a flat veil holds the
-            mid-tones down across the whole frame. */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/55 to-black/15" />
-        <div className="absolute inset-0 bg-black/25" />
+        <div className="zv-hero-scrim" />
+        <div className="zv-hero-grain" aria-hidden="true" />
       </div>
 
-      {/* Copy — bottom-left, as in the reference banner. */}
       <div className="shell relative z-10 w-full">
-        <div className="flex flex-wrap items-end justify-between gap-8">
-          <InkTitle
-            as="h1"
-            play
-            dark
-            data-reveal
-            className="reveal zv-h1 max-w-[620px] text-white"
-          >
-            Cabinet d'architecture &amp; design d'intérieur
-          </InkTitle>
+        <div className="grid items-end gap-5 sm:gap-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-16">
+          {/* Copy. Spacing comes from flex gaps, so the rhythm is set in
+              one place per group rather than per element. */}
+          <div className="flex flex-col gap-4 sm:gap-5 md:gap-7">
+            {/* Eyebrow and title are one unit: a tight gap between them, the
+                wider stack gap around them. */}
+            <div className="flex flex-col gap-2.5 sm:gap-3 md:gap-5">
+              <span className="zv-hero-in zv-subtitle zv-hero-eyebrow">
+                Architecte à Marrakech
+              </span>
 
-          <div data-reveal data-reveal-delay="140" className="reveal max-w-md">
-            <p className="zv-body text-white/85">
-              Résidences, villas et espaces de travail à Marrakech. De la
-              conception architecturale au permis de construire, puis au
-              chantier, avec des images de synthèse pour décider sur pièces
-              plutôt que sur promesse.
+              <InkTitle
+                as="h1"
+                play
+                dark
+                className="zv-hero-in zv-h1 text-white"
+                style={{ '--d': '70ms' }}
+              >
+                {/* The break is explicit so the ampersand opens the second
+                    line instead of dangling at the end of the first. */}
+                Cabinet d'architecture
+                <br />
+                &amp; design d'intérieur
+              </InkTitle>
+            </div>
+
+            <p className="zv-hero-in zv-hero-lead" style={{ '--d': '140ms' }}>
+              Résidences, villas et espaces de travail. De la conception au
+              permis de construire, puis au chantier.
+              {/* Second sentence from sm up only: on a phone the lead ran to
+                  five lines and, with the actions, left no room for the film. */}
+              <span className="hidden sm:inline">
+                {' '}Des images de synthèse pour décider sur pièces plutôt que
+                sur promesse.
+              </span>
             </p>
-            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap md:mt-7">
+
+            <div
+              style={{ '--d': '210ms' }}
+              className="zv-hero-in flex flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:gap-3"
+            >
               <Link to="/projets" className="zv-btn zv-btn-light w-full justify-center sm:w-auto">
                 Voir les projets
+                <ArrowNE />
               </Link>
               <Link to="/contact" className="zv-btn zv-btn-onmedia w-full justify-center sm:w-auto">
                 Parler de votre projet
               </Link>
             </div>
           </div>
+
+          {/* Nothing in this banner uses data-reveal. That observer is for
+              content scrolled *to*: its rootMargin ignores the bottom 8% of
+              the screen, and on a phone the chip row sits entirely inside
+              that band — it stayed invisible until the first scroll. The
+              banner is on screen at load, so it animates on load
+              (zv-hero-in), with --d as the stagger. */}
+          {/* On screen now: the film is a real project, so it is named and
+              linked rather than left as anonymous atmosphere. */}
+          <div className="zv-hero-in flex items-center gap-3" style={{ '--d': '300ms' }}>
+            <Link to="/projets/le-sentier" className="zv-hero-chip group">
+              <img
+                src="/media/projets/akoubri_le-sentier-hero-thumb.webp"
+                alt=""
+                aria-hidden="true"
+                width="56"
+                height="56"
+                className="zv-hero-chip-thumb"
+              />
+              <span className="min-w-0">
+                <span className="zv-hero-chip-label">À l'image</span>
+                <span className="zv-hero-chip-name">Le Sentier</span>
+                <span className="zv-hero-chip-meta">Résidence · Marrakech</span>
+              </span>
+              <span className="zv-hero-chip-arrow" aria-hidden="true">
+                <ArrowNE />
+              </span>
+            </Link>
+
+            <button
+              type="button"
+              onClick={toggle}
+              aria-pressed={paused}
+              aria-label={paused ? 'Lire la vidéo de fond' : 'Mettre la vidéo de fond en pause'}
+              className="zv-hero-ctrl"
+            >
+              {paused ? (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+              ) : (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" />
+                </svg>
+              )}
+            </button>
+          </div>
         </div>
       </div>
-    </section>
-  );
-}
 
-/* ── Marks ──────────────────────────────────────────────────────────────
-   The reference's "trusted companies" strip under the banner. Here it
-   carries the disciplines rather than client logos.                     */
-function Marks() {
-  const items = [
-    'Architecture',
-    "Design d'intérieur",
-    'Images de synthèse',
-    'Suivi de chantier',
-    'Direction artistique',
-  ];
-  return (
-    <section className="zv py-8 md:py-16">
-      <div className="shell">
-        <p data-reveal className="reveal zv-small zv-muted mb-5 text-center md:mb-9">
-          Quatre métiers, un seul interlocuteur
-        </p>
-        <div data-reveal data-reveal-delay="80" className="reveal zv-marks">
-          {items.map((t) => (
-            <span key={t} className="zv-mark">
-              <span className="h-1.5 w-1.5 rounded-full bg-[var(--zv-primary)]" />
-              {t}
-            </span>
-          ))}
-        </div>
+      {/* Scroll cue — desktop only; on a phone the next section already
+          peeks above the fold and says the same thing. */}
+      <div className="zv-hero-cue" aria-hidden="true">
+        <span />
       </div>
     </section>
   );
@@ -271,7 +392,10 @@ function ImpactBand() {
   return (
     <section className="zv zv-dark zv-section zv-stat-band">
       <div className="shell">
-        <div data-reveal className="reveal mb-9 max-w-[540px] lg:mb-14">
+        {/* Wide enough for the title to set on one line from lg: at 540px it
+            broke in two and left the right half of the band empty above a
+            row that spans the full width. */}
+        <div data-reveal className="reveal mb-9 max-w-[820px] lg:mb-14">
           <span className="zv-subtitle">Domaines</span>
           <InkTitle className="zv-h2 mt-4 lg:mt-5">Quatre familles de projets</InkTitle>
         </div>
@@ -283,7 +407,7 @@ function ImpactBand() {
             of four with dividers between them takes over. */}
         <div
           ref={plates}
-          className="zv-stat-grid grid grid-cols-2 lg:grid-cols-4 lg:gap-x-0 lg:gap-y-0 m3-plates"
+          className="zv-stat-grid zv-stat-cq grid grid-cols-2 lg:grid-cols-4 lg:gap-x-0 lg:gap-y-0 m3-plates"
         >
           {stats.map((s, i) => (
             <div key={s.label} className="m3-plate">
@@ -307,9 +431,68 @@ function ImpactBand() {
 
 /* ── Portfolio mosaic ───────────────────────────────────────────────────
    Reference layout: one tall tile on the left, two stacked on the right,
-   each captioned over the image.                                         */
+   each captioned over the image. The motion is useCoupe: every tile comes
+   in as an esquisse of its own render and a section line develops it.     */
+const MOSAIC = [
+  {
+    slug: 'le-sentier',
+    src: '/media/projets/akoubri_le-sentier-toiture-brasero-07.webp',
+    alt: "Piscine de la toiture-terrasse du Sentier au crépuscule, bains de soleil alignés et chaîne de l'Atlas enneigée à l'horizon",
+    name: 'Le Sentier',
+    meta: 'Toiture-terrasse · Marrakech',
+  },
+  {
+    slug: 'adostigia',
+    src: '/media/projets/akoubri_adostigia-director-office-16.webp',
+    name: 'Adostigia',
+    meta: 'Bureau de direction · Marrakech',
+  },
+  {
+    slug: 'farraj',
+    src: '/media/projets/akoubri_farraj-vue-aerienne-03.webp',
+    name: 'Farraj',
+    meta: 'Conserverie · Marrakech',
+  },
+];
+
+/* One mosaic tile. The esquisse repeats the render's src, so it costs no
+   second request; it and the line are decorative and hidden at rest. */
+function MosaicTile({ project, index, tall = false }) {
+  const { slug, src, name, meta, alt } = project;
+  return (
+    <div className="m3-coupe-tile">
+      <Link to={`/projets/${slug}`} className="zv-tile" aria-label={`${name} — voir le projet`}>
+        <span className="m3-coupe-media">
+          <img
+            src={src}
+            alt={alt || `${name} — ${meta}`}
+            loading="lazy"
+            width="1280"
+            height={tall ? 1400 : 720}
+            className={
+              tall
+                ? 'h-full min-h-[380px] w-full object-cover lg:min-h-[620px]'
+                : 'h-full min-h-[220px] w-full object-cover lg:min-h-[302px]'
+            }
+          />
+          <span className="m3-coupe-draft" aria-hidden="true">
+            <img src={src} alt="" loading="lazy" />
+            <span className="m3-coupe-tag">Esquisse · {String(index + 1).padStart(2, '0')}</span>
+          </span>
+          <span className="m3-coupe-line" aria-hidden="true" />
+        </span>
+        <span className="zv-tile-cap">
+          <span className={`${tall ? 'zv-h5' : 'zv-h6'} block`}>{name}</span>
+          <span className="zv-small block">{meta}</span>
+        </span>
+      </Link>
+    </div>
+  );
+}
+
 function Portfolio() {
-  const axo = useAxonometric();
+  const coupe = useCoupe();
+  const [tall, ...stacked] = MOSAIC;
   return (
     <section className="zv zv-section">
       <div className="shell">
@@ -320,61 +503,13 @@ function Portfolio() {
           </InkTitle>
         </div>
 
-        <div ref={axo} className="m3-axo">
-        <div className="grid gap-4 lg:grid-cols-2 m3-axo-grid">
-          <div className="m3-axo-tile">
-          <Link
-            to="/projets/le-sentier"
-            data-reveal
-            className="reveal zv-tile"
-            aria-label="Le Sentier — voir le projet"
-          >
-            <img
-              src="/media/projets/akoubri_le-sentier-toiture-brasero-07.webp"
-              alt="Piscine de la toiture-terrasse du Sentier au crépuscule, bains de soleil alignés et chaîne de l'Atlas enneigée à l'horizon"
-              loading="lazy"
-              width="1280"
-              height="1400"
-              className="h-full min-h-[380px] w-full object-cover lg:min-h-[620px]"
-            />
-            <span className="zv-tile-cap">
-              <span className="zv-h5 block">Le Sentier</span>
-              <span className="zv-small">Toiture-terrasse · Marrakech</span>
-            </span>
-          </Link>
-          </div>
-
-          <div className="grid gap-4 m3-axo-grid">
-            {[
-              { slug: 'adostigia', src: '/media/projets/akoubri_adostigia-director-office-16.webp', name: 'Adostigia', meta: 'Bureau de direction · Marrakech' },
-              { slug: 'farraj', src: '/media/projets/akoubri_farraj-vue-aerienne-10.webp', name: 'Farraj', meta: 'Conserverie · Marrakech' },
-            ].map((p, i) => (
-              <div key={p.slug} className="m3-axo-tile">
-              <Link
-                key={p.slug}
-                to={`/projets/${p.slug}`}
-                data-reveal
-                data-reveal-delay={(i + 1) * 90}
-                className="reveal zv-tile"
-                aria-label={`${p.name} — voir le projet`}
-              >
-                <img
-                  src={p.src}
-                  alt={`${p.name} — ${p.meta}`}
-                  loading="lazy"
-                  width="1280"
-                  height="720"
-                  className="h-full min-h-[220px] w-full object-cover lg:min-h-[302px]"
-                />
-                <span className="zv-tile-cap">
-                  <span className="zv-h6 block">{p.name}</span>
-                  <span className="zv-small">{p.meta}</span>
-                </span>
-              </Link>
-              </div>
+        <div ref={coupe} className="grid gap-4 lg:grid-cols-2 m3-coupe">
+          <MosaicTile project={tall} index={0} tall />
+          <div className="grid gap-4">
+            {stacked.map((p, i) => (
+              <MosaicTile key={p.slug} project={p} index={i + 1} />
             ))}
           </div>
-        </div>
         </div>
       </div>
     </section>
@@ -407,7 +542,7 @@ function CoreValues() {
               data-reveal-delay={i * 80}
               className="reveal flex flex-col gap-4 rounded-t-3xl bg-[var(--zv-bg-alt)] p-5 sm:p-6 md:min-h-[246px] md:justify-between"
             >
-              <span className="zv-icon bg-white">
+              <span className="zv-icon bg-[var(--paper-raised)]">
                 <ValueIcon i={i} />
               </span>
               <div>
@@ -460,69 +595,8 @@ function Faq() {
   );
 }
 
-/* ── Get in touch ───────────────────────────────────────────────────────
-   The enquiry band that closes the page, above the footer. Reference
-   layout: the form centred in its own column with project cards tilted
-   into the margins on either side.
-
-   The flanking cards are decoration, so they are aria-hidden and sit
-   behind the form (pointer-events: none) — they must never intercept a tap
-   meant for a field. Below lg there is no margin to put them in, so they
-   are dropped entirely rather than stacked: on a phone the form is the
-   whole point of the section. */
-function GetInTouch() {
-  const flank = projects.slice(0, 4);
-
-  return (
-    <section className="zv zv-section relative overflow-hidden">
-      {/* Decorative flanking cards — desktop only. */}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 hidden lg:block">
-        {flank.map((p, i) => (
-          <figure
-            key={p.slug}
-            className={`absolute w-[220px] overflow-hidden rounded-2xl bg-white p-3 shadow-[0_18px_50px_rgba(28,25,23,0.10)] xl:w-[280px] ${
-              [
-                'left-0 top-[12%] -rotate-[4deg] xl:left-[3%]',
-                'right-0 top-[10%] rotate-[4deg] xl:right-[3%]',
-                'left-0 bottom-[8%] rotate-[3deg] xl:left-[3%]',
-                'right-0 bottom-[6%] -rotate-[3deg] xl:right-[3%]',
-              ][i]
-            }`}
-          >
-            <figcaption className="mb-2 px-1 font-display text-sm uppercase tracking-tight">
-              {p.name}
-            </figcaption>
-            <img
-              src={p.cover}
-              alt=""
-              width="600"
-              height="400"
-              loading="lazy"
-              className="block aspect-[3/2] w-full rounded-xl object-cover"
-            />
-          </figure>
-        ))}
-      </div>
-
-      <div className="shell relative">
-        <div className="mx-auto max-w-[560px]">
-          <div data-reveal className="reveal text-center">
-            <span className="zv-subtitle">Parlons-en</span>
-            <InkTitle className="zv-h2 mt-5">Démarrons votre projet</InkTitle>
-            <p className="zv-body zv-muted mx-auto mt-4 max-w-md">
-              Décrivez-nous le terrain, le programme et l&apos;échéance. Nous
-              revenons vers vous sous 48&nbsp;heures ouvrées.
-            </p>
-          </div>
-
-          <div data-reveal data-reveal-delay="120" className="reveal mt-10">
-            <ContactForm compact submitLabel="Envoyer" />
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
+/* Get in touch — the closing enquiry band now lives in
+   components/GetInTouch.jsx, shared with the other pages. */
 
 function ArrowNE() {
   return (
@@ -567,53 +641,11 @@ function Featured() {
         <RadialMarquee projects={projects} />
       </div>
 
-      {/* The arc only occupies the top of its 600px box, so the band beneath
-          the centre card read as dead ground. It gets an index of what is on
-          the wheel — the cards turn, so a reader who wants a specific project
-          would otherwise have to wait for it to come round — plus a line
-          naming the scroll-to-spin behaviour, which is undiscoverable.
-
-          Deliberately not a figure strip: the section immediately below is
-          "En chiffres", which already carries the years/projects/m²/cities
-          counts. */}
-      <div className="shell">
-        <div data-reveal data-reveal-delay="180" className="reveal m3-radial-foot">
-          <p className="m3-radial-foot__hint">
-            <span className="m3-radial-foot__dot" aria-hidden="true" />
-            La roue tourne au fil du défilement
-          </p>
-          <ul className="m3-radial-foot__index">
-            {projects.map((p, i) => (
-              <li key={p.slug}>
-                <Link to={`/projets/${p.slug}`} className="m3-radial-foot__link">
-                  {/* Phone-only: the stacked list needs an ordinal to read as
-                      an index rather than four loose links. Hidden on desktop,
-                      where the vertical rules already do that job. */}
-                  <span className="m3-radial-foot__num" aria-hidden="true">
-                    {String(i + 1).padStart(2, '0')}
-                  </span>
-                  <span className="m3-radial-foot__text">
-                    <span className="m3-radial-foot__name">{p.name}</span>
-                    <span className="m3-radial-foot__meta">
-                      {/* `year` est null sur tous les projets depuis la
-                          reprise des données : il affichait « Résidence · »
-                          avec un séparateur orphelin. On reprend le couple
-                          subtitle · location utilisé par ProjectCard et la
-                          roue, dont les deux valeurs sont renseignées. */}
-                      {p.subtitle} · {p.location}
-                    </span>
-                  </span>
-                  <span className="m3-radial-foot__chev" aria-hidden="true">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                      <path d="M9 5l7 7-7 7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
+      {/* No index under the wheel. There used to be a numbered list of every
+          project here; with eight projects it became a long directory that
+          repeated the wheel above it and the « Tous les projets » button, and
+          the owner asked for it to go (2026-09-18). The wheel's own cards are
+          the links; its box is trimmed in CSS so no empty band is left. */}
     </section>
   );
 }
@@ -642,8 +674,8 @@ function Services() {
               <p className="zv-body zv-muted">{s.text}</p>
               <ul className="space-y-3 border-t border-[var(--zv-border)] pt-6">
                 {s.points.map((pt) => (
-                  <li key={pt} className="zv-small zv-muted flex items-center gap-3">
-                    <span className="h-px w-4 shrink-0 bg-[var(--zv-primary)]" />
+                  <li key={pt} className="zv-small zv-muted flex items-start gap-3">
+                    <span className="zv-marker" aria-hidden="true" />
                     {pt}
                   </li>
                 ))}

@@ -244,7 +244,7 @@ function Body({ blocks, onOpen }) {
               <ul key={i} data-reveal className="reveal space-y-3">
                 {block.items.map((item) => (
                   <li key={item} className="zv-body zv-muted flex items-start gap-4">
-                    <span className="mt-[0.7em] h-px w-4 shrink-0 bg-[var(--zv-primary)]" />
+                    <span className="zv-marker" aria-hidden="true" />
                     <span>{item}</span>
                   </li>
                 ))}

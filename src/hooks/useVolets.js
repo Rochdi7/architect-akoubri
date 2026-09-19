@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { CONDITIONS, settleIfPassed, useGsapScene } from '../lib/motion';
+import { CONDITIONS, replayOnScroll, useGsapScene } from '../lib/motion';
 
 /* III. Les volets — the alternating service rows reveal behind a rising mask.
 
@@ -19,8 +19,9 @@ import { CONDITIONS, settleIfPassed, useGsapScene } from '../lib/motion';
    different rates and the reveal has depth — the parallax is what keeps a
    simple wipe from looking like a loading bar.
 
-   One-shot; every inline style is cleared on completion so the row rests
-   exactly as rendered.
+   Replays each time the row comes back into view, from either direction
+   (see replayOnScroll); every inline style is cleared on completion so the
+   row rests exactly as rendered, and written again by the rewind.
 
    Markup contract (Services.jsx › service rows):
      [ref]          the existing `.shell` column — the scope
@@ -32,7 +33,7 @@ import { CONDITIONS, settleIfPassed, useGsapScene } from '../lib/motion';
 const RISE = { desktop: 68, phone: 44 };  // px the image drifts up behind the mask
 const TRAIL = { desktop: 24, phone: 16 }; // px the text column slides in from
 
-function build({ gsap, mm, scope, ease }) {
+function build({ gsap, ScrollTrigger, mm, scope, ease }) {
   const panels = gsap.utils.toArray('.m3-volet', scope);
   if (!panels.length) return;
 
@@ -51,8 +52,8 @@ function build({ gsap, mm, scope, ease }) {
       const targets = text ? [panel, text] : [panel];
 
       const tl = gsap.timeline({
+        paused: true,
         defaults: { ease, duration: 1.1 },
-        scrollTrigger: { trigger: row, start: 'top 80%', once: true },
         onStart: () =>
           gsap.set(targets, { willChange: 'transform, opacity, clip-path' }),
         onComplete: () =>
@@ -80,7 +81,7 @@ function build({ gsap, mm, scope, ease }) {
         tl.from(text, { opacity: 0, x: fromRight ? -trail : trail }, 0.08);
       }
 
-      settleIfPassed(tl);
+      replayOnScroll({ ScrollTrigger, animation: tl, trigger: row });
     });
   });
 }

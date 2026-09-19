@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import InkTitle from '../components/InkTitle';
 import { stats, journey, agencyFaq } from '../data/projects';
 import Accordion from '../components/Accordion';
-import { useReveal } from '../hooks/useReveal';
+import GetInTouch from '../components/GetInTouch';
 import { useInkFill } from '../hooks/useInkFill';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { useTrace } from '../hooks/useTrace';
@@ -41,7 +41,6 @@ const values = [
 ];
 
 export default function Agency() {
-  useReveal();
 
   usePageMeta({
     description:
@@ -60,6 +59,7 @@ export default function Agency() {
       {journey.length > 0 && <Journey />}
       <CoreValues />
       <Faq />
+      <GetInTouch alt />
     </>
   );
 }
@@ -74,7 +74,7 @@ function SplitHero() {
         <div className="grid gap-4 lg:grid-cols-2 lg:gap-5">
           <div
             data-reveal
-            className="reveal flex flex-col justify-center rounded-[28px] bg-ink p-6 sm:p-10 md:p-14"
+            className="reveal flex flex-col justify-center band rounded-[28px] p-6 sm:p-10 md:p-14"
           >
             <div className="flex items-center gap-3">
               <Monograms />
@@ -147,8 +147,10 @@ function AboutStats() {
           </div>
         </div>
 
-        {/* Figures */}
-        <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-8 border-y border-[var(--zv-border)] py-10 md:mt-20 md:grid-cols-4 md:gap-x-0 md:gap-y-0 md:py-14">
+        {/* Programme families. Four across only from lg — the same breakpoint
+            .zv-stat-value switches its sizing at — since a quarter of a
+            768px row is too narrow for an eleven-letter word. */}
+        <div className="zv-stat-cq mt-10 grid grid-cols-2 gap-x-4 gap-y-8 border-y border-[var(--zv-border)] py-10 md:mt-20 md:py-14 lg:grid-cols-4 lg:gap-x-0 lg:gap-y-0">
           {stats.map((s, i) => (
             <div
               key={s.label}
@@ -156,9 +158,9 @@ function AboutStats() {
               data-reveal-delay={i * 70}
               className={`reveal px-2 text-center md:px-6 ${
                 i % 2 === 1 ? 'border-l border-[var(--zv-border)]' : ''
-              } ${i > 0 ? 'md:border-l md:border-[var(--zv-border)]' : 'md:border-l-0'}`}
+              } ${i > 0 ? 'lg:border-l lg:border-[var(--zv-border)]' : 'lg:border-l-0'}`}
             >
-              <div className="zv-h2">{s.value}</div>
+              <div className="zv-stat-value">{s.value}</div>
               <div className="zv-small zv-muted mt-3">{s.label}</div>
             </div>
           ))}
@@ -182,7 +184,7 @@ function AboutStats() {
             </div>
             {/* Floating spec card. It hangs off the render's right edge on
                phones, into the margin the offset above just opened up. */}
-            <div className="absolute right-3 bottom-24 z-10 w-[9.5rem] rounded-2xl border border-[var(--zv-border)] bg-white p-3 shadow-[0_10px_30px_-16px_rgba(20,28,45,0.45)] sm:right-5 sm:bottom-32 sm:w-44 md:inset-auto md:bottom-6 md:left-6 md:right-auto md:z-auto md:w-52 md:p-3 md:shadow-none">
+            <div className="absolute right-3 bottom-24 z-10 w-[9.5rem] rounded-2xl border border-[var(--zv-border)] bg-[var(--paper-raised)] p-3 shadow-[0_10px_30px_-16px_rgba(20,28,45,0.45)] sm:right-5 sm:bottom-32 sm:w-44 md:inset-auto md:bottom-6 md:left-6 md:right-auto md:z-auto md:w-52 md:p-3 md:shadow-none">
               <div className="zv-small zv-muted leading-tight">
                 Le Sentier,<br className="md:hidden" /> Marrakech
               </div>

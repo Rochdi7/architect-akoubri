@@ -51,7 +51,7 @@ export default function Footer() {
 
       {/* Dark card */}
       <div className="footer-shell px-[var(--gutter)] pb-[var(--gutter)]">
-        <div className="footer-card relative mx-auto max-w-shell overflow-hidden bg-ink">
+        <div className="footer-card relative mx-auto max-w-shell overflow-hidden band">
           <div className="px-6 pb-7 pt-10 sm:px-10 sm:pb-8 sm:pt-12 md:px-14 md:pb-10 md:pt-16">
             {/* Identity stacks above the menus on phones and tablets, then
                 sits beside them from lg up — the reference layout, where the
@@ -141,6 +141,16 @@ export default function Footer() {
             <div className="mt-8 flex flex-col gap-3 border-t border-[rgba(250,248,245,0.12)] pt-5 text-xs on-dark-muted sm:mt-14 sm:pt-6 sm:text-sm md:flex-row md:items-center md:justify-between md:gap-6">
               <span>
                 © {year} <span className="on-dark">Akoubri</span>. Tous droits réservés.
+                <span aria-hidden="true" className="mx-2 opacity-40">·</span>
+                Site conçu et développé par{' '}
+                <a
+                  href="https://codesommet.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[#faf8f5] underline-offset-4 transition-colors hover:text-[var(--clay)] hover:underline"
+                >
+                  CodeSommet
+                </a>
               </span>
               <nav className="flex flex-wrap items-center gap-x-4 gap-y-1.5">
                 <Link to="/mentions-legales" className="transition-colors hover:text-[var(--clay)]">

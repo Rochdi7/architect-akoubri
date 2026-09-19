@@ -132,9 +132,14 @@ export default function Lightbox({ images, index, alt, onClose, onChange, captio
           />
           {(currentCaption || many) && (
             <figcaption className="m3-lb__cap">
-              {currentCaption}
-              {currentCaption && many ? ' · ' : ''}
-              {many ? `${index + 1} / ${images.length}` : ''}
+              {/* Re-keyed with the image so the text changes with the frame
+                  rather than lingering through the swing. */}
+              {currentCaption && (
+                <span key={index} className="m3-lb__cap-text">
+                  {currentCaption}
+                </span>
+              )}
+              {many && <span className="m3-lb__cap-count">{`${index + 1} / ${images.length}`}</span>}
             </figcaption>
           )}
         </figure>

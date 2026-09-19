@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 import InkTitle from '../components/InkTitle';
-import { useReveal } from '../hooks/useReveal';
 import { business } from '../data/business';
 
 /**
@@ -23,7 +22,6 @@ const identity = [
 ];
 
 export default function Legal() {
-  useReveal();
 
   return (
     <>

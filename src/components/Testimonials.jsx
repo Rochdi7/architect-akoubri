@@ -105,7 +105,7 @@ function Card({ t, duplicate }) {
         <div className="flex items-center gap-2.5">
           <span
             aria-hidden="true"
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[var(--sand)] font-display text-sm text-clay"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[var(--sand)] font-display text-sm text-clay-deep"
           >
             {initials(t.name)}
           </span>

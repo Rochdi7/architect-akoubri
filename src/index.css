@@ -12,10 +12,17 @@
 :root {
   /* Ink / text — the logo's navy, #0f243e, is the ink of the whole site.
      Soft/muted are that same navy at reduced alpha so every tint of text
-     stays on the brand hue instead of drifting to a neutral gray. */
+     stays on the brand hue instead of drifting to a neutral gray.
+
+     The alphas are set from the *darkest* ground each tint lands on
+     (--sand-deep, not --paper), because an alpha tint loses contrast as the
+     ground darkens and these run across cards and sand panels as well as
+     paper. At 0.80 and 0.62 both clear WCAG AA there (6.9:1 and 4.1:1);
+     the earlier 0.68/0.45 dropped --ink-muted to 2.6:1, which is why the
+     small meta lines under project cards and testimonials read as faded. */
   --ink: #0f243e;
-  --ink-soft: rgba(15, 36, 62, 0.68);
-  --ink-muted: rgba(15, 36, 62, 0.45);
+  --ink-soft: rgba(15, 36, 62, 0.80);
+  --ink-muted: rgba(15, 36, 62, 0.62);
 
   /* Surfaces — warm paper, not pure white */
   --paper: #faf8f5;
@@ -27,12 +34,23 @@
      same hue darkened for hover/pressed states and for copper text on the
      paper ground, where the base tone alone is too light to read. */
   --clay: #c58b66;
-  --clay-deep: #a66a45;
+  --clay-deep: #8f552f;
   --clay-wash: rgba(197, 139, 102, 0.1);
 
   /* Lines */
   --line: rgba(15, 36, 62, 0.12);
   --line-strong: rgba(15, 36, 62, 0.26);
+
+  /* Theme-aware surfaces. These four exist because the night theme
+     (src/theme.css) has to answer differently from the ink/paper pair:
+     --band is the ground of the navy panels, which stay navy at night while
+     --ink turns to paper; --pill is the header glass; --grid-line the
+     drafting grid; --on-clay the label colour on a copper fill. */
+  --band: #0f243e;
+  --pill: rgba(250, 248, 245, 0.9);
+  --grid-line: rgba(28, 25, 23, 0.055);
+  --on-clay: #ffffff;
+  --hover-wash: rgba(15, 36, 62, 0.05);
 
   /* Type.
      One type system across the whole site: the sections that predate the
@@ -58,6 +76,12 @@
     --section-y: 4.5rem;
     --gutter: 1.25rem;
   }
+}
+
+/* Phone tier — kept in step with --zv-section-y (zenvira.css) so the two
+   type systems share one vertical rhythm on a phone. */
+@media (max-width: 640px) {
+  :root { --section-y: 3.5rem; }
 }
 
 * {
@@ -89,8 +113,14 @@ body {
   font-size: 16px;
   line-height: 1.6;
   font-weight: 400;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  /* Subpixel smoothing, deliberately not `antialiased`. Poppins is a
+     geometric sans with thin, even stems, and greyscale antialiasing
+     shaves roughly a third of the stem weight off dark-on-light body copy
+     — which is what made paragraphs read as faded even where the colour
+     itself measured 9.6:1. The browser default renders the same colour
+     with its intended weight. */
+  -webkit-font-smoothing: auto;
+  -moz-osx-font-smoothing: auto;
   text-rendering: optimizeLegibility;
   overflow-x: hidden;
   overflow-x: clip;
@@ -157,7 +187,10 @@ img, video {
   padding-bottom: var(--section-y);
 }
 
-/* Eyebrow label — small caps with a rule, a drafting-sheet cue */
+/* Eyebrow label — small caps with a rule, a drafting-sheet cue.
+   Takes --ink-soft, not --ink-muted: at 11px with 0.18em tracking this is
+   the smallest, most widely-spaced text on the site, so it needs the
+   strongest of the two muted tints to hold together at a glance. */
 .eyebrow {
   display: inline-flex;
   align-items: center;
@@ -166,7 +199,7 @@ img, video {
   font-weight: 500;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--ink-muted);
+  color: var(--ink-soft);
 }
 
 .eyebrow::before {
@@ -183,6 +216,14 @@ img, video {
 .display-xl { font-size: clamp(2.125rem, 8.5vw, 5.5rem); }
 .display-lg { font-size: clamp(1.75rem, 7vw, 3.75rem); }
 .display-md { font-size: clamp(1.5rem, 5vw, 2.5rem); }
+
+/* The centred two-line Showcase title. On a phone .display-md bottoms out at
+   24px with the component's 0.95 leading, so the lines touched and the title
+   read a size smaller than every .zv-h2 around it (30px). The Featured header
+   keeps plain .display-md: it shares its row with a button and has no room. */
+@media (max-width: 640px) {
+  .display-md.display-md--stacked { font-size: 1.875rem; line-height: 1.12; }
+}
 
 /* ── Buttons ───────────────────────────────────────────────────── */
 .btn {
@@ -232,6 +273,12 @@ img, video {
   will-change: opacity, transform;
 }
 
+/* Scrolled past and waiting above the viewport: it comes back in moving
+   downward, the way the page is travelling (set by useReveal). */
+.reveal[data-reveal-from='above'] {
+  transform: translateY(-28px);
+}
+
 .reveal.is-visible {
   opacity: 1;
   transform: none;
@@ -250,8 +297,20 @@ img, video {
   transition: clip-path 1100ms var(--ease-arch);
 }
 
+/* Coming back down onto it, the curtain opens from the bottom edge — the
+   edge that enters the viewport first. */
+.mask-reveal[data-reveal-from='above'] > * {
+  clip-path: inset(100% 0 0 0);
+}
+
 .mask-reveal.is-visible > * {
   clip-path: inset(0 0 0 0);
+}
+
+/* Reveals now reset off screen, so paper must never depend on them. */
+@media print {
+  .reveal { opacity: 1; transform: none; }
+  .mask-reveal > * { clip-path: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -342,30 +401,72 @@ summary::-webkit-details-marker { display: none; }
   will-change: transform;
 }
 
-/* Header CTA — CodeSommet's gradient pill, inverting on hover. */
+/* Header CTA — a copper pill with smoke drifting through it (SmokeFill, a
+   WebGL canvas) and an arrow chip at the trailing end. The gradient is the
+   fill until the canvas mounts, and for good where WebGL is unavailable. */
 .btn-cta {
+  position: relative;
+  isolation: isolate;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 0.625rem;
   height: 2.5rem;
-  padding: 0 1.25rem;
+  padding-left: 1.125rem;
+  padding-right: 0.3125rem;
   font-size: 0.8125rem;
   font-weight: 500;
-  color: #fff;
+  color: var(--on-clay);
   white-space: nowrap;
-  border: 1px solid transparent;
   border-radius: 999px;
   background: linear-gradient(90deg, var(--clay), var(--clay-deep));
   box-shadow: 0 4px 16px rgba(197, 139, 102, 0.3);
-  transition: all 220ms var(--ease-soft);
+  overflow: hidden;
+  transition: transform 220ms var(--ease-soft), box-shadow 220ms var(--ease-soft);
+}
+
+.btn-cta__smoke {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+/* The smoke passes light and dark under the label; the shadow holds the white
+   text on the pale drifts. */
+.btn-cta__label {
+  text-shadow: 0 1px 2px rgba(74, 40, 18, 0.45);
+}
+
+.btn-cta__chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.375rem;
+  height: 1.875rem;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  transition: background 220ms var(--ease-soft), color 220ms var(--ease-soft);
+}
+
+.btn-cta__chip svg {
+  transition: transform 220ms var(--ease-soft);
 }
 
 .btn-cta:hover {
   transform: translateY(-2px);
-  background: var(--paper);
+  box-shadow: 0 6px 24px rgba(197, 139, 102, 0.45);
+}
+
+.btn-cta:hover .btn-cta__chip {
+  background: var(--on-clay);
   color: var(--clay-deep);
-  border-color: var(--clay-deep);
-  box-shadow: 0 6px 24px rgba(197, 139, 102, 0.35);
+}
+
+.btn-cta:hover .btn-cta__chip svg {
+  transform: translateX(2px);
 }
 
 /* ── Blueprint ground ─────────────────────────────────────────────
@@ -373,8 +474,8 @@ summary::-webkit-details-marker { display: none; }
    drafting sheet, which suits an architecture practice. */
 .blueprint-grid {
   background-image:
-    linear-gradient(to right, rgba(28, 25, 23, 0.055) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(28, 25, 23, 0.055) 1px, transparent 1px);
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
   background-size: 34px 34px;
   background-position: center center;
 }
@@ -384,11 +485,11 @@ summary::-webkit-details-marker { display: none; }
     ellipse 70% 70% at center,
     transparent 0%,
     transparent 12%,
-    rgba(250, 248, 245, 0.16) 28%,
-    rgba(250, 248, 245, 0.36) 44%,
-    rgba(250, 248, 245, 0.6) 62%,
-    rgba(250, 248, 245, 0.82) 80%,
-    rgba(250, 248, 245, 0.96) 100%
+    color-mix(in srgb, var(--paper) 16%, transparent) 28%,
+    color-mix(in srgb, var(--paper) 36%, transparent) 44%,
+    color-mix(in srgb, var(--paper) 60%, transparent) 62%,
+    color-mix(in srgb, var(--paper) 82%, transparent) 80%,
+    color-mix(in srgb, var(--paper) 96%, transparent) 100%
   );
 }
 
@@ -414,6 +515,86 @@ summary::-webkit-details-marker { display: none; }
   border-radius: 14px;
   background: var(--sand);
 }
+
+/* ── Project card: the plotted sheet (useProjectSheets) ────────────
+   Every piece below is invisible at rest and only ever shown by the
+   scene, so without the GSAP chunk the card is unchanged. */
+
+/* The frame drawn round the empty plate before the render opens.
+   overflow: visible lets the stroke straddle the plate's edge instead of
+   being halved by the svg viewport. */
+.m3-frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.m3-frame rect {
+  fill: none;
+  stroke: var(--clay);
+  stroke-width: 1.5;
+  /* With pathLength="1" on the rect: one dash, exactly one perimeter long. */
+  stroke-dasharray: 1;
+}
+
+/* The two section lines that ride the opening edges of the render. */
+.m3-slit {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  margin-top: -0.5px;
+  background: var(--clay);
+  pointer-events: none;
+  opacity: 0;
+}
+
+/* Hover: a drafting crosshair under the pointer and four viewfinder
+   corners on the plate. --cx/--cy are px from the well's top-left. Sits
+   above the media and below the tag, which follows it in the DOM. */
+.m3-finder {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.m3-cross-v,
+.m3-cross-h {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.m3-cross-v {
+  width: 1px;
+  height: 100%;
+  transform: translateX(var(--cx, 0px));
+}
+
+.m3-cross-h {
+  width: 100%;
+  height: 1px;
+  transform: translateY(var(--cy, 0px));
+}
+
+.m3-corner {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border: 0 solid #fff;
+}
+
+.m3-corner:nth-of-type(3) { top: 10px; left: 10px; border-top-width: 1.5px; border-left-width: 1.5px; }
+.m3-corner:nth-of-type(4) { top: 10px; right: 10px; border-top-width: 1.5px; border-right-width: 1.5px; }
+.m3-corner:nth-of-type(5) { bottom: 10px; left: 10px; border-bottom-width: 1.5px; border-left-width: 1.5px; }
+.m3-corner:nth-of-type(6) { bottom: 10px; right: 10px; border-bottom-width: 1.5px; border-right-width: 1.5px; }
 
 /* Typed so GSAP's tween interpolates them instead of stepping. An untyped
    custom property is an unparsed token: it would flip at the halfway point
@@ -999,6 +1180,9 @@ summary::-webkit-details-marker { display: none; }
   color: rgba(250, 248, 245, 0.3);
   white-space: nowrap;
   user-select: none;
+  /* Decorative and aria-hidden: it overlaps the legal line, so it must not
+     swallow hover or clicks on the links underneath it. */
+  pointer-events: none;
   padding-inline: 0.06em;
   /* Pull the glyphs down so their descender space is cropped by the
      card edge rather than leaving a gap under the baseline. */
@@ -1047,6 +1231,11 @@ summary::-webkit-details-marker { display: none; }
    class like `text-[var(--paper)]/75` compiles to nothing at all, so
    the text silently disappears against the dark band. These are the
    explicit rgba equivalents. */
+/* A navy panel set into the page (footer card, Agence intro). Takes --band,
+   not --ink: at night --ink is the paper tone and the panel must stay navy.
+   Listed as an island in theme.css, so its contents keep their day tokens. */
+.band { background: var(--band); }
+
 .on-dark        { color: #faf8f5; }
 .on-dark-soft   { color: rgba(250, 248, 245, 0.78); }
 .on-dark-muted  { color: rgba(250, 248, 245, 0.58); }
@@ -1110,8 +1299,9 @@ summary::-webkit-details-marker { display: none; }
 }
 
 /* ── Retour en haut ─────────────────────────────────────────────────────
-   Fixed bottom-right on every page, mounted once in App. Sized and coloured
-   like the copper primary button so it reads as part of the same family.
+   Fixed bottom-right on every page, mounted once in App. Sized like the
+   copper primary button, and filled with its copper as the page is read:
+   an ink disc whose water level is the scroll progress.
 
    The at-rest state here is the VISIBLE one on purpose: if the motion chunk
    never loads the control still works. useBackToTop hides it and drives the
@@ -1127,17 +1317,82 @@ summary::-webkit-details-marker { display: none; }
   width: 3rem;
   height: 3rem;
   border-radius: 999px;
-  background: var(--clay);
+  /* The empty vessel is ink; the copper is the water (below), so the button
+     only becomes the full copper primary once the page has been read. */
+  background: var(--ink);
   color: var(--paper);
   box-shadow: 0 10px 30px rgba(15, 36, 62, 0.22);
-  transition: background 320ms var(--ease-soft), box-shadow 320ms var(--ease-soft);
+  /* Clips the water to the disc. `isolation` keeps Safari honouring the
+     rounded clip while the children are transformed. */
+  overflow: hidden;
+  isolation: isolate;
+  transition: box-shadow 320ms var(--ease-soft);
+}
+
+/* The water body. `--fill` (0 → 1) is the scroll progress, written by
+   useBackToTop; it is only ever consumed as a transform, so the level rises
+   on the compositor. The short transition irons out the steps of a mouse
+   wheel without lagging a trackpad. */
+.back-to-top__water {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: var(--clay);
+  color: var(--clay);
+  transform: translateY(calc((1 - var(--fill, 0)) * 100%));
+  transition: transform 260ms ease-out, background 320ms var(--ease-soft), color 320ms var(--ease-soft);
+}
+
+/* The crests sit on top of the water body and are twice its width, so a
+   half-width slide loops seamlessly. The 1px overlap hides the hairline
+   between crest and body at fractional pixel positions. */
+.back-to-top__wave {
+  position: absolute;
+  left: 0;
+  bottom: calc(100% - 1px);
+  width: 200%;
+  height: 0.5rem;
+  display: block;
+  animation: back-to-top-wave 2.6s linear infinite;
+}
+
+.back-to-top__wave--back {
+  opacity: 0.45;
+  height: 0.7rem;
+  animation-duration: 4.2s;
+  animation-direction: reverse;
+}
+
+.back-to-top__arrow {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes back-to-top-wave {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* The level still tracks the scroll — it is information, not decoration —
+   but the surface holds still. */
+@media (prefers-reduced-motion: reduce) {
+  .back-to-top__water {
+    transition: none;
+  }
+  .back-to-top__wave {
+    animation: none;
+  }
 }
 
 /* A tap leaves :hover stuck on touch devices, so the lift is desktop-only. */
 @media (hover: hover) {
   .back-to-top:hover {
-    background: var(--clay-deep);
     box-shadow: 0 14px 34px rgba(15, 36, 62, 0.3);
+  }
+  .back-to-top:hover .back-to-top__water {
+    background: var(--clay-deep);
+    color: var(--clay-deep);
   }
 }
 
@@ -1150,5 +1405,229 @@ summary::-webkit-details-marker { display: none; }
   .back-to-top {
     width: 3.25rem;
     height: 3.25rem;
+  }
+}
+
+/* ── WhatsApp ───────────────────────────────────────────────────────────
+   The direct line, stacked on top of Retour en haut: same disc size, same
+   right edge, one gap above it. Its slot is fixed rather than sliding down
+   when the button below is hidden, so the control never moves under a thumb.
+
+   Every bit of motion here is CSS — this must never pull the GSAP chunk in.
+   The entrance fills `backwards` only, so once it has played the transform
+   is free again for the hover lift. */
+.whatsapp-fab {
+  --wa-size: 3rem;
+  --wa-green: #25d366;
+  --wa-green-deep: #128c4a;
+  position: fixed;
+  right: var(--gutter);
+  bottom: calc(var(--gutter) + var(--wa-size) + 0.75rem);
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  color: #fff;
+  text-decoration: none;
+  transition: transform 320ms var(--ease-soft);
+  animation: whatsapp-fab-in 700ms cubic-bezier(0.34, 1.56, 0.64, 1) 600ms backwards;
+}
+
+/* The disc is positioned with no z-index of its own: that keeps it above the
+   label, while letting the halos (z-index: -1) fall behind its background
+   instead of being trapped in front of it by a new stacking context. */
+.whatsapp-fab__disc {
+  position: relative;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: var(--wa-size);
+  height: var(--wa-size);
+  border-radius: 999px;
+  background: linear-gradient(145deg, var(--wa-green), var(--wa-green-deep));
+  box-shadow: 0 10px 30px rgba(18, 140, 74, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  transition: box-shadow 320ms var(--ease-soft);
+}
+
+.whatsapp-fab__halo {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--wa-green);
+  opacity: 0;
+  animation: whatsapp-fab-halo 2.8s ease-out 1.3s infinite;
+}
+
+.whatsapp-fab__halo--late {
+  animation-delay: 2.7s;
+}
+
+/* A phone ringing on the table: still for most of the loop, then a short
+   rattle. */
+.whatsapp-fab__glyph {
+  transform-origin: 50% 60%;
+  animation: whatsapp-fab-ring 5.6s ease-in-out 2s infinite;
+  transition: transform 320ms var(--ease-soft);
+}
+
+/* The unread dot — in the site's copper, so the button belongs to the page
+   rather than to the app it opens. */
+.whatsapp-fab__dot {
+  position: absolute;
+  top: 0.1rem;
+  right: 0.1rem;
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 999px;
+  background: var(--clay);
+  box-shadow: 0 0 0 2px var(--paper);
+  animation: whatsapp-fab-in 500ms cubic-bezier(0.34, 1.56, 0.64, 1) 1.5s backwards;
+}
+
+/* The label grows leftwards out of the disc. A 0fr → 1fr track animates to
+   the text's real width, which a max-width guess never does evenly. The grid
+   itself jumps to full width the moment the track is non-zero (a fraction
+   under 1fr only takes that share of it), so the grid is kept invisible and
+   the pill is the track's item, packed against the disc. Its right end is
+   tucked under the disc so the two read as one shape. */
+.whatsapp-fab__label {
+  display: grid;
+  grid-template-columns: 0fr;
+  justify-content: end;
+  margin-right: calc(var(--wa-size) / -2);
+  opacity: 0;
+  transition: grid-template-columns 480ms var(--ease-soft), opacity 320ms var(--ease-soft);
+  animation: whatsapp-fab-peek 6s var(--ease-soft) 2.4s;
+}
+
+.whatsapp-fab__pill {
+  min-width: 0;
+  overflow: hidden;
+  height: 2.5rem;
+  border-radius: 999px 0 0 999px;
+  background: var(--ink);
+  color: var(--paper);
+}
+
+/* The padding lives one level inside the clipped pill: on the pill itself it
+   would survive the 0fr track and leave a stub beside the disc. */
+.whatsapp-fab__label-text {
+  display: block;
+  white-space: nowrap;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  line-height: 2.5rem;
+  padding-left: 1.1rem;
+  /* Clears the half of the disc that sits over the label. */
+  padding-right: calc(var(--wa-size) / 2 + 0.7rem);
+}
+
+@keyframes whatsapp-fab-in {
+  from {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+}
+
+@keyframes whatsapp-fab-halo {
+  0% {
+    opacity: 0.45;
+    transform: scale(1);
+  }
+  70%,
+  100% {
+    opacity: 0;
+    transform: scale(1.9);
+  }
+}
+
+@keyframes whatsapp-fab-ring {
+  0%,
+  82%,
+  100% {
+    transform: rotate(0deg);
+  }
+  85% {
+    transform: rotate(-14deg);
+  }
+  88% {
+    transform: rotate(12deg);
+  }
+  91% {
+    transform: rotate(-9deg);
+  }
+  94% {
+    transform: rotate(6deg);
+  }
+  97% {
+    transform: rotate(-3deg);
+  }
+}
+
+/* One unprompted peek shortly after load, then it is the reader's to open. */
+@keyframes whatsapp-fab-peek {
+  0%,
+  100% {
+    grid-template-columns: 0fr;
+    opacity: 0;
+  }
+  12%,
+  86% {
+    grid-template-columns: 1fr;
+    opacity: 1;
+  }
+}
+
+/* A tap leaves :hover stuck on touch devices, so the lift is desktop-only. */
+@media (hover: hover) {
+  .whatsapp-fab:hover {
+    transform: translateY(-3px);
+  }
+  .whatsapp-fab:hover .whatsapp-fab__disc {
+    box-shadow: 0 16px 36px rgba(18, 140, 74, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  }
+  .whatsapp-fab:hover .whatsapp-fab__glyph {
+    transform: scale(1.1);
+  }
+  .whatsapp-fab:hover .whatsapp-fab__label {
+    grid-template-columns: 1fr;
+    opacity: 1;
+  }
+}
+
+.whatsapp-fab:focus-visible {
+  outline: none;
+}
+.whatsapp-fab:focus-visible .whatsapp-fab__disc {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+.whatsapp-fab:focus-visible .whatsapp-fab__label {
+  grid-template-columns: 1fr;
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .whatsapp-fab,
+  .whatsapp-fab__halo,
+  .whatsapp-fab__glyph,
+  .whatsapp-fab__dot,
+  .whatsapp-fab__label {
+    animation: none;
+    transition: none;
+  }
+}
+
+@media (min-width: 768px) {
+  .whatsapp-fab {
+    --wa-size: 3.25rem;
+  }
+}
+
+@media print {
+  .whatsapp-fab {
+    display: none;
   }
 }

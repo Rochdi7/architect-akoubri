@@ -1,7 +1,9 @@
 import { useMemo, useState } from 'react';
+import GetInTouch from '../components/GetInTouch';
 import { projects } from '../data/projects';
 import { useReveal } from '../hooks/useReveal';
 import { useInkFill } from '../hooks/useInkFill';
+import { useProjectSheets } from '../hooks/useProjectSheets';
 import { usePageMeta } from '../hooks/usePageMeta';
 import ProjectCard from '../components/ProjectCard';
 
@@ -24,6 +26,8 @@ export default function Projects() {
 
   // Re-run the reveal observer when the filtered set changes.
   useReveal([filter]);
+  // Same for the card scene: the cards that remain replay their entrance.
+  const grid = useProjectSheets([filter]);
 
   return (
     <>
@@ -68,13 +72,15 @@ export default function Projects() {
       {/* Grid */}
       <section className="bg-[var(--sand)] py-14 md:py-20">
         <div className="shell">
-          <div className="grid gap-6 md:grid-cols-2 lg:gap-8">
+          <div ref={grid} className="grid gap-6 md:grid-cols-2 lg:gap-8">
             {shown.map((p, i) => (
               <ProjectCard key={p.slug} project={p} delay={(i % 2) * 90} />
             ))}
           </div>
         </div>
       </section>
+
+      <GetInTouch />
     </>
   );
 }

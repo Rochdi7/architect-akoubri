@@ -1,5 +1,6 @@
 import { useRef } from 'react';
-import { CONDITIONS, useGsapScene } from '../lib/motion';
+import { CONDITIONS, replayOnScroll, useGsapScene } from '../lib/motion';
+import { subscribe as onThemeChange } from '../lib/theme';
 
 /* L'encrage — a display heading inked in as it is scrolled.
 
@@ -22,7 +23,8 @@ import { CONDITIONS, useGsapScene } from '../lib/motion';
    title, though, is already past the scrub's start line on load — it would
    sit there permanently half-inked, because the reader never scrolls it
    *into* the range. `useInkFill({ play: true })` runs those on a timed
-   tween instead, once, as the page settles.
+   tween instead, as the page settles and again whenever the title is
+   scrolled back to.
 
    Markup contract: `ref` on the heading. Nothing else.                     */
 
@@ -114,7 +116,7 @@ function splitWords(el) {
 }
 
 function makeBuild(play) {
-    return function build({ gsap, mm, scope }) {
+    return function build({ gsap, ScrollTrigger, mm, scope }) {
     mm.add(CONDITIONS, ({ conditions: { motion } }) => {
       if (!motion) return undefined;
 
@@ -130,8 +132,16 @@ function makeBuild(play) {
       // Clip-to-text anti-aliases differently from normal glyph fill, so this
       // keeps fully inked words pixel-identical to the heading as designed —
       // including a heading the markup already sets in two tones.
-      const inkColor = getComputedStyle(scope).color;
-      const pencilColor = getComputedStyle(scope).getPropertyValue('--zv-gray-100').trim();
+      // Both are resolved values written inline on the words, so they go stale
+      // the moment the theme flips (navy ink on a navy page). They are re-read
+      // on every theme change — see the subscription below `paint`.
+      let inkColor;
+      let pencilColor;
+      const readColors = () => {
+        inkColor = getComputedStyle(scope).color;
+        pencilColor = getComputedStyle(scope).getPropertyValue('--zv-gray-100').trim();
+      };
+      readColors();
 
       const count = words.length;
       // If the markup already splits the heading into inked and pencil runs,
@@ -166,6 +176,13 @@ function makeBuild(play) {
       };
       paint();
 
+      // Runs synchronously inside the theme's view-transition callback, so
+      // the headings are already repainted in the frame the reveal captures.
+      const offTheme = onThemeChange(() => {
+        readColors();
+        paint();
+      });
+
       // A hero title plays itself out on a timer; everything else is scrubbed
       // by the scroll position. Both drive the same `paint`, so the rendered
       // result is identical — only what advances `fill` differs.
@@ -184,7 +201,13 @@ function makeBuild(play) {
             scrollTrigger: { trigger: scope, start: START, end: END, scrub: 1 },
           });
 
+      // The scrub already runs backwards with the scroll. The timed fill gets
+      // the same: scrolled out of sight it rewinds, and inks in again when the
+      // reader comes back up to the title.
+      if (play) replayOnScroll({ ScrollTrigger, animation: tween, trigger: scope });
+
       return () => {
+        offTheme();
         tween.kill();
         scope.classList.remove('m3-ink-on');
         restore();

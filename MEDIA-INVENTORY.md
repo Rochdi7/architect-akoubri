@@ -55,22 +55,26 @@ lighting, black track spots, large-format stone floor tiles.
 
 | | |
 |---|---|
-| Images | 0 photographs on disk |
+| Images | **16 owner-supplied renders** (1600×900 / 1536×1024), added 2026-09-18 |
 | Video | 1 × narrated tour, 127 s |
-| Stills | 10 extracted from the video (labelled by the video's own captions) |
-| Program | Administration building, offices, meeting room, director's office, olive reception hangar, weighbridge, maintenance workshop, soda treatment zone, water cisterns, solar array |
+| Program | Administration block, production hangar, storage magasin, mosque, solar carport, weighbridge, solar array |
 
-**This is not a villa.** The video's own French captions establish the program:
-"Plan de masse faraj conserverie", "RDC Hall d'entrée", "RDC, Bureau 2/3",
-"RDC, Salle de réunion", "Etage, Bureau directeur 1", "Etage, Bureau
-secretaire", "Hangar 1 : Reception des olives", "Pont bascule", "Atelier de
-maintenance", "Zone traitement de soude & citerne Reserve d'eau".
+**This is not a villa.** Signage in the renders is explicit: « Conserverie
+FARAJ — ADMINISTRATION / Bureaux · Accueil · Gestion » on the office block, and
+« MAGASIN DE STOCKAGE » / « MOSQUÉE » on the annex. The olive-tree brand mark
+repeats on white totems at every threshold. The narrated tour's own captions
+corroborate the rest of the programme (plan de masse, hangar de réception des
+olives, pont bascule, atelier de maintenance, zone de traitement).
 
-The FARAJ brand mark (an olive tree in relief, "Conserverie FARAJ") appears on
-signage throughout.
+**Superseded.** Until 2026-09-18 this project had *no photographs at all* and
+its gallery was 10 stills extracted from the video. Those were deleted and
+replaced by the owner's renders, which are far higher quality. The video is
+kept as the project film; its poster is now a real render rather than a frame
+grab.
 
-| Hero | `akoubri_farraj-vue-aerienne-10.webp` — aerial of the whole site |
-| Card | Video with poster (`akoubri_farraj-poster.webp`) |
+| Hero | `akoubri_farraj-administration-entree-01.webp` — the administration block and its totem |
+| Card | same |
+| Originals | `public/media/farraj/` — 16 .jpeg + the .mp4, untouched |
 
 ### 3. Le Sentier — residential building *(priority 3)*
 
@@ -105,6 +109,47 @@ The set splits in two:
 All 50 files carry **unique** perceptual hashes: the `N(1)`/`N(2)` variants are
 different renders, not duplicates. The rooftop shots live entirely among those
 variants, which is why the first pass missed them.
+
+### Home hero video *(added 2026-09-18)*
+
+Source: `public/media/hero video le sentier.mp4` — a finished **marketing reel**
+for Le Sentier, 122 s, portrait 576×1024, 11.5 MB, with audio.
+
+It is not usable as-is, for three reasons found by watching it:
+
+1. **Branded top and tail.** An Akoubri logo animation (0–7 s), a black
+   "Le Sentier Résidence" title card (8–13 s), and a closing card (108–122 s)
+   carrying **two phone numbers that are not the ones on this site**
+   (+212 666 706 012 / +212 646 039 398 vs. `business.js` 06 63 51 57 23).
+   On a seamless loop those cards would flash black every pass.
+2. **A sales map sequence** (14–20 s) with satellite views, location pins and a
+   third-party **Marjane** logo.
+3. **Portrait and heavy** — the desktop hero is a landscape band.
+
+**Published cut: 21 s → 63 s**, the strongest continuous architecture passage
+(rooftop pool at golden hour, façade, apartment interiors, firepit terrace at
+dusk). Audio stripped, `+faststart`, CRF 34.
+
+| Asset | Size |
+|---|---|
+| `akoubri_le-sentier-hero.mp4` — 1280×720, centre-cropped, lanczos + mild unsharp | 2.9 MB |
+| `akoubri_le-sentier-hero-portrait.mp4` — 576×1024 native, uncropped | 2.4 MB |
+| `akoubri_le-sentier-hero-poster.webp` | 98 KB |
+| `akoubri_le-sentier-hero-poster-portrait.webp` | 72 KB |
+| `akoubri_le-sentier-hero-thumb.webp` — 160 px, for the "À l'image" chip | 7 KB |
+
+**Sharpness ceiling.** The reel is a 576 px WhatsApp export at ~750 kbps. Three
+upscale recipes were compared at 1:1 and differ only marginally — no filter can
+add detail that is not in the source. The hero compensates by design (a static
+grain layer, a directional scrim) rather than by processing. **A 1080p export of
+the same film would be the single biggest visual upgrade available.**
+
+The Hero picks the cut once at mount from `(max-aspect-ratio: 3/4)` rather than
+using `<source media>`, which browsers resolve only at load — a desktop window
+that starts narrow would otherwise keep the phone file for the whole session.
+
+The full reel stays on disk untouched. **The Zahiya façade loop it replaced is
+not orphaned** — it remains Zahiya's own project video, where it belongs.
 
 ### 4. Zahiya — Zahiya Residence *(priority 4)*
 

@@ -9,7 +9,12 @@ import { business } from '../data/business';
 
    `compact` drops the optional phone/mission/budget controls: the home band
    is an entry point, not the full brief. The honeypot travels with the form
-   in both modes. */
+   in both modes.
+
+   `context` prefixes the message on the way out — a project page passes its
+   name so the enquiry arrives knowing what it is about. It is prepended at
+   submit rather than seeded into the textarea so the reader never has to
+   edit around it. */
 
 const budgets = [
   'Moins de 500 000 MAD',
@@ -40,7 +45,7 @@ const EMPTY = {
   company: '', // honeypot — must stay empty
 };
 
-export default function ContactForm({ compact = false, submitLabel, className = '' }) {
+export default function ContactForm({ compact = false, submitLabel, context, className = '' }) {
   const [form, setForm] = useState(EMPTY);
   const [status, setStatus] = useState('idle'); // idle | sending | sent | error
   const [errors, setErrors] = useState({});
@@ -71,7 +76,11 @@ export default function ContactForm({ compact = false, submitLabel, className = 
       const res = await fetch('/api/contact.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify(
+          context
+            ? { ...form, message: `[${context}] ${form.message}` }
+            : form
+        ),
       });
       if (!res.ok) throw new Error('bad status');
       setStatus('sent');
@@ -86,7 +95,7 @@ export default function ContactForm({ compact = false, submitLabel, className = 
       {status === 'sent' && (
         <div
           role="status"
-          className="zv-small mb-8 rounded-2xl border border-[var(--zv-primary)] bg-white px-5 py-4"
+          className="zv-small mb-8 rounded-2xl border border-[var(--zv-primary)] bg-[var(--paper-raised)] px-5 py-4"
         >
           Message envoyé. Nous revenons vers vous sous 48 heures ouvrées.
         </div>
@@ -189,7 +198,7 @@ export default function ContactForm({ compact = false, submitLabel, className = 
           className="absolute -left-[9999px] h-0 w-0 opacity-0"
         />
 
-        <button type="submit" className="zv-btn w-full" disabled={status === 'sending'} aria-busy={status === 'sending'}>
+        <button type="submit" className="m3-send zv-btn w-full" disabled={status === 'sending'} aria-busy={status === 'sending'}>
           {status === 'sending' ? 'Envoi…' : submitLabel || 'Envoyer le message'}
         </button>
       </div>
@@ -217,13 +226,28 @@ export function Field({ label, required, error, children, id }) {
       })
     : children;
 
+  /* The wrapper is the unit the enquiry band's entrance animates (.m3-row),
+     and `.m3-line` is a second rule laid exactly over the field's own
+     bottom border so it can be drawn across without touching the control.
+
+     It is transparent at rest and stays that way unless a scene animates
+     it: no GSAP, no line, and the field keeps exactly the 1px border it
+     has always had. The band's entrance draws it across in the ink tone
+     and fades it back out as it lands, so the rule is a stroke of the pen
+     rather than a permanent second border. */
   return (
-    <Wrapper className="block w-full">
+    <Wrapper className="m3-row relative block w-full">
       <span id={labelId} className="zv-small font-medium">
         {label}
         {required && <span className="text-[var(--zv-primary)]" aria-hidden="true"> *</span>}
       </span>
-      {control}
+      <span className="relative block">
+        {control}
+        <span
+          aria-hidden="true"
+          className="m3-line pointer-events-none absolute bottom-0 left-0 h-px w-full bg-[var(--zv-primary)] opacity-0"
+        />
+      </span>
       {error && (
         <span id={errorId} className="mt-1.5 flex items-center gap-1.5 text-xs text-[#b4342b]">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true" className="shrink-0">

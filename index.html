@@ -3,6 +3,22 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Theme, before first paint: a stored choice wins, otherwise the OS
+         setting. Inline and blocking on purpose, so a night reader never
+         sees a cream frame. Keep the key in step with src/lib/theme.js. -->
+    <meta name="theme-color" content="#faf8f5" />
+    <script>
+      (function () {
+        var t = 'light';
+        try {
+          var s = localStorage.getItem('akoubri-theme');
+          t = s === 'dark' || s === 'light' ? s
+            : window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        } catch (e) {}
+        document.documentElement.setAttribute('data-theme', t);
+        if (t === 'dark') document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d1522');
+      })();
+    </script>
     <title>Architecte à Marrakech | Permis de construire &amp; architecture — Akoubri</title>
     <meta name="description" content="Cabinet d'architecture à Marrakech : conception architecturale, accompagnement au permis de construire, suivi de chantier, design d'intérieur et images de synthèse." />
     <link rel="canonical" href="https://akoubri.com/" />

@@ -1,8 +1,7 @@
 import { Link } from 'react-router-dom';
 import InkTitle from '../components/InkTitle';
 import Accordion from '../components/Accordion';
-import ContactForm from '../components/ContactForm';
-import { useReveal } from '../hooks/useReveal';
+import GetInTouch from '../components/GetInTouch';
 import { useInkFill } from '../hooks/useInkFill';
 import { usePageMeta } from '../hooks/usePageMeta';
 
@@ -75,7 +74,6 @@ const faq = [
 ];
 
 export default function Permis() {
-  useReveal();
   const heroInk = useInkFill({ play: true });
 
   usePageMeta({
@@ -134,7 +132,7 @@ export default function Permis() {
                   key={item}
                   className="zv-body zv-muted flex items-start gap-3 border-t border-[var(--zv-border)] pt-5"
                 >
-                  <span className="mt-3 h-px w-4 shrink-0 bg-[var(--zv-primary)]" />
+                  <span className="zv-marker" aria-hidden="true" />
                   {item}
                 </li>
               ))}
@@ -263,21 +261,12 @@ export default function Permis() {
         </div>
       </section>
 
-      {/* ── CTA ── */}
-      <section className="zv zv-alt zv-section">
-        <div className="shell mx-auto max-w-[530px]">
-          <div data-reveal className="reveal zv-section-head text-center">
-            <span className="zv-subtitle">Parlons-en</span>
-            <InkTitle className="zv-h2 mt-5">Votre terrain, son règlement</InkTitle>
-            <p className="zv-body zv-muted mx-auto mt-5 max-w-md">
-              Le plus utile pour un premier échange est le plan cadastral ou les
-              coordonnées du terrain. Nous revenons vers vous avec une première
-              lecture des contraintes, sous 48 heures ouvrées.
-            </p>
-          </div>
-          <ContactForm submitLabel="Envoyer ma demande" />
-        </div>
-      </section>
+      {/* ── CTA — the shared closing band, with this page's own wording ── */}
+      <GetInTouch alt title="Votre terrain, son règlement" submitLabel="Envoyer ma demande">
+        Le plus utile pour un premier échange est le plan cadastral ou les
+        coordonnées du terrain. Nous revenons vers vous avec une première
+        lecture des contraintes, sous 48&nbsp;heures ouvrées.
+      </GetInTouch>
     </>
   );
 }

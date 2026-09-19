@@ -1,12 +1,13 @@
 import { useRef } from 'react';
-import { CONDITIONS, settleIfPassed, useGsapScene } from '../lib/motion';
+import { CONDITIONS, replayOnScroll, useGsapScene } from '../lib/motion';
 
 /* II. Les plateaux — the dark stats band as stacking floor plates.
 
    Each stat arrives from translateZ(-400px) rotateX(-25deg) at opacity 0 and
    lands flat, staggered 0.12s, like floor plates dropped onto a core. The
-   figure counts up on the same timeline. One-shot; on completion every
-   inline style is cleared so the band rests exactly as rendered. The same
+   figure counts up on the same timeline. Replays each time the band comes
+   back into view, from either direction (see replayOnScroll); on completion
+   every inline style is cleared so the band rests exactly as rendered. The same
    move runs on a phone — four small cards are cheap to composite, and the
    2×2 grid there reads as two stacked pairs of plates.
 
@@ -42,7 +43,7 @@ function makeCounter(el) {
   };
 }
 
-function build({ gsap, mm, scope, ease }) {
+function build({ gsap, ScrollTrigger, mm, scope, ease }) {
   const plates = gsap.utils.toArray('.m3-plate', scope);
   if (!plates.length) return;
 
@@ -52,8 +53,8 @@ function build({ gsap, mm, scope, ease }) {
     const counters = plates.map((p) => makeCounter(p.querySelector('.zv-stat-value')));
 
     const tl = gsap.timeline({
+      paused: true,
       defaults: { ease, duration: 1.1 },
-      scrollTrigger: { trigger: scope, start: 'top 80%', once: true },
       onStart: () =>
         gsap.set(plates, { willChange: 'transform, opacity', backfaceVisibility: 'hidden' }),
       // transformOrigin included: GSAP rewrites it in px and would otherwise
@@ -75,7 +76,7 @@ function build({ gsap, mm, scope, ease }) {
       );
     });
 
-    settleIfPassed(tl);
+    replayOnScroll({ ScrollTrigger, animation: tl, trigger: scope });
 
     // Revert of this branch (unmount, breakpoint change) restores the text.
     return () => counters.forEach((c) => c && c.restore());

@@ -1,4 +1,3 @@
-import { useReveal } from '../hooks/useReveal';
 import { useInkFill } from '../hooks/useInkFill';
 import { usePageMeta } from '../hooks/usePageMeta';
 import ContactForm from '../components/ContactForm';
@@ -37,7 +36,6 @@ const info = [
 ];
 
 export default function Contact() {
-  useReveal();
 
   usePageMeta({
     description:
@@ -114,7 +112,7 @@ export default function Contact() {
                     ))}
                   </div>
                 ) : (
-                  <div className="zv-body mt-1 font-medium">{c.value}</div>
+                  <div className="zv-body mt-1 font-medium [overflow-wrap:anywhere]">{c.value}</div>
                 )}
                 {c.href && (
                   <a

@@ -26,8 +26,8 @@
        1  #0f243e  primary      darkest — text, dark bands, buttons
        2  #24405f  muted        secondary text, graph accents
        3  #3d5570  border-dark  rules on dark ground
-       4  #64748b  gray-400     placeholder / meta text
-       5  #a0aab8  gray-100     de-emphasised display text
+       4  #4a5a72  gray-400     meta text, captions, placeholders
+       5  #7d8899  gray-100     separators, de-emphasised text
        6  #cbd0d8  border-light rules on light ground
        7  #ece9e3  gray-50      panels, alt bands
        8  #f7f4ec  body         page ground
@@ -35,19 +35,51 @@
 
      Copper, the logo's second colour, is not a step on this ramp — it is
      the single accent, held to the same value as index.css's --clay so
-     both stylesheets tint from one source. */
+     both stylesheets tint from one source.
+
+     Steps 4 and 5 were originally slate tints borrowed from a default
+     Tailwind ramp, and both failed WCAG AA for body text on our grounds
+     (4.49:1 and 2.22:1 on paper, worse on the sand panels). They are now
+     navy-ramp steps that clear 4.5:1 against the darkest ground body copy
+     ever lands on (--sand-deep), so meta lines and captions read for
+     everyone rather than only in good light. */
   --zv-primary: #0f243e;
   --zv-muted: #24405f;
   --zv-border-dark: #3d5570;
-  --zv-gray-400: #64748b;
-  --zv-gray-100: #a0aab8;
+  --zv-gray-400: #4a5a72;
+  --zv-gray-100: #7d8899;
+
+  /* The pencil-grey an ink-fill heading starts from, held separate from
+     --zv-gray-100 on purpose: that token carries real text and was darkened
+     for legibility, whereas this one must stay light or L'encrage has no
+     visible travel between its unfilled and filled states. */
+  --zv-pencil: #a0aab8;
   --zv-border: #cbd0d8;
   --zv-bg-alt: #ece9e3;
   --zv-bg: #f7f4ec;
   --zv-white: #ffffff;
 
   --zv-accent: #c58b66;
-  --zv-accent-deep: #a66a45;
+  /* Kept identical to index.css's --clay-deep, per the note above.
+     Darkened from #a66a45, which read at only 4.15:1 on paper and 3.33:1
+     on the sand panels — under AA everywhere it was used as text. */
+  --zv-accent-deep: #8f552f;
+
+  /* Ground of the .zv-dark bands. Its own token, not --zv-primary: at night
+     --zv-primary becomes the paper-toned text colour while the bands stay
+     navy (see the islands note in theme.css). */
+  --zv-band: #0f243e;
+
+  /* Text and controls laid over a render (tile captions, on-media buttons).
+     Theme-invariant: the ground under them is the image, not the page, so
+     the night theme must not restate it. --zv-white cannot do this job -
+     at night it is the card ground. */
+  --zv-on-media: #ffffff;
+
+  /* The list marker's chevron, as a data URI so .zv-marker can mask it.
+     Kept stroked (not filled) and mitre-joined: it should read as a
+     draughted angle, not a solid arrowhead. */
+  --zv-marker-glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 11'%3E%3Cpath d='M1 1l4.4 4.5L1 10' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='square'/%3E%3C/svg%3E");
 
   /* `--secondary` in the reference is a near-duplicate of gray-100, used
      only for text on dark bands. Kept as an alias so existing rules keep
@@ -82,6 +114,14 @@
 
 @media (max-width: 768px) {
   :root { --zv-section-y: 64px; }
+}
+
+/* Phone tier. Sections pad top *and* bottom, so where two of the same ground
+   meet the gap is double the token: at 64px that was 128px of blank on a
+   ~660px screen — a fifth of the viewport between every pair of sections.
+   52px keeps a clear pause (104px) without the page reading as holes. */
+@media (max-width: 640px) {
+  :root { --zv-section-y: 52px; }
 }
 
 /* Phone type scale.
@@ -124,9 +164,15 @@
 }
 
 .zv-alt { background: var(--zv-bg-alt); }
-.zv-dark { background: var(--zv-primary); color: var(--zv-white); }
+.zv-dark { background: var(--zv-band); color: var(--zv-white); }
 
-.zv-section {
+/* Zero specificity on purpose. This file is emitted after Tailwind's
+   utilities, so as a plain `.zv-section` rule it tied with `pt-0` / `pt-24`
+   on specificity and won on order: five sections asked for their own top
+   padding and all got the default instead. The clearest case was Services,
+   whose rows section says `pt-0` and still opened 200px below the block
+   above it. `:where()` makes this the default only, which is what it is. */
+:where(.zv-section) {
   padding-top: var(--zv-section-y);
   padding-bottom: var(--zv-section-y);
 }
@@ -141,16 +187,22 @@
   letter-spacing: 0;
   text-transform: uppercase;
   color: inherit;
-  /* NB: this beats a Tailwind `mt-*` on the same element — (0,1,1) vs
-     (0,1,0), and it is emitted after the utilities besides. Space around
-     a .zv heading therefore has to come from the parent (a flex `gap`, or
-     a rule like .zv-icon-card below), never from a margin utility. */
-  margin: 0;
   /* A single long word — DÉVELOPPEMENT, RÉHABILITATION — has no break
      opportunity, so in a narrow card it escapes the padding box rather
      than wrapping. Allow a mid-word break as the last resort only: normal
      inter-word wrapping is tried first, so ordinary titles are unaffected. */
   overflow-wrap: break-word;
+}
+
+/* The margin reset lives apart from the rule above, at zero specificity.
+   Inside that rule it was (0,1,1) and emitted after Tailwind's utilities, so
+   it beat every `mt-*` written on a .zv heading: some twenty-five titles
+   across the site asked for `mt-5` under their eyebrow and computed 0, the
+   label sitting directly on the title's cap line. `:where()` keeps the reset
+   for headings that ask for nothing and lets a utility win when one does. */
+:where(.zv h1, .zv h2, .zv h3, .zv h4, .zv h5, .zv h6,
+       .zv-h1, .zv-h2, .zv-h3, .zv-h4, .zv-h5, .zv-h6) {
+  margin: 0;
 }
 
 /* Tag selectors set the default size for an unclassed heading. */
@@ -222,11 +274,10 @@
 /* Centred section header block — reference caps these at 555–730px. */
 /* Centred section heading: eyebrow above a title.
 
-   A flex column with a gap, not margins on the children. `.zv-hN` resets
-   `margin: 0` at a specificity that beats a Tailwind `mt-*` on the same
-   element (see the note by the heading reset), so the `mt-5` these headings
-   carried computed to 0 and the eyebrow sat directly on the title's cap
-   height. The gap is on the parent, which nothing overrides.
+   A flex column with a gap, not margins on the children, so the spacing is
+   set once here rather than per heading. A title inside this block should
+   carry no `mt-*` of its own: the heading reset no longer swallows margin
+   utilities, so one would now add to the gap instead of being ignored.
 
    Both gaps scale with the viewport: the title runs 72px at desktop and 30px
    on a phone, so a fixed 60px below it reads as generous under a big title
@@ -325,13 +376,13 @@
 
 .zv-btn-onmedia {
   background: transparent;
-  color: var(--zv-white);
+  color: var(--zv-on-media);
   border-color: rgba(255, 255, 255, 0.6);
 }
 .zv-btn-onmedia:hover {
-  background: var(--zv-white);
-  color: var(--zv-primary);
-  border-color: var(--zv-white);
+  background: var(--zv-on-media);
+  color: #0f243e;
+  border-color: var(--zv-on-media);
 }
 
 .zv-dark .zv-btn { background: var(--zv-white); color: var(--zv-primary); }
@@ -467,6 +518,37 @@
   .zv-icon-card { gap: 22px; }
 }
 
+/* The service lists used to be marked with a bare 1px dash, which read as
+   a leftover rule rather than a bullet. The chevron is a mask, not an inline
+   <svg>: the glyph is declared once here instead of being pasted into every
+   list that wants it, and `background` colours it, so it follows the accent
+   token and can be recoloured on a dark ground.
+
+   The box is 0.5em-ish at list sizes but fixed in px so it does not swell on
+   the larger Services rows. `margin-top` is the same half-line offset the old
+   dash carried, keeping the mark beside line one of a label that wraps. */
+.zv-marker {
+  flex: none;
+  width: 6px;
+  height: 9px;
+  margin-top: 0.42em;
+  background: var(--zv-accent);
+  -webkit-mask: var(--zv-marker-glyph) center / 6px 9px no-repeat;
+  mask: var(--zv-marker-glyph) center / 6px 9px no-repeat;
+}
+
+.zv-dark .zv-marker { background: var(--zv-accent); }
+
+/* Browsers with no mask support (very old Safari) would show a solid 6x9
+   block, which is worse than the dash was — fall back to the bar there. */
+@supports not ((-webkit-mask: none) or (mask: none)) {
+  .zv-marker {
+    width: 16px;
+    height: 2px;
+    margin-top: 0.62em;
+  }
+}
+
 /* ── Rules, media & inputs ─────────────────────────────────────── */
 .zv-rule { height: 1px; background: var(--zv-border); border: 0; }
 .zv-dark .zv-rule { background: var(--zv-border-dark); }
@@ -479,6 +561,29 @@
   font-weight: 400;
   text-transform: uppercase;
   letter-spacing: 0;
+  line-height: 1.1;
+  /* Without container units: the h3 step clears a quarter-width column at
+     every breakpoint, if only just at 1024. */
+  font-size: var(--zv-h3);
+  font-size: clamp(1.5rem, 8cqi, 2.25rem);
+}
+
+/* These rows were drawn for figures — « 12 », « 96k » — and sized like the
+   section title, 72px. They carry words now (see `practice` in projects.js),
+   and the longest, HOSPITALITÉ, sets 4.52em wide: 325px in a 253px column.
+   On Home the words ran through the dividers; on Agence, where the heading
+   reset allows a mid-word break, they split into RÉSIDENTI / EL.
+
+   So the word is sized from the row it sits in, not from the viewport. The
+   grid is the container rather than the cell, because the first cell drops
+   its left padding and would otherwise set its word larger than the other
+   three. 8cqi in the two-column layout and 3.6cqi in the four-column one
+   both leave the longest word at about 80% of the narrowest cell, so it
+   never reaches a rule. The caps keep it under the section title above. */
+.zv-stat-cq { container-type: inline-size; }
+
+@media (min-width: 1024px) {
+  .zv-stat-value { font-size: clamp(2rem, 3.6cqi, 3.25rem); }
 }
 
 /* ── Impact band figures ───────────────────────────────────────
@@ -528,18 +633,13 @@
     border-bottom: 1px solid var(--zv-border-dark);
   }
 
-  /* The figure is the thing being read: sized on its own scale rather than
-     borrowing the section-title size, which the 640px breakpoint drops to
-     30px. Set solid so number and label group as one unit. */
-  .zv-stat-value {
-    font-size: clamp(38px, 11vw, 52px);
-    line-height: 1;
-  }
-
+  /* The measure is capped for tablets, where a half-width cell would let the
+     caption run to a single long line under a short word. On a phone the
+     cell is narrower than the cap and the caption simply fills it. */
   .zv-stat-label {
-    margin-top: 8px;
+    margin-top: 10px;
     display: block;
-    max-width: 15ch;
+    max-width: 24ch;
   }
 }
 
@@ -554,8 +654,7 @@
    adds is scoped to below lg rather than unset here, where a border reset
    would out-specify those utilities. */
 @media (min-width: 1024px) {
-  .zv-stat-value { font-size: var(--zv-h2); line-height: 1.14; }
-  .zv-stat-label { margin-top: 12px; }
+  .zv-stat-label { margin-top: 14px; }
 }
 
 .zv-media {
@@ -814,29 +913,6 @@ select.zv-input:has(option[value='']:checked) { color: var(--zv-gray-400); }
 @media (max-width: 640px) {
   .zv-card { padding: 22px 20px; border-radius: 16px; }
   .zv-icon { width: 46px; height: 46px; }
-}
-
-/* ── CTA with floating cards ───────────────────────────────────
-   A centred form with four small project cards pinned to the corners
-   of the section. Below the lg breakpoint the cards would collide
-   with the form, so they drop out of the layout entirely. */
-.zv-cta-card {
-  position: absolute;
-  width: 210px;
-  padding: 10px;
-  border: 1px solid #eae8e1;
-  border-radius: 16px 16px 0 0;
-  background: var(--zv-white);
-}
-
-.zv-cta-card-media {
-  overflow: hidden;
-  border-radius: 8px;
-  background: var(--zv-bg-alt);
-}
-
-@media (max-width: 1279px) {
-  .zv-cta-card { display: none; }
 }
 
 /* Underline-style field — the reference's contact and CTA forms use a
@@ -1199,16 +1275,280 @@ select.zv-field:open {
 .zv-hero h1,
 .zv-hero h2 { color: var(--zv-white); }
 
+/* From tablet up the banner fills the viewport — an immersive opening
+   rather than a fixed 794px band that left a strip of the next section on
+   tall screens and overflowed short ones. Floored so a squat laptop still
+   fits the copy, capped so a 4K portrait monitor is not all hero. */
+@media (min-width: 769px) {
+  .zv-hero { min-height: clamp(640px, 100svh, 980px); padding-bottom: 72px; }
+}
+
 @media (max-width: 768px) {
-  /* 620px is the portrait-phone figure. Capped against the viewport so a
-     landscape phone (~360px tall) does not get a hero 1.7 screens deep. */
-  .zv-hero { min-height: min(620px, 88svh); padding-bottom: 48px; }
+  /* A full small-viewport screen. `svh`, not `vh`: on iOS Safari the
+     toolbars take ~180px, so an 844px phone really offers ~664px — tested
+     sizes must be the *visible* ones, not the device ones.
+     padding-top is the header clearance (pill bottom ≈ 78px + air). Without
+     it the copy only missed the header by however much slack the viewport
+     happened to leave; now the section grows instead of the copy sliding
+     under the pill. */
+  .zv-hero { min-height: min(760px, 100svh); padding-top: 116px; padding-bottom: 28px; }
 }
 
 @supports not (height: 1svh) {
-  @media (max-width: 768px) {
-    .zv-hero { min-height: min(620px, 88vh); }
+  @media (min-width: 769px) {
+    .zv-hero { min-height: clamp(640px, 100vh, 980px); }
   }
+  @media (max-width: 768px) {
+    .zv-hero { min-height: min(760px, 100vh); }
+  }
+}
+
+/* Scrim — directional, and tinted with the brand navy rather than black so
+   the shadows sit in the site's palette. Three layers, top to bottom:
+   a short band that keeps the floating header legible, the main rise that
+   carries the copy, and extra weight in the bottom-left corner where the
+   title actually is. The upper-right of the frame is left almost clean. */
+.zv-hero-scrim {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(9, 20, 36, 0.62) 0%, rgba(9, 20, 36, 0) 24%),
+    linear-gradient(0deg, rgba(9, 20, 36, 0.92) 0%, rgba(9, 20, 36, 0.62) 30%, rgba(9, 20, 36, 0.12) 64%, rgba(9, 20, 36, 0) 80%),
+    /* Left-hand wash: the film has bright passages (pale paving, sky) that
+       drift behind the title mid-loop. This holds the copy column readable
+       through all of them and is gone by the middle of the frame. */
+    linear-gradient(90deg, rgba(9, 20, 36, 0.55) 0%, rgba(9, 20, 36, 0.28) 34%, rgba(9, 20, 36, 0) 60%),
+    radial-gradient(110% 85% at 0% 100%, rgba(9, 20, 36, 0.6) 0%, rgba(9, 20, 36, 0) 62%);
+}
+
+/* On a phone the copy occupies the lower ~60% of the frame: the rise holds
+   through that band, then lets go so the top third is plainly the film. */
+@media (max-width: 768px) {
+  .zv-hero-scrim {
+    background:
+      linear-gradient(180deg, rgba(9, 20, 36, 0.55) 0%, rgba(9, 20, 36, 0) 18%),
+      linear-gradient(0deg, rgba(9, 20, 36, 0.95) 0%, rgba(9, 20, 36, 0.86) 38%, rgba(9, 20, 36, 0.5) 60%, rgba(9, 20, 36, 0.08) 80%, rgba(9, 20, 36, 0) 90%);
+  }
+}
+
+/* Title leading inside the hero. The scale's line-height of 1 lets the
+   accent of « INTÉRIEUR » strike the line above it; a touch more leading
+   clears it without loosening the block. */
+.zv-hero .zv-h1.zv-h1 { line-height: 1.05; }
+@media (max-width: 640px) {
+  .zv-hero .zv-h1.zv-h1 { line-height: 1.1; }
+}
+
+/* Grain — one static noise tile over the film. No blend mode and no
+   animation: a blended or moving layer over a full-bleed video is paid for
+   on every decoded frame; a plain translucent tile is composited once. */
+.zv-hero-grain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.07;
+  background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Load-in for the banner's blocks — a short rise, staggered by --d.
+   `both` holds the first keyframe through the delay, so nothing flashes at
+   full opacity before its turn. */
+.zv-hero-in {
+  animation: zv-hero-in 900ms var(--ease-arch) both;
+  animation-delay: var(--d, 0ms);
+}
+@keyframes zv-hero-in {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .zv-hero-in { animation: none; }
+}
+
+/* Lead on media. Body size on a phone — at the large size it ran to six
+   lines and pushed the actions below the fold — and the lead size from md. */
+.zv-hero-lead {
+  max-width: 540px;
+  font-size: var(--zv-p);
+  line-height: 26px;
+  letter-spacing: -0.18px;
+  color: rgba(250, 248, 245, 0.84);
+}
+@media (min-width: 768px) {
+  .zv-hero-lead { font-size: var(--zv-p-lg); line-height: 28px; letter-spacing: -0.2px; }
+}
+
+/* Eyebrow on media: the paper tone at reduced alpha, accent dot. */
+.zv-hero-eyebrow { color: rgba(250, 248, 245, 0.82); }
+.zv-hero-eyebrow::before { background: var(--zv-accent); }
+
+/* "À l'image" chip — frosted glass naming the project on screen. */
+.zv-hero-chip {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+  padding: 8px 18px 8px 8px;
+  border-radius: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+  -webkit-backdrop-filter: blur(16px) saturate(1.25);
+  backdrop-filter: blur(16px) saturate(1.25);
+  color: var(--zv-white);
+  transition: background-color 300ms var(--ease-arch), border-color 300ms var(--ease-arch);
+}
+.zv-hero-chip:hover {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.38);
+}
+.zv-hero-chip:focus-visible,
+.zv-hero-ctrl:focus-visible {
+  outline: 2px solid var(--zv-white);
+  outline-offset: 3px;
+}
+.zv-hero-chip-thumb {
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  border-radius: 15px;
+  object-fit: cover;
+}
+.zv-hero-chip-label,
+.zv-hero-chip-name,
+.zv-hero-chip-meta { display: block; white-space: nowrap; }
+.zv-hero-chip-label {
+  font-size: 11px;
+  line-height: 14px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(250, 248, 245, 0.66);
+}
+.zv-hero-chip-name {
+  font-family: var(--zv-display);
+  font-size: 19px;
+  line-height: 24px;
+  text-transform: uppercase;
+}
+.zv-hero-chip-meta {
+  font-size: 12px;
+  line-height: 16px;
+  color: rgba(250, 248, 245, 0.72);
+}
+.zv-hero-chip-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  margin-left: 6px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--zv-white);
+  color: var(--zv-primary);
+  transition: transform 300ms var(--ease-arch);
+}
+.zv-hero-chip:hover .zv-hero-chip-arrow { transform: rotate(45deg); }
+
+/* Phones: the card keeps its thumbnail — the film is cropped hard on a
+   portrait screen, so the still is the only place the project reads as a
+   place rather than as texture. What was cut instead is the air around it:
+   the label rides above the name in a two-line stack the same height as the
+   thumb, and the meta line goes (the film is the meta). The result is a
+   56px row, 8px more than the label-only pill it replaces. */
+@media (max-width: 640px) {
+  .zv-hero-chip {
+    flex: 1 1 auto;
+    gap: 11px;
+    padding: 6px 6px 6px 6px;
+    border-radius: 999px;
+  }
+  .zv-hero-chip-meta { display: none; }
+  .zv-hero-chip-thumb {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+  }
+  .zv-hero-chip > span:nth-child(2) {
+    flex: 0 1 auto;
+    overflow: hidden;
+  }
+  /* Pushes the arrow to the pill's right edge without stretching the text
+     block, so the gap after the name stays constant while the pill itself
+     still spans the row beside the pause control. */
+  .zv-hero-chip-arrow { margin-left: auto; }
+  .zv-hero-chip-label { font-size: 9.5px; line-height: 12px; letter-spacing: 0.14em; }
+  .zv-hero-chip-name {
+    font-size: 17px;
+    line-height: 20px;
+    /* The name is the one thing that may not be clipped mid-word: on a
+       narrow phone a long project name ellipses rather than pushing the
+       arrow off the pill. */
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .zv-hero-chip-arrow { width: 40px; height: 40px; }
+  .zv-hero-ctrl { width: 44px; height: 44px; }
+}
+
+/* Very narrow phones (SE, 375px and under): the pill still has to hold a
+   44px thumb, the two-line stack and the arrow beside a 44px control. Trim
+   the gaps rather than dropping the thumbnail again. */
+@media (max-width: 380px) {
+  .zv-hero-chip { gap: 9px; }
+  .zv-hero-chip-thumb { width: 40px; height: 40px; border-radius: 12px; }
+  .zv-hero-chip-arrow { width: 36px; height: 36px; }
+  .zv-hero-chip-name { font-size: 16px; }
+}
+
+/* Pause / play — 44px so it is a real touch target. */
+.zv-hero-ctrl {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.1);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  color: var(--zv-white);
+  transition: background-color 300ms var(--ease-arch);
+}
+.zv-hero-ctrl:hover { background: rgba(255, 255, 255, 0.22); }
+
+/* Scroll cue — a hairline with a bead travelling down it. */
+.zv-hero-cue {
+  display: none;
+  position: absolute;
+  z-index: 10;
+  left: 50%;
+  bottom: 22px;
+  width: 1px;
+  height: 38px;
+  background: rgba(255, 255, 255, 0.22);
+  overflow: hidden;
+}
+.zv-hero-cue span {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1px;
+  height: 14px;
+  background: var(--zv-white);
+  animation: zv-hero-cue 2.2s var(--ease-arch) infinite;
+}
+@keyframes zv-hero-cue {
+  0%   { transform: translateY(-14px); }
+  70%, 100% { transform: translateY(38px); }
+}
+@media (min-width: 1024px) {
+  .zv-hero-cue { display: block; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .zv-hero-cue span { animation: none; transform: translateY(12px); }
 }
 
 /* ── Home: trusted strip ───────────────────────────────────────
@@ -1237,6 +1577,260 @@ select.zv-field:open {
 @media (max-width: 767px) {
   .zv-marks { gap: 12px 20px; }
   .zv-mark { font-size: 14px; }
+}
+
+/* ── Home: client logo carousel ────────────────────────
+   The "ils nous ont fait confiance" band. Three of the eight marks
+   are redrawn from the signage in the renders (Adostigia, Faraj,
+   Zahiya); the rest are the project names set as wordmarks.
+   See ClientLogos.jsx.
+
+   The whole rail is one flat navy at reduced opacity: a logo wall
+   reads as a wall only when every mark carries the same weight, and
+   eight different brand colours on a cream band would read as clip
+   art. Colour returns on hover, one logo at a time.
+
+   It is a continuous carousel at every width — one line, always
+   drifting, never wrapping to a grid. Eight marks do not fill a
+   desktop row on their own, so the set is rendered FOUR times: the
+   copies close the gap that would otherwise open behind the last
+   logo, and the keyframe shifts by exactly one copy (-25%), which
+   lands on the identical mark and makes the loop seamless. */
+/* The band sits directly under the dark hero, so it needs real air above
+   the heading or the rule collides with the hero's edge. The top is the
+   larger of the two: the label wants room to read as a section opener,
+   while the logos below already carry their own row height. */
+.zv-clients {
+  padding-top: clamp(52px, 6vw, 88px);
+  padding-bottom: clamp(44px, 5vw, 72px);
+}
+
+/* ── The heading, drawn as a dimension line ──────────────────
+   An architecture practice annotates a span with a dimension line: a
+   witness tick standing at each end, the measure running between them,
+   and the figure sitting in a break in that line. That is what this is
+   — the studio's own drawing language instead of a generic rule. */
+.zv-clients-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(16px, 2.4vw, 28px);
+  margin-bottom: clamp(34px, 4vw, 52px);
+  color: var(--zv-primary);
+}
+
+/* Each side of the dimension: the run of line plus the tick that closes
+   it. Laid out as flex so the line absorbs the leftover width and the
+   tick keeps its drawn size. */
+.zv-dim {
+  display: flex;
+  align-items: center;
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: clamp(80px, 16vw, 210px);
+  height: 14px;
+}
+
+/* The measure itself. Hairline weight, slightly held back from full
+   strength so it sits behind the words rather than competing. */
+.zv-dim-line {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.55;
+}
+
+/* The witness tick: the short 45° slash a draughtsman puts where the
+   dimension stops. Rotated rather than drawn as SVG so it stays crisp
+   at any size and inherits colour for free. */
+.zv-dim-tick {
+  flex: none;
+  width: 1px;
+  height: 11px;
+  background: currentColor;
+  opacity: 0.75;
+  transform: rotate(45deg);
+}
+
+/* The two ticks mirror each other, as they do on a drawing: rotated the
+   same way the pair reads as lopsided rather than as one annotation. */
+.zv-dim--end .zv-dim-tick {
+  transform: rotate(-45deg);
+}
+
+/* The label sits in the break in the dimension line. */
+.zv-clients-label-text {
+  font-family: var(--zv-body);
+  font-size: clamp(12px, 1.15vw, 14px);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  /* The tracking hangs a space off the last letter, pushing the text
+     off-centre between the two ticks; the indent pulls it back. */
+  text-indent: 0.15em;
+}
+
+.zv-clients-track {
+  display: flex;
+  width: max-content;
+  /* translate3d in the keyframe puts this on the compositor; the hint
+     keeps it there instead of re-rasterising the row each frame. */
+  will-change: transform;
+  animation: zv-clients-drift 52s linear infinite;
+}
+
+.zv-clients-set {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  /* The gap is repeated as padding-right so the seam between copies is
+     the same width as every other gap. Without it the loop shows as a
+     pinch every time it comes round. */
+  gap: 104px;
+  padding-right: 104px;
+  margin: 0;
+  list-style: none;
+}
+
+.zv-client {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* min-height, not height: the tree lockup is taller than the row, and
+     a fixed height clipped its wordmark rather than growing the rail. */
+  min-height: 78px;
+  color: var(--zv-primary);
+  opacity: 0.42;
+  transition:
+    opacity 420ms var(--ease-arch),
+    color 420ms var(--ease-arch);
+}
+
+@keyframes zv-clients-drift {
+  from { transform: translate3d(0, 0, 0); }
+  /* Four copies in the track, so one copy is 25% of its width. Landing
+     on the identical mark is what makes the restart invisible. */
+  to   { transform: translate3d(-25%, 0, 0); }
+}
+
+/* ── The lockups ───────────────────────────────── */
+.zv-logo-lockup {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  white-space: nowrap;
+}
+
+.zv-logo-lockup--stacked {
+  flex-direction: column;
+  gap: 7px;
+}
+
+.zv-logo-lockup--tight {
+  gap: 3px;
+}
+
+.zv-logo-glyph {
+  height: 40px;
+  width: auto;
+  flex: none;
+  fill: currentColor;
+}
+
+/* The tree is stroked, not filled, so at the triangle's height it
+   reads much lighter than every other mark on the rail. It gets more
+   height to land at the same visual weight. */
+.zv-logo-glyph--tree {
+  height: 45px;
+}
+
+/* Stroke weight, not opacity, is what makes a line mark hold its own
+   beside solid lettering. */
+.zv-logo-glyph--tree g { stroke-width: 1.7; }
+.zv-logo-glyph--tree g g { stroke-width: 1.5; }
+
+.zv-logo-word {
+  font-family: var(--zv-display);
+  font-size: 29px;
+  line-height: 1;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.zv-logo-sub {
+  font-family: var(--zv-body);
+  font-size: 11px;
+  line-height: 1;
+  font-weight: 500;
+  /* Wide tracking is what makes a qualifier read as part of a lockup
+     rather than as a caption under it. */
+  letter-spacing: 0.34em;
+  /* The tracking adds a trailing space after the last letter, which
+     throws the lockup off-centre; the indent pulls it back. */
+  text-indent: 0.34em;
+  text-transform: uppercase;
+  opacity: 0.78;
+}
+
+/* Hover lifts one mark and holds the belt still so it can be read.
+   Gated behind (hover: hover): on a touch screen :hover sticks after a
+   tap, which would freeze the carousel for good — the bug that bit the
+   testimonial wall. */
+@media (hover: hover) and (pointer: fine) {
+  .zv-clients-rail:hover .zv-clients-track {
+    animation-play-state: paused;
+  }
+
+  .zv-client:hover {
+    opacity: 1;
+    color: var(--zv-accent-deep);
+  }
+}
+
+/* A touch screen has no hover to pause with, so let the finger drive.
+   The animation stays on; dragging simply scrolls past it. */
+@media (hover: none) {
+  .zv-clients-rail {
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .zv-clients-rail::-webkit-scrollbar { display: none; }
+}
+
+@media (max-width: 767px) {
+  /* A phone leaves little width beside the words, so the dimension runs
+     are short — but a tick plus a stub still reads as a drawn annotation,
+     unlike the old arrowheads, so they stay. Only the run is trimmed. */
+  .zv-dim { max-width: 34px; height: 12px; }
+  .zv-dim-tick { height: 9px; }
+  .zv-clients-label { gap: 12px; margin-bottom: 20px; }
+  .zv-clients-label-text { font-size: 12px; letter-spacing: 0.17em; }
+  /* The marks were scaled for the desktop band; at phone width they fill
+     most of the screen and only two fit at a time, which loses the sense
+     of a wall. Smaller and closer puts three or four in view. */
+  .zv-clients-set { gap: 44px; padding-right: 44px; }
+  .zv-client { min-height: 58px; opacity: 0.5; }
+  .zv-logo-word { font-size: 19px; }
+  .zv-logo-glyph { height: 26px; }
+  .zv-logo-glyph--tree { height: 30px; }
+  .zv-logo-sub { font-size: 9px; }
+  /* A shorter belt should cross the screen in about the same time. */
+  .zv-clients-track { animation-duration: 34s; }
+}
+
+/* Motion that starts by itself must be stoppable. With the drift off the
+   track would sit flush left, so the copies are dropped to one centred,
+   wrapping row — the same marks, just not moving. */
+@media (prefers-reduced-motion: reduce) {
+  .zv-clients-rail { overflow-x: auto; }
+  .zv-clients-track { animation: none; width: 100%; justify-content: center; }
+  .zv-clients-set { flex-wrap: wrap; justify-content: center; gap: 14px 58px; padding-right: 0; }
+  .zv-clients-set--clone { display: none; }
 }
 
 /* ── Home: portfolio mosaic ────────────────────────────────────
@@ -1399,7 +1993,7 @@ select.zv-field:open {
   position: absolute;
   inset: auto 0 0 0;
   padding: 20px 24px;
-  color: var(--zv-white);
+  color: var(--zv-on-media);
   background: linear-gradient(to top, rgba(32, 41, 24, 0.85), transparent);
 }
 
@@ -1524,30 +2118,98 @@ select.zv-field:open {
 /* ── GSAP 3D motion layer — additive, safe to delete ────────── */
 /* Wrappers introduced around existing markup so GSAP never animates an
    element that useReveal already owns. Every rule here is invisible at
-   rest: perspective and transform-style change nothing until a child is
-   transformed, and the edge ring sits at opacity 0 until GSAP raises the
-   custom property. Delete this block and the wrappers become plain divs. */
+   rest: perspective changes nothing until a child is transformed, and the
+   mosaic's esquisse and cut line stay hidden until GSAP marks a tile
+   live. Delete this block and the wrappers become plain divs. */
 
-/* I. L'axonométrie — home portfolio mosaic */
-.m3-axo { perspective: 1400px; }
-.m3-axo-grid { transform-style: preserve-3d; }
-/* display: grid keeps the tall left tile on its stretch chain: the wrapper
-   stretches to the outer grid row and the Link stretches to the wrapper, so
-   the image's h-full resolves exactly as it did when the Link was the item. */
-.m3-axo-tile {
+/* I. La coupe — home portfolio mosaic (useCoupe)
+   display: grid keeps the tall left tile on its stretch chain: the wrapper
+   stretches to the outer grid row, the Link stretches to the wrapper, and
+   the media span's height: 100% hands that on to the image's h-full. */
+.m3-coupe-tile {
   position: relative;
   display: grid;
-  transform-style: preserve-3d;
 }
-.m3-axo-tile::after {
+.m3-coupe-media {
+  position: relative;
+  display: block;
+  height: 100%;
+}
+
+/* The esquisse: the same render, drained and printed in the house navy.
+   `screen` lifts the blacks to --zv-primary and leaves the lights as paper,
+   which is what a cyanotype does. Hidden until GSAP marks the tile live, and
+   again once the line has passed, so at rest no filter layer is composited.
+   The clip and the line both read --cut (0 → 1, left to right). */
+.m3-coupe-draft,
+.m3-coupe-line { visibility: hidden; }
+
+.m3-coupe-draft {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--zv-primary);
+  clip-path: inset(0 0 0 calc(var(--cut, 0) * 100%));
+}
+.m3-coupe-draft img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+  filter: grayscale(1) contrast(1.25) brightness(1.08);
+}
+.m3-coupe-draft::before,
+.m3-coupe-draft::after {
   content: '';
   position: absolute;
   inset: 0;
-  border: 1px solid var(--zv-border);
-  border-radius: 26px 26px 0 0;
-  opacity: var(--m3-edge, 0);
+  z-index: 1;
   pointer-events: none;
 }
+.m3-coupe-draft::before {
+  background: var(--zv-primary);
+  mix-blend-mode: screen;
+}
+/* Drafting grid: a fine 16px rule with a heavier line every fifth. */
+.m3-coupe-draft::after {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.16) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.16) 1px, transparent 1px),
+    linear-gradient(to right, rgba(255, 255, 255, 0.07) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+  background-size: 80px 80px, 80px 80px, 16px 16px, 16px 16px;
+}
+/* Inset past the 10% the media is over-scaled by at the start of the cut,
+   so the tag is never cropped by the tile's own overflow. */
+.m3-coupe-tag {
+  position: absolute;
+  z-index: 2;
+  top: 13%;
+  right: 12%;
+  font-family: var(--zv-body);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.m3-coupe-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--cut, 0) * 100%);
+  width: 2px;
+  margin-left: -1px;
+  background: var(--zv-accent);
+  box-shadow: 0 0 18px 2px rgba(197, 139, 102, 0.55);
+  pointer-events: none;
+}
+
+.m3-coupe-live .m3-coupe-draft { visibility: visible; }
+.m3-coupe-cutting .m3-coupe-line { visibility: visible; }
 
 /* II. Les plateaux — dark stats band */
 .m3-plates { perspective: 1400px; }
@@ -1560,7 +2222,7 @@ select.zv-field:open {
   background-image: linear-gradient(
     90deg,
     currentColor var(--m3-ink, 0%),
-    var(--zv-gray-100) var(--m3-ink, 0%)
+    var(--zv-pencil) var(--m3-ink, 0%)
   );
   -webkit-background-clip: text;
   background-clip: text;
@@ -1607,8 +2269,31 @@ select.zv-field:open {
     var(--m3-radial-n) * (var(--m3-radial-w) + var(--m3-radial-gap)) / 6.2832
   );
   position: relative;
-  height: 600px;
+  /* 458px = the old 600px box minus the 142px the index strip used to be
+     pulled up over. The strip is gone (owner's request, 2026-09-18); without
+     this trim its band would come back as bare sand under the arc. The
+     leaning outer cards are still clipped at the box edge, as before. */
+  height: 458px;
   overflow: clip;
+}
+/* Desktop only: the outer cards lean far enough to cross the bottom of the
+   box, where `overflow: clip` would shear them off in a hard horizontal line.
+   A short rise of the section's own sand lets them sink into the ground
+   instead. Below 1024px the box is cut to the arc and nothing reaches its
+   edge, so there is nothing to soften. */
+@media (min-width: 1024px) {
+  .m3-radial::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    /* Short on purpose: taller and it veils the neighbours' captions. */
+    height: 84px;
+    z-index: 2;
+    pointer-events: none;
+    background: linear-gradient(0deg, var(--sand) 0%, rgba(241, 236, 229, 0) 100%);
+  }
 }
 .m3-radial__wheel {
   position: absolute;
@@ -1675,142 +2360,6 @@ select.zv-field:open {
   opacity: 0.7;
 }
 
-/* Footer strip under the wheel (Home.jsx → Featured).
-   The arc sits in the top half of the marquee's 600px box, leaving a wide
-   band of bare sand beneath the centre card. The strip is pulled up into
-   that band by a negative margin — it costs the page no extra height on
-   desktop, it just occupies ground the wheel had already reserved.
-
-   It has to sit ABOVE the wheel in paint order and carry the section's own
-   ground: the outer cards lean far enough down that, left transparent, the
-   rule and the right-hand entries were crossed by a card corner. The band
-   of sand is the wheel's floor — cards pass behind it, not over it. */
-.m3-radial-foot {
-  position: relative;
-  z-index: 1;
-  margin-top: -142px;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 18px 40px;
-  padding-top: 20px;
-  font-family: var(--font-body);
-}
-/* The ground, drawn wider than the shell so it reaches the viewport edges
-   and hides the leaning cards' lower corners along the full rule. Bounded
-   down past the strip by the slack the wheel leaves below it, because the
-   outer cards lean far enough to reappear underneath an exactly-sized mask.
-   It stops well inside the section, so the block below keeps its own
-   ground. */
-.m3-radial-foot::before {
-  content: '';
-  position: absolute;
-  top: -1px;
-  bottom: -160px;
-  left: calc(50% - 50vw);
-  width: 100vw;
-  z-index: -1;
-  background: var(--sand);
-  pointer-events: none;
-}
-/* The rule is drawn by the backdrop's top edge so it runs the full width of
-   the viewport, matching the full-bleed wheel above it rather than stopping
-   at the shell's gutters. */
-.m3-radial-foot::after {
-  content: '';
-  position: absolute;
-  top: -1px;
-  left: calc(50% - 50vw);
-  width: 100vw;
-  height: 1px;
-  background: var(--line);
-  pointer-events: none;
-}
-.m3-radial-foot__hint {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 0;
-  font-size: 0.8125rem;
-  letter-spacing: 0.01em;
-  color: var(--ink-soft);
-}
-/* Small pulsing dot: the one moving thing in the strip, echoing the fact
-   that the wheel above it is live. Stops under reduced motion. */
-.m3-radial-foot__dot {
-  width: 7px;
-  height: 7px;
-  flex: none;
-  border-radius: 50%;
-  background: var(--clay);
-  animation: m3-foot-pulse 2.4s var(--ease-soft) infinite;
-}
-@keyframes m3-foot-pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.35; transform: scale(0.7); }
-}
-/* Index of what is on the wheel: a direct route to each project, since a
-   turning card cannot be waited for comfortably. */
-.m3-radial-foot__index {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: stretch;
-  gap: 0;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.m3-radial-foot__index li + li {
-  border-left: 1px solid var(--line);
-}
-.m3-radial-foot__link {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  padding: 2px 22px;
-  text-decoration: none;
-  color: inherit;
-  transition: color 400ms var(--ease-soft);
-}
-.m3-radial-foot__index li:last-child .m3-radial-foot__link { padding-right: 0; }
-/* The ordinal and the chevron are phone-only affordances: on desktop the
-   vertical rules already separate the entries and hover carries the link. */
-.m3-radial-foot__num,
-.m3-radial-foot__chev { display: none; }
-.m3-radial-foot__text {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  min-width: 0;
-}
-.m3-radial-foot__name {
-  font-family: var(--font-display);
-  font-size: 1.0625rem;
-  line-height: 1.15;
-  letter-spacing: 0.01em;
-  text-transform: uppercase;
-  color: var(--ink);
-  transition: color 400ms var(--ease-soft);
-}
-.m3-radial-foot__meta {
-  font-size: 0.75rem;
-  line-height: 1.3;
-  color: var(--ink-muted);
-}
-.m3-radial-foot__link:hover .m3-radial-foot__name,
-.m3-radial-foot__link:focus-visible .m3-radial-foot__name {
-  color: var(--clay-deep);
-}
-.m3-radial-foot__link:focus-visible {
-  outline: 2px solid var(--clay);
-  outline-offset: 4px;
-  border-radius: 4px;
-}
-@media (prefers-reduced-motion: reduce) {
-  .m3-radial-foot__dot { animation: none; }
-}
-
 @media (max-width: 1023px) {
   /* Tablet: the wheel kept a desktop-sized box (400px) while the cards
      shrank to 300px, so the arc floated in the middle of it. Height is cut
@@ -1825,87 +2374,9 @@ select.zv-field:open {
     margin-bottom: -6px;
   }
   .m3-radial__wheel { top: 8px; }
-  /* Tablet and below the box is trimmed to the arc itself, so there is no
-     slack under the wheel to pull the strip into — it sits below instead. */
-  .m3-radial-foot {
-    margin-top: 28px;
-    gap: 18px 28px;
-  }
-  /* Below desktop the strip sits clear of the arc, so it needs no mask and
-     the rule goes back to the shell width the rest of the page uses. */
-  .m3-radial-foot::before { display: none; }
-  .m3-radial-foot::after { left: 0; width: 100%; }
 }
 @media (max-width: 640px) {
-  /* Phone: a single stacked list, not a 2x2 grid. The quadrant version read
-     as a spreadsheet — four cells of unequal text with a cross of rules
-     through the middle — and one entry ('Maison individuelle · 2024') always
-     wrapped to two lines, so the two rows never matched. Stacked rows give
-     every name the full width, so nothing wraps, and the ordinal + chevron
-     make each row read as a tappable route into the project rather than a
-     table cell. Rows are 56px tall: comfortably past the 44px touch target. */
-  .m3-radial-foot {
-    margin-top: 8px;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 14px;
   }
-  .m3-radial-foot__hint {
-    font-size: 0.6875rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--ink-muted);
-  }
-  .m3-radial-foot__index {
-    display: block;
-    border-top: 1px solid var(--line);
-  }
-  .m3-radial-foot__index li {
-    border-bottom: 1px solid var(--line);
-  }
-  .m3-radial-foot__index li + li { border-left: 0; }
-  .m3-radial-foot__link,
-  .m3-radial-foot__index li:last-child .m3-radial-foot__link {
-    flex-direction: row;
-    align-items: center;
-    gap: 14px;
-    min-height: 56px;
-    padding: 12px 2px;
-  }
-  /* Tabular figures so 01..04 sit on one vertical edge with the names. */
-  .m3-radial-foot__num {
-    display: block;
-    flex: none;
-    width: 1.6em;
-    font-family: var(--font-body);
-    font-size: 0.6875rem;
-    font-variant-numeric: tabular-nums;
-    letter-spacing: 0.06em;
-    color: var(--clay);
-  }
-  .m3-radial-foot__text {
-    flex: 1 1 auto;
-    gap: 2px;
-  }
-  .m3-radial-foot__name { font-size: 1rem; }
-  .m3-radial-foot__meta { font-size: 0.6875rem; }
-  .m3-radial-foot__chev {
-    display: flex;
-    flex: none;
-    align-items: center;
-    color: var(--ink-muted);
-    transition: transform 400ms var(--ease-soft), color 400ms var(--ease-soft);
-  }
-  /* :active, not :hover — on a phone a tap leaves :hover stuck on the last
-     row touched. */
-  .m3-radial-foot__link:active .m3-radial-foot__chev {
-    transform: translateX(3px);
-    color: var(--clay-deep);
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .m3-radial-foot__chev { transition: none; }
-  }
-}
 @media (max-width: 640px) {
   /* Phones run the same wheel as desktop, only smaller: the cards keep
      turning with the rim, so the neighbours lean into the frame like fanned
@@ -2051,13 +2522,17 @@ select.zv-field:open {
   --m3-lb-h: min(calc(100vh - 200px), calc((100vw - 32px) / 16 * 9));
   width: calc(var(--m3-lb-h) / 9 * 16);
   max-width: 100%;
-  height: var(--m3-lb-h);
+  /* The stage height governs the image; the figure grows with the caption
+     so a two-line description never runs under the arrow bar below it. */
+  display: flex;
+  flex-direction: column;
 }
 
 .m3-lb__img {
   display: block;
   width: 100%;
-  height: 100%;
+  /* Takes the stage height itself, since the figure is now auto-height. */
+  height: var(--m3-lb-h);
   border-radius: 16px;
   object-fit: contain;
   backface-visibility: hidden;
@@ -2080,12 +2555,45 @@ select.zv-field:open {
   animation: m3-lb-from-left var(--m3-lb-flip, 420ms) cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+/* Two lines: what the frame shows, then where it sits in the set. The
+   description carries the weight; the counter stays a quiet index. */
 .m3-lb__cap {
   margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
   text-align: center;
   font-size: var(--zv-p-sm);
   line-height: 24px;
   color: rgba(255, 255, 255, 0.6);
+}
+
+.m3-lb__cap-text {
+  max-width: 62ch;
+  /* The panel sets a large display size on a phone; the caption is body
+     copy, so it fixes its own scale rather than inheriting that. */
+  font-size: clamp(0.875rem, 0.8rem + 0.4vw, 1rem);
+  line-height: 1.45;
+  text-wrap: balance;
+  color: rgba(255, 255, 255, 0.92);
+  /* Fades in with the paged image instead of snapping to the new text. */
+  animation: m3-lb-cap-in 320ms ease both;
+}
+
+.m3-lb__cap-count {
+  font-size: 0.8125rem;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+@keyframes m3-lb-cap-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .m3-lb__cap-text { animation: none; }
 }
 
 .m3-lb__close,

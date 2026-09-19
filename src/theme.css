@@ -1,0 +1,320 @@
+/* ═══════════════════════════════════════════════════════════════
+   THEME LAYER — mode nuit
+   ───────────────────────────────────────────────────────────────
+   Loaded last (after index.css and zenvira.css). The site is built on two
+   token families — --ink/--paper/… and --zv-* — so the night theme is a
+   second set of values for the same names, keyed on <html data-theme>.
+   Nothing here restyles a component; if a surface looks wrong at night the
+   fix is almost always "it hardcodes a colour, give it a token".
+
+   The attribute is set before first paint by the inline script in
+   index.html, and changed only by src/lib/theme.js.
+
+   Palette: the day theme is navy ink on warm paper. Night turns that over —
+   warm paper-toned ink on a deep navy ground — rather than going to neutral
+   black, so the copper accent and the renders keep the company they were
+   chosen for. Copper is lifted a step: #c58b66 on navy reads dimmer than it
+   does on cream.
+   ═══════════════════════════════════════════════════════════════ */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  /* index.css family */
+  --ink: #efe9df;
+  --ink-soft: rgba(239, 233, 223, 0.8);
+  --ink-muted: rgba(239, 233, 223, 0.62);
+
+  --paper: #0d1522;
+  --paper-raised: #152034;
+  --sand: #121c2d;
+  --sand-deep: #1a2740;
+
+  --clay: #d29c78;
+  /* By day --clay-deep is the darker copper, for text on paper. At night the
+     role is the same — copper that reads as text, and the hover step — which
+     on a dark ground means lighter, not darker. */
+  --clay-deep: #e4b796;
+  --clay-wash: rgba(210, 156, 120, 0.14);
+  --on-clay: #0f243e;
+
+  --line: rgba(239, 233, 223, 0.12);
+  --line-strong: rgba(239, 233, 223, 0.28);
+
+  /* The navy bands (stats, footer card, Agence panel) were the darkest thing
+     on a light page. On a navy page they are lifted instead, so they still
+     read as a panel set into the ground. */
+  --band: #15294a;
+  --pill: rgba(16, 25, 40, 0.84);
+  --grid-line: rgba(239, 233, 223, 0.06);
+  --hover-wash: rgba(239, 233, 223, 0.08);
+
+  /* zenvira.css family — the same nine-step ramp, walked the other way. */
+  --zv-primary: #efe9df;
+  --zv-muted: #c6ccd6;
+  --zv-border-dark: #4a5f7c;
+  --zv-gray-400: #aeb7c6;
+  --zv-gray-100: #8391a5;
+  --zv-pencil: #56647a;
+  --zv-border: #2a3850;
+  --zv-bg-alt: #121c2d;
+  --zv-bg: #0d1522;
+  --zv-white: #152034;
+  --zv-accent: #d29c78;
+  --zv-accent-deep: #e4b796;
+  --zv-band: #15294a;
+}
+
+/* ── Islands ───────────────────────────────────────────────────
+   Surfaces that are already dark by design: the navy bands, the footer
+   card, the hero over its film, the blueprint half of La coupe. Their
+   contents were drawn for a navy ground with the day tokens (white buttons
+   with navy labels, --zv-border-dark rules…), so inside them the day values
+   are simply restated and everything renders as it always has. Only the
+   ground itself (--band / --zv-band, deliberately not restated) changes.
+
+   A new dark-by-design surface joins the theme by joining this list. */
+:root[data-theme='dark'] :is(.zv-dark, .zv-hero, .m3-coupe-draft, .band) {
+  --ink: #0f243e;
+  --ink-soft: rgba(15, 36, 62, 0.8);
+  --ink-muted: rgba(15, 36, 62, 0.62);
+  --paper: #faf8f5;
+  --paper-raised: #ffffff;
+  --sand: #f1ece5;
+  --sand-deep: #e6dfd5;
+  --clay: #c58b66;
+  --clay-deep: #8f552f;
+  --clay-wash: rgba(197, 139, 102, 0.1);
+  --on-clay: #ffffff;
+  --hover-wash: rgba(15, 36, 62, 0.05);
+  --line: rgba(15, 36, 62, 0.12);
+  --line-strong: rgba(15, 36, 62, 0.26);
+
+  --zv-primary: #0f243e;
+  --zv-muted: #24405f;
+  --zv-border-dark: #3d5570;
+  --zv-gray-400: #4a5a72;
+  --zv-gray-100: #7d8899;
+  --zv-pencil: #a0aab8;
+  --zv-border: #cbd0d8;
+  --zv-bg-alt: #ece9e3;
+  --zv-bg: #f7f4ec;
+  --zv-white: #ffffff;
+  --zv-accent: #c58b66;
+  --zv-accent-deep: #8f552f;
+}
+
+/* The logo's navy leg and band would vanish into the night ground. Same
+   lift the footer has always used (.akoubri-mark--on-dark): only the navy
+   paths change, the copper A stays as drawn. A literal, not var(--ink) —
+   inside an island --ink is navy again. */
+:root[data-theme='dark'] .akoubri-mark path[fill='#0f243e'] {
+  fill: #faf8f5;
+}
+
+/* Soft shadows tuned for paper disappear on navy; the pill is the one place
+   it matters, because it floats over content of any colour. */
+:root[data-theme='dark'] .nav-pill {
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(239, 233, 223, 0.04);
+}
+
+/* The header CTA's label is navy on light copper at night, so the dark
+   shadow that holds the white day label would only smudge it, and the chip's
+   white hairline becomes a navy one. Its hover fill follows --on-clay, so the
+   arrow inside takes the copper of the pill rather than --clay-deep, which
+   is a pale tone here. */
+:root[data-theme='dark'] .btn-cta__label {
+  text-shadow: none;
+}
+
+:root[data-theme='dark'] .btn-cta__chip {
+  border-color: rgba(15, 36, 62, 0.4);
+  background: rgba(15, 36, 62, 0.08);
+}
+
+:root[data-theme='dark'] .btn-cta:hover .btn-cta__chip {
+  background: var(--on-clay);
+  color: var(--clay);
+}
+
+/* ── Theme toggle ──────────────────────────────────────────────
+   Markup in ThemeToggle.jsx. Every state below hangs off <html data-theme>,
+   never off a class React sets — see the note in that file.
+
+   The track's two skies are stacked layers cross-faded by opacity, because
+   a gradient cannot be transitioned directly. */
+.theme-toggle {
+  --tt-ease: cubic-bezier(0.5, 1.4, 0.4, 1);
+  position: relative;
+  flex: none;
+  display: inline-block;
+  width: 52px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: linear-gradient(135deg, #f7e9d4, #ecd6b8);
+  cursor: pointer;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+  transition: border-color 400ms var(--ease-soft);
+}
+
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+.theme-toggle__sky {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg, #0f243e, #24466f);
+  opacity: 0;
+  transition: opacity 500ms var(--ease-soft);
+}
+
+/* Three stars, on the side the thumb vacates. */
+.theme-toggle__sky i {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: #fff;
+  opacity: 0;
+  transform: scale(0);
+  transition: opacity 300ms var(--ease-soft), transform 500ms var(--tt-ease);
+}
+.theme-toggle__sky i:nth-child(1) { left: 8px;  top: 7px; }
+.theme-toggle__sky i:nth-child(2) { left: 15px; top: 15px; width: 3px; height: 3px; }
+.theme-toggle__sky i:nth-child(3) { left: 21px; top: 6px; }
+
+.theme-toggle__thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #fff;
+  color: #c9792f;
+  box-shadow: 0 1px 3px rgba(15, 36, 62, 0.28);
+  transition: transform 520ms var(--tt-ease),
+              background-color 400ms var(--ease-soft),
+              color 400ms var(--ease-soft);
+}
+
+.theme-toggle__thumb svg {
+  display: block;
+  overflow: visible;
+  transition: transform 700ms var(--ease-arch);
+}
+
+.theme-toggle__disc,
+.theme-toggle__rays {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.theme-toggle__disc { transition: transform 500ms var(--ease-arch); }
+.theme-toggle__rays {
+  transition: transform 500ms var(--ease-arch), opacity 260ms var(--ease-soft);
+}
+/* Parked well clear of the disc by day; slides in to bite the crescent. */
+.theme-toggle__bite {
+  transform: translate(16px, -16px);
+  transition: transform 520ms var(--ease-arch);
+}
+
+@media (hover: hover) {
+  .theme-toggle:hover .theme-toggle__rays { transform: rotate(45deg); }
+  :root[data-theme='dark'] .theme-toggle:hover .theme-toggle__thumb svg {
+    transform: rotate(-32deg);
+  }
+}
+
+/* Night */
+:root[data-theme='dark'] .theme-toggle__sky { opacity: 1; }
+:root[data-theme='dark'] .theme-toggle__sky i { opacity: 0.9; transform: scale(1); }
+:root[data-theme='dark'] .theme-toggle__sky i:nth-child(1) { transition-delay: 180ms; }
+:root[data-theme='dark'] .theme-toggle__sky i:nth-child(2) { transition-delay: 260ms; }
+:root[data-theme='dark'] .theme-toggle__sky i:nth-child(3) { transition-delay: 340ms; }
+:root[data-theme='dark'] .theme-toggle__thumb {
+  transform: translateX(24px);
+  background: #f3ede3;
+  color: #1c3b61;
+}
+:root[data-theme='dark'] .theme-toggle__thumb svg { transform: rotate(-18deg); }
+:root[data-theme='dark'] .theme-toggle__disc { transform: scale(1.45); }
+:root[data-theme='dark'] .theme-toggle__bite { transform: translate(5px, -4px); }
+:root[data-theme='dark'] .theme-toggle__rays,
+:root[data-theme='dark'] .theme-toggle:hover .theme-toggle__rays {
+  transform: rotate(90deg) scale(0.2);
+  opacity: 0;
+}
+
+/* Compact — the round icon button in the phone pill. No track and no slide:
+   the thumb is the whole control and only the drawing changes. */
+.theme-toggle--compact {
+  width: 36px;
+  height: 36px;
+  border-color: var(--line);
+  background: transparent;
+  overflow: visible;
+  transition: background-color 300ms var(--ease-soft), border-color 300ms var(--ease-soft);
+}
+.theme-toggle--compact .theme-toggle__thumb,
+:root[data-theme='dark'] .theme-toggle--compact .theme-toggle__thumb {
+  inset: 0;
+  width: auto;
+  height: auto;
+  transform: none;
+  background: transparent;
+  box-shadow: none;
+  color: var(--ink);
+}
+.theme-toggle--compact .theme-toggle__thumb svg { width: 18px; height: 18px; }
+@media (hover: hover) {
+  .theme-toggle--compact:hover { background: var(--sand); }
+}
+
+/* ── The reveal ────────────────────────────────────────────────
+   setTheme() wraps the attribute change in a view transition and hands over
+   the toggle's position. The old page is held as a still underneath and the
+   new one is clipped open over it as a growing circle. Scoped to
+   .theme-reveal so any other view transition keeps the browser default. */
+.theme-reveal::view-transition-old(root),
+.theme-reveal::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+.theme-reveal::view-transition-old(root) { z-index: 1; }
+.theme-reveal::view-transition-new(root) {
+  z-index: 2;
+  animation: theme-reveal 850ms cubic-bezier(0.65, 0, 0.35, 1) both;
+}
+
+@keyframes theme-reveal {
+  from { clip-path: circle(0 at var(--theme-x, 50%) var(--theme-y, 0px)); }
+  to   { clip-path: circle(var(--theme-r, 150vmax) at var(--theme-x, 50%) var(--theme-y, 0px)); }
+}
+
+/* Fallback for browsers without view transitions: a plain colour cross-fade,
+   forced on for half a second by setTheme(). !important because it has to
+   outrank every component's own transition list for that moment. */
+.theme-fade,
+.theme-fade *,
+.theme-fade *::before,
+.theme-fade *::after {
+  transition: background-color 480ms var(--ease-soft),
+              color 480ms var(--ease-soft),
+              border-color 480ms var(--ease-soft),
+              fill 480ms var(--ease-soft),
+              stroke 480ms var(--ease-soft) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-toggle,
+  .theme-toggle * { transition: none !important; }
+}

@@ -5,7 +5,7 @@ import { getProject, projects } from '../data/projects';
 import { useReveal } from '../hooks/useReveal';
 import { useInkFill } from '../hooks/useInkFill';
 import Lightbox from '../components/Lightbox';
-import { business } from '../data/business';
+import ContactForm from '../components/ContactForm';
 
 /* ── Project detail ─────────────────────────────────────────────────────
    Layout ported from the Zenvira reference (project/cosy-layers.html):
@@ -99,7 +99,25 @@ export default function ProjectDetail() {
                 </dl>
               </div>
 
-              <QuoteForm project={project} />
+              {/* The enquiry form is the shared one, so this page asks for
+                  exactly what /contact and the header dialog ask for — and
+                  inherits their validation and honeypot. `context` tags the
+                  message with the project name on the way out. The reveal
+                  lives on this wrapper rather than on the form: ContactForm
+                  swaps in a status banner on submit, and a reveal on the
+                  form itself would re-run against the changed subtree. */}
+              <div data-reveal data-reveal-delay="100" className="reveal zv-panel">
+                <h2 className="zv-h5">Demander un devis</h2>
+                <p className="zv-small zv-muted mt-2 mb-7">
+                  Un projet comparable&nbsp;? Décrivez le vôtre, nous revenons
+                  vers vous sous 48&nbsp;heures ouvrées.
+                </p>
+                <ContactForm
+                  compact
+                  context={`Projet : ${project.name}`}
+                  submitLabel="Demander un devis"
+                />
+              </div>
             </div>
 
             {/* ── Right: stacked media and the project text ── */}
@@ -228,9 +246,31 @@ export default function ProjectDetail() {
               <InkTitle className="zv-h2">Projets liés</InkTitle>
             </div>
 
-            <div className="space-y-4">
+            {/* Below lg the alternating rows become a swipeable card rail:
+                stacked, each row is a full spec list plus a 240px image, so
+                five of them bury the rest of the page. The rail keeps the
+                same projects one thumb-swipe apart. Full-bleed via negative
+                shell margins so a card can sit flush against the edge while
+                its neighbour peeks in.
+
+                The rail reveals as one piece, not card by card: a card
+                parked off to the right never intersects, so it would wait at
+                the reveal's translateY(28px), and that offset made the rail
+                scroll vertically — a thumb drag then slid the cards up and
+                cut their top corners square. overflow-y-hidden is the belt
+                to that brace. */}
+            <div
+              data-reveal
+              className="reveal scrollbar-hide -mx-[var(--gutter)] flex snap-x snap-mandatory scroll-pl-[var(--gutter)] gap-4 overflow-x-auto overflow-y-hidden px-[var(--gutter)] pb-2 after:block after:w-px after:shrink-0 lg:hidden"
+            >
+              {related.map((p) => (
+                <RelatedCard key={p.slug} project={p} />
+              ))}
+            </div>
+
+            <div className="hidden space-y-4 lg:block">
               {related.map((p, i) => (
-                <RelatedRow key={p.slug} project={p} delay={i * 80} />
+                <RelatedRow key={p.slug} project={p} delay={i * 80} flip={i % 2 === 1} />
               ))}
             </div>
           </div>
@@ -362,121 +402,89 @@ function ExpandBadge({ count }) {
   );
 }
 
-/* ── Quote form ─────────────────────────────────────────────────────────
-   The reference puts a short contact form directly on the project page.
-   This one posts to the same endpoint as /contact and pre-fills the
-   message with the project name so the enquiry arrives with context.    */
-function QuoteForm({ project }) {
-  const [form, setForm] = useState({ first: '', last: '', email: '', message: '' });
-  const [status, setStatus] = useState('idle'); // idle | sending | sent | error
-
-  const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
-
-  const onSubmit = async (ev) => {
-    ev.preventDefault();
-    setStatus('sending');
-    try {
-      const res = await fetch('/api/contact.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: `${form.first} ${form.last}`.trim(),
-          email: form.email,
-          message: `[Projet : ${project.name}] ${form.message}`,
-        }),
-      });
-      if (!res.ok) throw new Error('bad status');
-      setStatus('sent');
-      setForm({ first: '', last: '', email: '', message: '' });
-    } catch {
-      setStatus('error');
-    }
-  };
-
+/* ── Related project card (mobile) ─────────────────────────
+   The phone form of RelatedRow: same project, same link target, but the
+   spec list is cut to Catégorie + Lieu and the whole card is one tap
+   target. Width is capped at 76vw so the next card always peeks in —
+   that sliver is what tells a visitor the row scrolls, without a hint
+   label. `snap-start` rather than centre: the first card should rest
+   flush with the shell gutter, matching the headline above it.        */
+function RelatedCard({ project }) {
   return (
-    <form data-reveal data-reveal-delay="100" className="reveal zv-panel" onSubmit={onSubmit}>
-      {status === 'sent' && (
-        <p role="status" className="zv-small mb-6 rounded-xl border border-[var(--zv-primary)] bg-white px-4 py-3">
-          Message envoyé. Nous revenons vers vous sous 48 heures ouvrées.
-        </p>
-      )}
-      {status === 'error' && (
-        <p role="alert" className="zv-small mb-6 rounded-xl border border-red-700 bg-red-50 px-4 py-3 text-red-800">
-          L'envoi a échoué. Écrivez-nous à{' '}
-          <a href={`mailto:${business.email}`} className="underline">{business.email}</a>.
-        </p>
-      )}
-
-      <div className="grid gap-5 sm:grid-cols-2">
-        <label className="block">
-          <span className="zv-label">Prénom</span>
-          <input
-            type="text"
-            value={form.first}
-            onChange={set('first')}
-            className="zv-input"
-            autoComplete="given-name"
-            placeholder="Votre prénom"
-            required
-          />
-        </label>
-        <label className="block">
-          <span className="zv-label">Nom</span>
-          <input
-            type="text"
-            value={form.last}
-            onChange={set('last')}
-            className="zv-input"
-            autoComplete="family-name"
-            placeholder="Votre nom"
-          />
-        </label>
+    <Link
+      to={`/projets/${project.slug}`}
+      className="group flex w-[76vw] max-w-[320px] shrink-0 snap-start flex-col overflow-hidden rounded-3xl border border-[var(--zv-border)] bg-[var(--paper-raised)]"
+    >
+      {/* Not .zv-media: zenvira.css loads after the utilities, so its 20px
+          radius beat `rounded-none` and rounded the well's bottom corners —
+          the image read as tucked under the text block. The card's own
+          overflow-hidden rounds the top; the bottom edge stays square. */}
+      <div className="overflow-hidden bg-[var(--zv-bg-alt)]">
+        <img
+          src={project.cover}
+          alt=""
+          loading="lazy"
+          decoding="async"
+          width="1280"
+          height="960"
+          className="aspect-[4/3] w-full object-cover transition-transform duration-[900ms] ease-arch group-hover:scale-[1.04]"
+        />
       </div>
 
-      <label className="mt-5 block">
-        <span className="zv-label">E-mail</span>
-        <input
-          type="email"
-          value={form.email}
-          onChange={set('email')}
-          className="zv-input"
-          autoComplete="email"
-          placeholder="vous@exemple.com"
-          required
-        />
-      </label>
+      {/* flex-1 + mt-auto on the list: the rail stretches every card to the
+          tallest, so the spec rows and the link line up across cards whether
+          the excerpt clamps at two lines or three. */}
+      <div className="flex flex-1 flex-col p-6">
+        <h3 className="zv-h5">{project.name}</h3>
+        <p className="zv-small zv-muted mt-2.5 line-clamp-3">{project.excerpt}</p>
 
-      <label className="mt-5 block">
-        <span className="zv-label">Message</span>
-        <textarea
-          rows={4}
-          value={form.message}
-          onChange={set('message')}
-          className="zv-input resize-y"
-          placeholder="Parlez-nous de votre projet…"
-          required
-        />
-      </label>
+        <dl className="mt-auto pt-5">
+          {[
+            ['Catégorie', project.category],
+            ['Lieu', project.location],
+          ].map(([k, v]) => (
+            <div
+              key={k}
+              className="flex flex-wrap justify-between gap-x-4 gap-y-1 border-t border-[var(--zv-border)] py-2.5"
+            >
+              <dt className="zv-small zv-muted">{k}</dt>
+              <dd className="zv-small text-right">{v || 'À confirmer'}</dd>
+            </div>
+          ))}
+        </dl>
 
-      <button type="submit" className="zv-btn mt-6 w-full" disabled={status === 'sending'} aria-busy={status === 'sending'}>
-        {status === 'sending' ? 'Envoi…' : 'Demander un devis'}
-      </button>
-    </form>
+        <span className="zv-small mt-5 inline-flex items-center gap-2 font-medium">
+          Voir le projet
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M7 17 17 7M9 7h8v8" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </span>
+      </div>
+    </Link>
   );
 }
 
 /* ── Related project row ────────────────────────────────────────────────
    Reference shape: a light panel holding name, description and a "View
    project" pill on the left over a hairline-divided spec list, with the
-   image filling the right half. Stacks image-first on mobile.           */
-function RelatedRow({ project, delay }) {
+   image filling the right half. Stacks image-first on mobile.
+
+   `flip` mirrors the halves so the list alternates text/image, image/text
+   down the page. The swap is lg-only: below that both halves collapse to
+   one column, where the order-1/order-2 pair already pins the image first
+   and a flip would just bury it under the spec list.                     */
+function RelatedRow({ project, delay, flip = false }) {
   return (
     <div
       data-reveal
       data-reveal-delay={delay}
-      className="reveal grid overflow-hidden rounded-3xl border border-[var(--zv-border)] bg-white lg:grid-cols-2"
+      className="reveal grid overflow-hidden rounded-3xl border border-[var(--zv-border)] bg-[var(--paper-raised)] lg:grid-cols-2"
     >
-      <div className="order-2 flex flex-col p-6 sm:p-8 lg:order-1 md:p-10">
+      <div
+        className={`order-2 flex flex-col p-6 sm:p-8 md:p-10 ${
+          flip ? 'lg:order-2' : 'lg:order-1'
+        }`}
+      >
         <h3 className="zv-h4">{project.name}</h3>
         <p className="zv-small zv-muted mt-3 max-w-sm">{project.excerpt}</p>
 
@@ -506,7 +514,7 @@ function RelatedRow({ project, delay }) {
 
       <Link
         to={`/projets/${project.slug}`}
-        className="zv-media order-1 rounded-none lg:order-2"
+        className={`zv-media order-1 rounded-none ${flip ? 'lg:order-1' : 'lg:order-2'}`}
         tabIndex={-1}
         aria-hidden="true"
       >

@@ -16,12 +16,17 @@ import { CONDITIONS, MOTION_3D, useGsapScene } from '../lib/motion';
    plain tweens from onToggle keeps the shown/hidden decision a pure function
    of the current scroll position, so a refresh can never strand it.
 
-   The threshold is a viewport and a half: far enough down that scrolling back
-   by hand is a real chore, and short pages never reach it.
+   The button appears with the first scroll gesture, not deep into the page:
+   its water level is a reading-progress gauge, and a gauge that only turns up
+   a third of the way down has already missed the part worth watching. The
+   few pixels of slack keep rubber-band overscroll and sub-pixel rest
+   positions from flickering it at the very top.
 
    With the motion layer off, or under prefers-reduced-motion, the CSS resting
    state in index.css leaves the button visible and usable rather than
    stranding an invisible control on the page.                              */
+
+const SHOW_AFTER = 8;
 
 function build({ gsap, ScrollTrigger, mm, scope }, stRef) {
   mm.add(CONDITIONS, ({ conditions: { motion } }) => {
@@ -48,10 +53,10 @@ function build({ gsap, ScrollTrigger, mm, scope }, stRef) {
        threshold is read from the scroll position rather than from trigger
        geometry: `document.body` starts at the top of the document, so any
        start expressed against its edges resolves to roughly zero and the
-       button would either never hide or never show. A viewport and a half of
-       scroll is the actual condition, so test exactly that. */
+       button would either never hide or never show. "Has left the top" is
+       the actual condition, so test exactly that. */
     stRef.current = ScrollTrigger;
-    const update = () => show(window.scrollY > window.innerHeight * 1.5);
+    const update = () => show(window.scrollY > SHOW_AFTER);
     const trigger = ScrollTrigger.create({
       trigger: document.body,
       start: 'top top',
@@ -77,9 +82,10 @@ export function useBackToTop() {
     (lib) => build(lib, stRef),
     [],
     /* The button is position: fixed, so it measures as on-screen from the
-       first frame — but it does not reveal until 150% down the page. Without
-       this it would pull the chunk in on every page load, which is exactly
-       what the note in `build` rules out. */
+       first frame — but it only reveals once the reader scrolls, which is
+       the same gesture that opens the motion gate. Without this it would
+       pull the chunk in on every page load, which is exactly what the note
+       below rules out. */
     { defer: true }
   );
 
@@ -99,6 +105,51 @@ export function useBackToTop() {
       cancelAnimationFrame(frame);
     };
   }, [pathname]);
+
+  /* The water level. Plain scroll listener, not ScrollTrigger: the fill is
+     part of the resting appearance, so it has to work before (and without)
+     the motion chunk. One rAF-batched custom property write per frame; the
+     CSS turns `--fill` into a transform, so the level rises on the compositor.
+
+     The scrollable height is cached, not read per scroll tick — scrollHeight
+     is a layout read, and this runs on every frame of every scroll. The page
+     does change height under the button (route changes, late images, the
+     button itself never remounts), so a ResizeObserver on the body refreshes
+     the cache exactly when that happens. Unchanged levels are not rewritten,
+     which keeps a held scroll position from dirtying style each frame. */
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return undefined;
+    let frame = 0;
+    let max = 0;
+    let last = '';
+    const write = () => {
+      frame = 0;
+      const fill = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
+      const next = fill.toFixed(3);
+      if (next === last) return;
+      last = next;
+      el.style.setProperty('--fill', next);
+    };
+    const queue = () => {
+      if (!frame) frame = requestAnimationFrame(write);
+    };
+    const measure = () => {
+      max = document.documentElement.scrollHeight - window.innerHeight;
+      queue();
+    };
+    measure();
+    const sizes = new ResizeObserver(measure);
+    sizes.observe(document.body);
+    window.addEventListener('scroll', queue, { passive: true });
+    window.addEventListener('resize', measure);
+    return () => {
+      sizes.disconnect();
+      window.removeEventListener('scroll', queue);
+      window.removeEventListener('resize', measure);
+      cancelAnimationFrame(frame);
+    };
+  }, []);
 
   return ref;
 }

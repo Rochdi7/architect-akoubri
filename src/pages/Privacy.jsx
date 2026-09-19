@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 import InkTitle from '../components/InkTitle';
-import { useReveal } from '../hooks/useReveal';
 import { business } from '../data/business';
 
 /**
@@ -30,7 +29,6 @@ const rights = [
 ];
 
 export default function Privacy() {
-  useReveal();
 
   return (
     <>
@@ -156,7 +154,7 @@ export default function Privacy() {
               <ul className="mt-7 grid gap-3 border-t border-[var(--zv-border)] pt-7 sm:grid-cols-2">
                 {rights.map(([title, text]) => (
                   <li key={title} className="zv-small zv-muted flex items-start gap-3">
-                    <span className="mt-2 h-px w-4 shrink-0 bg-[var(--zv-primary)]" />
+                    <span className="zv-marker" aria-hidden="true" />
                     <span>
                       <span className="font-medium">{title}</span> — {text}
                     </span>

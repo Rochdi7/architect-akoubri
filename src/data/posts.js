@@ -231,7 +231,7 @@ export const posts = [
     author: 'Akoubri',
     excerpt:
       "Entre le dépôt du dossier et l'autorisation, il se passe rarement ce qui était prévu. Les étapes, les délais observés et les trois causes de retard que l'on peut éviter en amont.",
-    cover: '/media/projets/akoubri_le-sentier-entrance-signage-02.webp',
+    cover: '/media/projets/akoubri_farraj-vue-aerienne-03.webp',
     body: [
       {
         kind: 'p',
@@ -255,8 +255,8 @@ export const posts = [
       },
       {
         kind: 'image',
-        src: '/media/projets/akoubri_le-sentier-rooftop-bar-11.webp',
-        alt: "Immeuble résidentiel en cours d'étude, vue d'angle",
+        src: '/media/projets/akoubri_le-sentier-toiture-terrasse-aerien-01.webp',
+        alt: "Vue aérienne verticale d'un immeuble résidentiel : emprise au sol, retraits d'étages et terrasses plantées",
         caption: "Le règlement d'urbanisme décide de la volumétrie avant l'architecte.",
       },
       {

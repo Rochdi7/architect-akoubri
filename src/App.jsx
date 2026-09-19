@@ -3,6 +3,7 @@ import { Route, Routes, useLocation, useNavigationType } from 'react-router-dom'
 import Header from './components/Header';
 import Footer from './components/Footer';
 import BackToTop from './components/BackToTop';
+import WhatsAppButton from './components/WhatsAppButton';
 import Home from './pages/Home';
 import Projects from './pages/Projects';
 import ProjectDetail from './pages/ProjectDetail';
@@ -17,6 +18,7 @@ import Privacy from './pages/Privacy';
 import NotFound from './pages/NotFound';
 import { getProject } from './data/projects';
 import { getPost } from './data/posts';
+import { useReveal } from './hooks/useReveal';
 
 const TITLES = {
   '/': "Akoubri — Cabinet d'architecture & design d'intérieur",
@@ -61,9 +63,28 @@ export default function App() {
         </Routes>
       </main>
       <Footer />
+      <WhatsAppButton />
       <BackToTop />
+      {/* Last, so its effect runs after the route's own subtree and the
+          Footer have mounted: a sibling placed earlier would observe the
+          document before the page's nodes were in it. */}
+      <AppReveals />
     </>
   );
+}
+
+/* Site-wide scroll-reveal driver.
+
+   The pages call useReveal themselves — several of them keyed on a filter or
+   a slug, so they can pick up rows that mount later. This one is the floor
+   under all of them: it observes whatever is in the document after each
+   navigation, which is what covers the globally-rendered Footer on a route
+   with no driver of its own (NotFound). Observing a node twice is harmless —
+   the class it sets is the same either way. */
+function AppReveals() {
+  const { pathname } = useLocation();
+  useReveal([pathname]);
+  return null;
 }
 
 /* Scroll to top and set the document title on every navigation. Without an
