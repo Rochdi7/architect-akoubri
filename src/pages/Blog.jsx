@@ -31,7 +31,7 @@ export default function Blog() {
   return (
     <>
       {/* Banner */}
-      <section className="zv relative overflow-hidden pb-4 pt-32 md:pb-6 md:pt-40">
+      <section className="zv relative overflow-hidden pb-4 pt-24 sm:pt-32 md:pb-6 md:pt-44">
         <div className="shell relative z-10 text-center">
           <span data-reveal className="reveal zv-subtitle">Journal</span>
           <h1 ref={ink} data-reveal data-reveal-delay="80" className="reveal zv-h1 mt-5">

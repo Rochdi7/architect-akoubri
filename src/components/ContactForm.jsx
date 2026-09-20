@@ -1,4 +1,4 @@
-import { cloneElement, isValidElement, useId, useState } from 'react';
+import { cloneElement, isValidElement, useId, useLayoutEffect, useRef, useState } from 'react';
 import Select from './Select';
 import { business } from '../data/business';
 
@@ -57,14 +57,43 @@ export default function ContactForm({ compact = false, submitLabel, context, cla
 
   const set = (k) => (e) => setValue(k)(e.target.value);
 
+  const check = {
+    name: (v) => (v.trim().length < 2 ? 'Indiquez votre nom.' : undefined),
+    email: (v) => (/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v) ? undefined : 'Adresse e-mail invalide.'),
+    message: (v) =>
+      v.trim().length < 20 ? 'Décrivez votre projet en quelques lignes (20 caractères minimum).' : undefined,
+  };
+
   const validate = () => {
     const e = {};
-    if (form.name.trim().length < 2) e.name = 'Indiquez votre nom.';
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(form.email)) e.email = 'Adresse e-mail invalide.';
-    if (form.message.trim().length < 20) e.message = 'Décrivez votre projet en quelques lignes (20 caractères minimum).';
+    for (const k of Object.keys(check)) {
+      const msg = check[k](form[k]);
+      if (msg) e[k] = msg;
+    }
     setErrors(e);
     return Object.keys(e).length === 0;
   };
+
+  /* Reward early, punish late: a field is checked as the reader leaves it,
+     but only once it holds something. An empty required field says nothing
+     until submit — tabbing past it is not a mistake yet. */
+  const blur = (k) => () => {
+    if (!form[k]) return;
+    const msg = check[k](form[k]);
+    setErrors((prev) => (prev[k] === msg ? prev : { ...prev, [k]: msg }));
+  };
+
+  /* The textarea grows with the brief instead of offering a drag grip:
+     height follows scrollHeight on every change, and again when the form
+     resets after a send. Layout effect, so the box never paints at the
+     wrong size between the measure and the resize. */
+  const messageRef = useRef(null);
+  useLayoutEffect(() => {
+    const el = messageRef.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${el.scrollHeight}px`;
+  }, [form.message]);
 
   const onSubmit = async (ev) => {
     ev.preventDefault();
@@ -120,6 +149,7 @@ export default function ContactForm({ compact = false, submitLabel, context, cla
               type="text"
               value={form.name}
               onChange={set('name')}
+              onBlur={blur('name')}
               className="zv-field"
               autoComplete="name"
               placeholder="Votre nom"
@@ -131,6 +161,7 @@ export default function ContactForm({ compact = false, submitLabel, context, cla
               type="email"
               value={form.email}
               onChange={set('email')}
+              onBlur={blur('email')}
               className="zv-field"
               autoComplete="email"
               inputMode="email"
@@ -177,8 +208,10 @@ export default function ContactForm({ compact = false, submitLabel, context, cla
 
         <Field label="Votre projet" required error={errors.message} id="f-message">
           <textarea
+            ref={messageRef}
             value={form.message}
             onChange={set('message')}
+            onBlur={blur('message')}
             className="zv-field"
             rows={compact ? 4 : 5}
             placeholder="Terrain, surface, programme, échéance…"
@@ -234,7 +267,12 @@ export function Field({ label, required, error, children, id }) {
      it: no GSAP, no line, and the field keeps exactly the 1px border it
      has always had. The band's entrance draws it across in the ink tone
      and fades it back out as it lands, so the rule is a stroke of the pen
-     rather than a permanent second border. */
+     rather than a permanent second border.
+
+     Now that the control is a box rather than a rule, the overlay traces
+     the whole outline — inset to sit on the border, with the same radius —
+     instead of underlining it. A 1px line across the bottom would have cut
+     the box's own edge in half. */
   return (
     <Wrapper className="m3-row relative block w-full">
       <span id={labelId} className="zv-small font-medium">
@@ -245,7 +283,7 @@ export function Field({ label, required, error, children, id }) {
         {control}
         <span
           aria-hidden="true"
-          className="m3-line pointer-events-none absolute bottom-0 left-0 h-px w-full bg-[var(--zv-primary)] opacity-0"
+          className="m3-line pointer-events-none absolute inset-0 rounded-xl border border-[var(--zv-primary)] opacity-0"
         />
       </span>
       {error && (

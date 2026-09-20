@@ -41,9 +41,6 @@ export default function Privacy() {
               Ce que nous collectons, pourquoi, combien de temps nous le
               conservons, et comment exercer vos droits.
             </p>
-            <p className="zv-small zv-muted mt-7">
-              Dernière mise à jour&nbsp;: [DATE DE MISE EN LIGNE]
-            </p>
           </div>
         </div>
       </section>
@@ -53,8 +50,8 @@ export default function Privacy() {
           <article className="mx-auto max-w-3xl space-y-14 md:space-y-20">
             <Block n="01" title="Responsable du traitement">
               <p className="zv-body zv-muted">
-                Le responsable du traitement est [RAISON SOCIALE], dont le siège
-                et les coordonnées figurent dans les{' '}
+                Le responsable du traitement est {business.legalName}, dont le
+                siège et les coordonnées figurent dans les{' '}
                 <Link to="/mentions-legales" className="underline underline-offset-4 hover:text-[var(--zv-primary)]">
                   mentions légales
                 </Link>
@@ -121,17 +118,19 @@ export default function Privacy() {
                 engagé suivent la durée légale de conservation des documents
                 contractuels. Le fichier technique anti-abus, qui ne contient
                 qu&apos;une empreinte chiffrée de l&apos;adresse IP, expire au bout
-                de soixante secondes.
+                de soixante secondes. L&apos;adresse IP d&apos;envoi figure par
+                ailleurs dans le courriel de notification, conservé avec la
+                demande à laquelle il se rapporte.
               </p>
             </Block>
 
             <Block n="06" title="Cookies et mesure d'audience">
               <p className="zv-body zv-muted">
                 Ce site ne dépose aucun cookie publicitaire et n&apos;utilise aucun
-                traceur de mesure d&apos;audience. Les seules ressources externes
-                chargées sont les polices d&apos;écriture servies par Google Fonts,
-                qui reçoit à cette occasion votre adresse IP. Aucun consentement
-                préalable n&apos;est donc requis pour naviguer.
+                traceur de mesure d&apos;audience. Les polices d&apos;écriture sont
+                servies depuis nos propres serveurs&nbsp;: la navigation ne
+                déclenche aucune requête vers un service tiers. Aucun
+                consentement préalable n&apos;est donc requis pour naviguer.
               </p>
             </Block>
 

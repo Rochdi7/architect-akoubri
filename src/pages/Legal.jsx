@@ -5,21 +5,21 @@ import { business } from '../data/business';
 /**
  * Mentions légales.
  *
- * Placeholders in ALL CAPS ([RAISON SOCIALE], [RC], …) are the values only
- * the studio can supply — registre du commerce, ICE, capital, hébergeur
- * contract. They are deliberately loud so they cannot ship unnoticed.
+ * Only rows the studio can actually stand behind are listed: every value
+ * here is read from data/business.js, the same source the footer and the
+ * schema use. The registry identifiers (RC, ICE, IF, capital social, forme
+ * juridique, directeur de la publication) are not published because they
+ * are not known here — a bracketed placeholder on a legal page is worse
+ * than no row at all. To add one, put the value in business.js and add a
+ * line below: the list drops any row whose value is missing, so a
+ * half-filled record degrades to the rows it does have.
  */
 
 const identity = [
-  { term: 'Raison sociale', desc: '[RAISON SOCIALE] — [FORME JURIDIQUE, ex. SARL]' },
+  { term: 'Dénomination', desc: business.legalName },
   { term: 'Siège social', desc: business.addressOneLine },
-  { term: 'Capital social', desc: '[MONTANT] MAD' },
-  { term: 'Registre du commerce', desc: 'RC n° [NUMÉRO] — Tribunal de commerce de [VILLE]' },
-  { term: 'Identifiant commun (ICE)', desc: '[NUMÉRO ICE]' },
-  { term: 'Identifiant fiscal', desc: '[NUMÉRO IF]' },
-  { term: 'Directeur de la publication', desc: '[NOM DU RESPONSABLE]' },
   { term: 'Contact', desc: `${business.email} — ${business.phone} / ${business.phone2}` },
-];
+].filter((row) => row.desc);
 
 export default function Legal() {
 
@@ -113,7 +113,8 @@ export default function Legal() {
               <p className="zv-body zv-muted">
                 Les présentes mentions sont soumises au droit marocain. À défaut de
                 résolution amiable, tout litige relatif à l'utilisation du site
-                relève de la compétence des tribunaux de [VILLE].
+                relève de la compétence des tribunaux compétents de{' '}
+                {business.address.city}.
               </p>
             </Block>
           </article>

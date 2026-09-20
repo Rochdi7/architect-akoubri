@@ -67,7 +67,7 @@ export default function Showcase({ items }) {
         <div className="mb-8 flex flex-wrap items-end justify-between gap-6 md:mb-14">
           <div data-reveal className="reveal mx-auto max-w-2xl text-center md:mx-0 md:text-left">
             <span className="eyebrow eyebrow--centered justify-center md:justify-start">Intérieurs</span>
-            <InkTitle className="display-md display-md--stacked mt-5 uppercase leading-[0.95] md:mt-6">
+            <InkTitle className="display-md display-md--stacked mt-5 uppercase leading-[1.14] md:mt-6">
               Les espaces que
               <br />
               vous imaginez

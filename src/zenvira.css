@@ -221,7 +221,14 @@
    document-structure decision and size is a visual one; these selectors let
    the two be chosen independently, which is the whole point of the classes.
    Same technique as .zv-card-title further down. */
-.zv-h1.zv-h1 { font-size: var(--zv-h1); line-height: 1; }
+/* Fjalla One asks for 1.257em per line (hhea ascent 2066 + descent 508
+ * over a 2048 upem). Every value on this scale was under that, so a title
+ * that wrapped had the accents of line two striking line one — worst at
+ * --zv-h1, which tops out at 88px with a line-height of exactly 1.
+ * These titles are set ALL CAPS and so carry no descenders: the ink only
+ * fills the cap height, which is why a value under the full 1.257 still
+ * clears. 1.14 is measured against É and À, the tallest ink in French. */
+.zv-h1.zv-h1 { font-size: var(--zv-h1); line-height: 1.14; }
 .zv-h2.zv-h2 { font-size: var(--zv-h2); line-height: 1.14; }
 .zv-h3.zv-h3 { font-size: var(--zv-h3); line-height: 1.15; }
 .zv-h4.zv-h4 { font-size: var(--zv-h4); line-height: 1.13; }
@@ -923,20 +930,30 @@ select.zv-input:has(option[value='']:checked) { color: var(--zv-gray-400); }
    mid-typing. 16px is a floor here, not a preference. */
 .zv-field {
   width: 100%;
-  min-height: 48px;
-  padding: 12px 0;
+  min-height: 52px;
+  padding: 14px 16px;
   font-family: var(--zv-body);
   font-size: max(16px, var(--zv-p-sm));
   line-height: 24px;
   letter-spacing: -0.16px;
   color: var(--zv-primary);
-  background: transparent;
-  border: 0;
-  border-bottom: 1px solid var(--zv-border);
-  border-radius: 0;
-  transition: border-color 260ms var(--ease-soft),
-              box-shadow 260ms var(--ease-soft),
-              background-color 260ms var(--ease-soft);
+  /* A filled box rather than a bare rule. The underline this replaces was
+     drawn for a wide two-column page and fell apart in practice: two rules
+     side by side with ~140px of air between them give the eye no way to
+     tell which label owns which field, a focus wash on the 132px textarea
+     read as a grey slab, and the resize grip broke the line's right end.
+     The phone sheet had already been given this shape for those reasons;
+     it is now the shape everywhere, which is also what iOS and Android
+     teach. */
+  background-color: var(--zv-white);
+  border: 1px solid var(--zv-border);
+  border-radius: 12px;
+  /* The ring follows the ink token rather than a fixed navy: on the dark
+     theme a navy halo is the page colour and vanishes. */
+  --zv-field-ring: color-mix(in srgb, var(--zv-primary) 14%, transparent);
+  transition: border-color 200ms var(--ease-soft),
+              box-shadow 200ms var(--ease-soft),
+              background-color 200ms var(--ease-soft);
   appearance: none;
 }
 
@@ -945,37 +962,37 @@ select.zv-input:has(option[value='']:checked) { color: var(--zv-gray-400); }
   opacity: 1; /* Firefox dims placeholders on its own */
 }
 
-/* The rule darkens and doubles on focus. A 1px inset shadow rather than a
-   border-width swap, so the field never shifts as focus lands. */
+/* Focus draws the stroke in from the left while the pencil rule under it
+   clears. background-size rather than width, so nothing in the layout
+   moves; pointer and keyboard get the same cue. The old focus wash is
+   gone with it: on a 132px textarea it read as a filled grey box, at odds
+   with every underlined field beside it. */
+/* The ring sits outside the 1px border rather than thickening it, so the
+   box never shifts as focus lands. */
 .zv-field:focus {
   outline: none;
-  border-bottom-color: var(--zv-primary);
-  box-shadow: 0 1px 0 0 var(--zv-primary);
-}
-
-/* Keyboard users also get a faint wash, so the active field is findable
-   without hunting for a 1px rule. */
-.zv-field:focus-visible {
-  background-color: rgba(32, 41, 24, 0.03);
+  border-color: var(--zv-primary);
+  box-shadow: 0 0 0 3px var(--zv-field-ring);
 }
 
 .zv-field:hover:not(:focus):not(:disabled) {
-  border-bottom-color: var(--zv-gray-400);
+  border-color: var(--zv-gray-400);
 }
 
 .zv-field:disabled {
   color: var(--zv-gray-400);
-  border-bottom-style: dashed;
+  background-color: var(--zv-bg);
+  border-style: dashed;
   cursor: not-allowed;
 }
 
 /* Invalid state is driven by aria-invalid, set by the form after a submit
    attempt. Bare :invalid would flag every empty required field on load. */
 .zv-field[aria-invalid='true'] {
-  border-bottom-color: #b4342b;
+  border-color: #b4342b;
 }
 .zv-field[aria-invalid='true']:focus {
-  box-shadow: 0 1px 0 0 #b4342b;
+  box-shadow: 0 0 0 3px rgba(180, 52, 43, 0.12);
 }
 
 /* Chrome paints autofilled fields a hard yellow. The oversized inset
@@ -984,18 +1001,28 @@ select.zv-input:has(option[value='']:checked) { color: var(--zv-gray-400); }
 .zv-field:-webkit-autofill:hover,
 .zv-field:-webkit-autofill:focus {
   -webkit-text-fill-color: var(--zv-primary);
-  -webkit-box-shadow: 0 0 0 100px var(--zv-bg) inset, 0 1px 0 0 var(--zv-border);
+  -webkit-box-shadow: 0 0 0 100px var(--zv-white) inset;
   caret-color: var(--zv-primary);
   transition: background-color 100000s ease 0s;
 }
 .zv-field:-webkit-autofill:focus {
-  -webkit-box-shadow: 0 0 0 100px var(--zv-bg) inset, 0 1px 0 0 var(--zv-primary);
+  -webkit-box-shadow: 0 0 0 100px var(--zv-white) inset, 0 0 0 3px var(--zv-field-ring);
+  border-color: var(--zv-primary);
 }
 
 textarea.zv-field {
   min-height: 132px;
-  padding-top: 16px;
-  resize: vertical;
+  max-height: min(60vh, 420px);
+  padding-top: 14px;
+  /* No corner grip: the box grows with the brief (ContactForm sets its
+     height from scrollHeight on every change) and scrolls past the cap.
+     The grip sat on the underline's right end and broke it. */
+  resize: none;
+  overflow-y: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zv-field { transition: none; }
 }
 
 /* Number fields: strip the spinners, which break the underline rhythm. */
@@ -1014,7 +1041,7 @@ textarea.zv-field {
 .zv-field[type='datetime-local'],
 .zv-field[type='month'],
 .zv-field[type='week'] {
-  padding-right: 28px;
+  padding-right: 40px;
   cursor: pointer;
 }
 
@@ -1038,8 +1065,8 @@ textarea.zv-field {
 select.zv-field {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1.5L6 6.5l5-5' stroke='%23202918' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 4px center;
-  padding-right: 28px;
+  background-position: right 14px center;
+  padding-right: 40px;
   cursor: pointer;
   /* Windows otherwise paints the closed select in the OS text colour. */
   color: var(--zv-primary);
@@ -1074,10 +1101,9 @@ select.zv-field:open {
   gap: 12px;
   text-align: left;
   cursor: pointer;
-  /* .zv-field paints a chevron as a background image for real <select>s;
-     this one draws its own as an element so it can rotate. */
-  background-image: none;
-  padding-right: 4px;
+  /* Draws its own chevron as an element so it can rotate, so it takes the
+     same right-hand room the native select's background chevron gets. */
+  padding-right: 14px;
 }
 
 .zv-select-value {
@@ -1332,12 +1358,13 @@ select.zv-field:open {
   }
 }
 
-/* Title leading inside the hero. The scale's line-height of 1 lets the
-   accent of « INTÉRIEUR » strike the line above it; a touch more leading
-   clears it without loosening the block. */
-.zv-hero .zv-h1.zv-h1 { line-height: 1.05; }
+/* The hero once patched the accent collision locally (« INTÉRIEUR »
+   striking the line above) with 1.05, which was still under the 1.257em
+   Fjalla One actually needs. The scale now carries a leading that clears
+   it everywhere, so the hero only keeps the phone step, where the type is
+   small enough to bind the lines a little tighter. */
 @media (max-width: 640px) {
-  .zv-hero .zv-h1.zv-h1 { line-height: 1.1; }
+  .zv-hero .zv-h1.zv-h1 { line-height: 1.12; }
 }
 
 /* Grain — one static noise tile over the film. No blend mode and no
@@ -1671,6 +1698,36 @@ select.zv-field:open {
   /* The tracking hangs a space off the last letter, pushing the text
      off-centre between the two ticks; the indent pulls it back. */
   text-indent: 0.15em;
+}
+
+/* The belt is centred on the same measure as the heading above it rather
+   than running edge to edge: full-bleed, a mark is still arriving at the
+   viewport edge when the eye has already left the section, and the band
+   reads as a ticker instead of a row of clients. The width is capped a
+   little inside the shell so the marks sit under the dimension line, and
+   the mask fades each end so marks enter and leave instead of being cut. */
+.zv-clients-rail {
+  width: min(100% - 2 * var(--gutter), 1080px);
+  margin-inline: auto;
+  /* Per-axis, not the `overflow` shorthand: this rule is emitted after the
+     (hover: none) block below, and the shorthand would reset that block's
+     overflow-x: auto — killing drag-to-scroll on every touch screen. */
+  overflow-x: hidden;
+  overflow-y: visible;
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 9%,
+    #000 91%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 9%,
+    #000 91%,
+    transparent 100%
+  );
 }
 
 .zv-clients-track {
@@ -2849,26 +2906,16 @@ select.zv-field:open {
 
      On the phone the fields get a filled surface and a real box instead,
      which is also the control shape iOS and Android already teach. */
+  /* The box is now the default shape (see .zv-field); the sheet only
+     tightens it to buy vertical room on a phone. */
   .zv-quote .zv-field {
     min-height: 46px;
     padding: 11px 14px;
-    background: var(--zv-white);
-    border: 1px solid var(--zv-border);
     border-radius: 11px;
     line-height: 22px;
   }
-  .zv-quote .zv-field:focus {
-    border-color: var(--zv-primary);
-    box-shadow: 0 0 0 3px rgba(15, 36, 62, 0.08);
-  }
-  .zv-quote .zv-field:focus-visible { background-color: var(--zv-white); }
-  .zv-quote .zv-field[aria-invalid='true'] { border-color: #b4342b; }
-  .zv-quote .zv-field[aria-invalid='true']:focus {
-    box-shadow: 0 0 0 3px rgba(180, 52, 43, 0.12);
-  }
-  .zv-quote textarea.zv-field { min-height: 104px; padding-top: 12px; }
-  /* The select button carries .zv-field too; keep its chevron off the edge. */
-  .zv-quote .zv-select-button { padding-right: 10px; }
+  .zv-quote textarea.zv-field { min-height: 104px; padding-top: 11px; }
+  .zv-quote .zv-select-button { padding-right: 12px; }
 
   /* Halves the 24px flex gap the form sets for desktop, and pulls each
      label onto its own field. */

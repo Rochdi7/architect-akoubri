@@ -2,6 +2,7 @@ import { Suspense, lazy, useEffect, useLayoutEffect, useRef, useState } from 're
 import { Link, useLocation } from 'react-router-dom';
 import AkoubriMark from './AkoubriMark';
 import QuoteModal from './QuoteModal';
+import SmokeBoundary from './SmokeBoundary';
 import ThemeToggle from './ThemeToggle';
 import { business } from '../data/business';
 
@@ -31,7 +32,24 @@ function activeEntry(pathname) {
     .sort((a, b) => b.to.length - a.to.length)[0]?.to;
 }
 
+// Both headers stay mounted — one is display:none — and each carries a
+// WebGL canvas behind its CTA; the query mounts the smoke only in the one on
+// screen. The breakpoint is Tailwind's `lg`, which the two headers switch on.
+const DESKTOP = '(min-width: 1024px)';
+
+function useDesktop() {
+  const [wide, setWide] = useState(() => window.matchMedia(DESKTOP).matches);
+  useEffect(() => {
+    const mq = window.matchMedia(DESKTOP);
+    const sync = (e) => setWide(e.matches);
+    mq.addEventListener('change', sync);
+    return () => mq.removeEventListener('change', sync);
+  }, []);
+  return wide;
+}
+
 export default function Header() {
+  const desktop = useDesktop();
   const [hidden, setHidden] = useState(false);
   const [open, setOpen] = useState(false);
   const [quote, setQuote] = useState(false);
@@ -152,9 +170,13 @@ export default function Header() {
                 {/* Decorative: a failed chunk or a missing WebGL context
                     leaves the CSS gradient underneath, which is the button
                     as it was before. */}
-                <Suspense fallback={null}>
-                  <SmokeFill className="btn-cta__smoke" />
-                </Suspense>
+                {desktop && (
+                  <SmokeBoundary>
+                    <Suspense fallback={null}>
+                      <SmokeFill className="btn-cta__smoke" />
+                    </Suspense>
+                  </SmokeBoundary>
+                )}
                 <span className="btn-cta__label">Demander un devis</span>
                 <span className="btn-cta__chip" aria-hidden="true">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
@@ -226,9 +248,9 @@ export default function Header() {
                 type="button"
                 onClick={() => { setOpen(false); setQuote(true); }}
                 aria-label="Demander un devis"
-                className="relative z-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-ink text-[var(--paper)] transition-colors hover:bg-clay"
+                className="relative z-10 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-ink text-[var(--paper)] transition-colors hover:bg-clay"
               >
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                   <path d="M4 6h16v12H4z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
                   <path d="m4 7 8 6 8-6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
@@ -248,10 +270,13 @@ export default function Header() {
           open ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
         }`}
       >
-        {/* justify-center only once there is room to spare: on a short
-            phone the five links, the button and the contact block add up
-            to more than the viewport, and centring would crop both ends
-            with no way to reach them.
+        {/* The panel scrolls rather than centring its content: six links, the
+            CTA and the contact block add up to more than a phone viewport,
+            and `justify-center` pushed the button below the fold on a short
+            window — present in the DOM, unreachable without a scroll nobody
+            expects in a menu. Starting the stack at the top keeps the CTA
+            in view on every height; `mt-auto` on the contact block takes up
+            the slack on a tall one.
 
             The top inset clears the fixed header pill (12px offset + ~66px
             tall). It is set as an inline style rather than a `pt-*` utility
@@ -259,10 +284,10 @@ export default function Header() {
             specificity and lands later in the sheet — it would reset
             padding-top to 0 and leave the first link under the pill. */}
         <div
-          style={{ paddingTop: '6rem' }}
-          className="shell flex h-full flex-col overflow-y-auto overscroll-contain pb-10 min-[380px]:pb-12 sm:justify-center"
+          style={{ paddingTop: '5.5rem' }}
+          className="shell flex h-full flex-col overflow-y-auto overscroll-contain pb-28 min-[380px]:pb-32"
         >
-          <nav className="flex flex-col">
+          <nav className="flex shrink-0 flex-col">
             {nav.map((item, i) => {
               const isActive = item.to === current;
               return (
@@ -281,17 +306,36 @@ export default function Header() {
               );
             })}
           </nav>
-          {/* The drawer closes first: it owns a body scroll lock of its own,
-              and leaving both up would have the two restore it in whichever
-              order they happen to unmount. */}
+          {/* The desktop header's CTA, full width and one step after the last
+              link in the stagger. The drawer closes first: it owns a body
+              scroll lock of its own, and leaving both up would have the two
+              restore it in whichever order they happen to unmount. */}
           <button
             type="button"
             onClick={() => { setOpen(false); setQuote(true); }}
-            className="btn btn-primary mt-8 w-full"
+            style={{ transitionDelay: open ? `${110 + nav.length * 55}ms` : '0ms' }}
+            className={`btn-cta btn-cta--wide mt-8 transition-all duration-500 ease-arch ${
+              open ? 'translate-y-0 opacity-100' : 'translate-y-3 opacity-0'
+            }`}
           >
-            Demander un devis
+            {/* Mounted only while the drawer is open: the canvas is behind a
+                full-screen panel the rest of the time, and a WebGL context
+                that renders nothing still costs one. */}
+            {open && (
+              <SmokeBoundary>
+                <Suspense fallback={null}>
+                  <SmokeFill className="btn-cta__smoke" />
+                </Suspense>
+              </SmokeBoundary>
+            )}
+            <span className="btn-cta__label">Demander un devis</span>
+            <span className="btn-cta__chip" aria-hidden="true">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+                <path d="M4 12h16m-6-6 6 6-6 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </span>
           </button>
-          <div className="mt-7 space-y-1 text-sm text-ink-muted">
+          <div className="mt-auto shrink-0 pt-7 space-y-1 text-sm text-ink-muted">
             <a href={`mailto:${business.email}`} className="block hover:text-clay">{business.email}</a>
             <a href={business.phoneHref} className="block hover:text-clay">{business.phone}</a>
             <a href={business.phone2Href} className="block hover:text-clay">{business.phone2}</a>

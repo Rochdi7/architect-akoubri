@@ -78,7 +78,7 @@ function Hero() {
   // film paused by hand must stay paused when the hero scrolls back in.
   const userPaused = useRef(false);
 
-  /* The source reel is portrait (576×1024). Cropping it to the desktop
+  /* The source reel is portrait (1080×1920). Cropping it to the desktop
      banner throws away most of the frame on a phone, where the hero is
      itself tall — so two cuts are published from the same footage and the
      right one is chosen once, before the element mounts. `<source media>`
@@ -89,11 +89,11 @@ function Hero() {
     window.matchMedia('(max-aspect-ratio: 3/4)').matches;
 
   const src = portrait
-    ? '/media/projets/akoubri_le-sentier-hero-portrait.mp4'
-    : '/media/projets/akoubri_le-sentier-hero.mp4';
+    ? '/media/projets/akoubri_le-sentier-v2-hero-portrait.mp4'
+    : '/media/projets/akoubri_le-sentier-v2-hero.mp4';
   const poster = portrait
-    ? '/media/projets/akoubri_le-sentier-hero-poster-portrait.webp'
-    : '/media/projets/akoubri_le-sentier-hero-poster.webp';
+    ? '/media/projets/akoubri_le-sentier-v2-hero-poster-portrait.webp'
+    : '/media/projets/akoubri_le-sentier-v2-hero-poster.webp';
 
   useEffect(() => {
     const v = videoRef.current;

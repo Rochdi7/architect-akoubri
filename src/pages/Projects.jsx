@@ -32,7 +32,7 @@ export default function Projects() {
   return (
     <>
       {/* Page banner */}
-      <section className="zv relative overflow-hidden pb-14 pt-32 md:pt-40">
+      <section className="zv relative overflow-hidden pb-14 pt-24 sm:pt-32 md:pt-44">
         <div className="shell relative z-10 text-center">
           <span data-reveal className="reveal zv-subtitle">Réalisations</span>
           <h1 ref={ink} data-reveal data-reveal-delay="80" className="reveal zv-h1 mt-5">

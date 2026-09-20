@@ -83,7 +83,7 @@ function SplitHero() {
               </span>
             </div>
 
-            <InkTitle as="h1" play dark className="display-lg mt-7 uppercase leading-[0.95] on-dark">
+            <InkTitle as="h1" play dark className="display-lg mt-7 uppercase leading-[1.14] on-dark">
               Une équipe courte,
               <br />
               un interlocuteur

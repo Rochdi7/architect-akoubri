@@ -222,7 +222,7 @@ img, video {
    read a size smaller than every .zv-h2 around it (30px). The Featured header
    keeps plain .display-md: it shares its row with a button and has no room. */
 @media (max-width: 640px) {
-  .display-md.display-md--stacked { font-size: 1.875rem; line-height: 1.12; }
+  .display-md.display-md--stacked { font-size: 1.875rem; }
 }
 
 /* ── Buttons ───────────────────────────────────────────────────── */
@@ -467,6 +467,57 @@ summary::-webkit-details-marker { display: none; }
 
 .btn-cta:hover .btn-cta__chip svg {
   transform: translateX(2px);
+}
+
+/* The drawer's copy of the pill. Not full-bleed: stretched edge to edge it
+   reads as a bar rather than a button, and its right end collided with the
+   floating WhatsApp badge. It is sized to its own content, capped, and
+   centred under the links, so the label and the chip stay a pair. */
+.btn-cta--wide {
+  display: inline-flex;
+  width: auto;
+  max-width: 100%;
+  align-self: center;
+  /* The drawer is a flex column, and a flex item shrinks past its own
+     height once the stack overflows — the pill collapsed to a few pixels
+     on a short window. min-height + flex-shrink:0 hold it at full size and
+     let the panel scroll instead. */
+  height: 3.25rem;
+  min-height: 3.25rem;
+  flex-shrink: 0;
+  gap: 0.75rem;
+  padding-left: 1.75rem;
+  padding-right: 0.4375rem;
+  font-size: 0.9375rem;
+}
+
+.btn-cta--wide .btn-cta__chip {
+  width: 2.5rem;
+  height: 2.375rem;
+  flex-shrink: 0;
+}
+
+/* On touch there is no hover to lift the pill, and a lift that fires on
+   tap would stick until the next touch; the press dips the pill instead. */
+@media (hover: none) {
+  .btn-cta:hover {
+    transform: none;
+    box-shadow: 0 4px 16px rgba(197, 139, 102, 0.3);
+  }
+
+  .btn-cta:hover .btn-cta__chip {
+    background: rgba(255, 255, 255, 0.14);
+    color: inherit;
+  }
+
+  .btn-cta:hover .btn-cta__chip svg {
+    transform: none;
+  }
+
+  .btn-cta:active {
+    transform: scale(0.96);
+    transition-duration: 90ms;
+  }
 }
 
 /* ── Blueprint ground ─────────────────────────────────────────────
@@ -939,16 +990,20 @@ summary::-webkit-details-marker { display: none; }
   border-radius: 18px;
 }
 
-/* Leans right: top edge starts inset, bottom edge runs full width. */
+/* The slanted edge faces the centre: the outer edge stays vertical and
+   flush with the row, while the inner one rakes towards the main slab, so
+   the two previews read as a frame narrowing onto the open image. Cutting
+   the outer edge instead leans both panels the same way, which looks like
+   the whole row has been skewed. */
 .slab--left {
-  -webkit-clip-path: polygon(30% 0, 100% 0, 100% 100%, 0 100%);
-  clip-path: polygon(30% 0, 100% 0, 100% 100%, 0 100%);
+  -webkit-clip-path: polygon(0 0, 100% 0, 72% 100%, 0 100%);
+  clip-path: polygon(0 0, 100% 0, 72% 100%, 0 100%);
 }
 
 /* Mirror of the above. */
 .slab--right {
-  -webkit-clip-path: polygon(0 0, 100% 0, 70% 100%, 0 100%);
-  clip-path: polygon(0 0, 100% 0, 70% 100%, 0 100%);
+  -webkit-clip-path: polygon(28% 0, 100% 0, 100% 100%, 0 100%);
+  clip-path: polygon(28% 0, 100% 0, 100% 100%, 0 100%);
 }
 
 /* The side previews page the carousel when tapped. `manipulation` drops the

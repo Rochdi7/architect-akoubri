@@ -47,15 +47,16 @@ export default function Contact() {
   return (
     <>
       {/* ── Banner ── */}
-      <section className="zv pt-36 md:pt-44">
+      <section className="zv pt-24 sm:pt-32 md:pt-44">
         <div className="shell text-center">
-          <h1 ref={ink} data-reveal className="reveal zv-h1">
+          <span data-reveal className="reveal zv-subtitle">Contact</span>
+          <h1 ref={ink} data-reveal data-reveal-delay="80" className="reveal zv-h1 mt-5">
             Parlons de votre projet
           </h1>
           <p
             data-reveal
-            data-reveal-delay="80"
-            className="reveal zv-body zv-muted mx-auto mt-5 max-w-xl"
+            data-reveal-delay="160"
+            className="reveal zv-lead zv-muted mx-auto mt-5 max-w-xl"
           >
             Un terrain, un plan ou une simple intention : écrivez-nous et nous
             revenons vers vous avec une première lecture.

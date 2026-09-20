@@ -124,15 +124,18 @@ function build({ gsap, ScrollTrigger, mm, scope, ease }) {
       writing.from(rows, { y: lift, opacity: 0, stagger: 0.1 }, 0);
     }
 
-    /* Each rule is drawn from its left edge, a beat behind its own field,
-       then fades as it lands — the ink sinks into the paper and leaves the
-       field's resting border. The element is transparent in CSS, so the
-       clearProps at the end puts it back exactly where it started. */
+    /* Each outline is inked a beat behind its own field, then fades as it
+       lands — the ink sinks into the paper and leaves the field's resting
+       border. The element traces the box (it was a bottom rule while the
+       fields were underlines), so it is drawn by opacity rather than
+       scaleX: scaling an outline squashes the box instead of drawing it.
+       It is transparent in CSS, so the clearProps at the end puts it back
+       exactly where it started. */
     if (lines.length) {
       writing.fromTo(
         lines,
-        { scaleX: 0, opacity: 1, transformOrigin: '0% 50%' },
-        { scaleX: 1, duration: 1, stagger: 0.1 },
+        { opacity: 0 },
+        { opacity: 1, duration: 0.5, stagger: 0.1 },
         0.12
       );
       writing.to(lines, { opacity: 0, duration: 0.5, stagger: 0.1 }, 0.72);

@@ -23,21 +23,24 @@ export default function Footer() {
             block to its paragraph, while pt-9 keeps the divider from stacking
             with the preceding section's own bottom margin. The even 28px/48px
             desktop values return from md up. */}
-        <div className="grid gap-6 border-t border-line pt-9 sm:pt-10 md:gap-10 md:pt-16 lg:grid-cols-[1.4fr_1fr] lg:items-end">
+        <div className="grid gap-8 border-t border-line pt-9 sm:pt-10 md:gap-12 md:pt-16 lg:grid-cols-[1.4fr_1fr] lg:items-end">
           <div data-reveal className="reveal">
             <span className="eyebrow">Parlons-en</span>
-            {/* leading-[1.05] on a phone: display-lg lands at 28px there, and
-                the desktop 0.95 put the leading *below* the glyph size, so the
-                two lines collided. Tight 0.95 returns from md up, where the
-                type is large enough to carry it. */}
-            <InkTitle className="display-lg mt-3 max-w-2xl uppercase leading-[1.05] sm:mt-5 md:mt-6 md:leading-[0.95]">
+            {/* One leading for every width. .display-lg tops out at 3.75rem
+                (60px), and the 0.95 this replaces resolved to 57px — three
+                pixels *under* the glyph size, so the two lines overlapped at
+                exactly the width the title is largest. Tight leading gets
+                riskier as display type grows, not safer: 1.02 keeps the pair
+                reading as one block without letting the descender of line one
+                touch the caps of line two. */}
+            <InkTitle className="display-lg mt-4 max-w-2xl uppercase leading-[1.14] sm:mt-5">
               Un terrain, un plan,
               <br />
               une idée&nbsp;?
             </InkTitle>
           </div>
           <div data-reveal data-reveal-delay="120" className="reveal lg:text-right">
-            <p className="mb-7 leading-relaxed text-ink-soft md:mb-7 lg:ml-auto lg:max-w-sm">
+            <p className="mb-6 leading-relaxed text-ink-soft lg:ml-auto lg:max-w-sm">
               Premier échange sans engagement. On vous dit franchement si le projet
               tient debout — techniquement et budgétairement.
             </p>
