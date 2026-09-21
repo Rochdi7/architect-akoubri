@@ -3,3 +3,7 @@ dist
 .DS_Store
 *.local
 .env
+
+# Contact form secrets (SMTP app password) — deploy by hand
+public/api/config.php
+dist/api/config.php

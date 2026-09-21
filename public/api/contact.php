@@ -2,23 +2,18 @@
 /**
  * Contact form handler for Hostinger shared hosting.
  *
- * Shared plans have no Node runtime, so the React form posts JSON here and
- * this script mails it with PHP's mail(). Set $TO below to the real inbox.
+ * Shared plans have no Node runtime, so the React form posts JSON here.
+ * Delivery goes out over authenticated Gmail SMTP rather than PHP's mail():
+ * shared-host mail() sends as the server, which Gmail reads as spoofed and
+ * files as spam. See smtp.php.
+ *
+ * Credentials live in config.php, which is gitignored and uploaded by hand.
  *
  * Protections: POST-only, JSON-only, honeypot, length caps, header-injection
  * stripping, and a 60-second per-IP throttle backed by a file in sys_get_temp_dir().
  */
 
 declare(strict_types=1);
-
-// ── Configure ────────────────────────────────────────────────────────────
-$TO      = 'akoubriarchi@gmail.com';
-$SUBJECT = 'Nouvelle demande — site Akoubri';
-// On Hostinger the From address must belong to your own domain or the mail
-// is rejected as spoofed. Create this mailbox in hPanel first.
-$FROM    = 'no-reply@akoubri.com';
-$THROTTLE_SECONDS = 60;
-// ─────────────────────────────────────────────────────────────────────────
 
 header('Content-Type: application/json; charset=utf-8');
 header('X-Content-Type-Options: nosniff');
@@ -28,6 +23,17 @@ function fail(int $code, string $msg): never {
     echo json_encode(['ok' => false, 'error' => $msg], JSON_UNESCAPED_UNICODE);
     exit;
 }
+
+$configFile = __DIR__ . '/config.php';
+if (!is_file($configFile)) {
+    // Missing on the server means the deploy step was skipped. Say so in the
+    // log, but never leak configuration detail to the browser.
+    error_log('contact.php: config.php introuvable');
+    fail(500, "Le formulaire n'est pas configuré.");
+}
+$cfg = require $configFile;
+
+require __DIR__ . '/smtp.php';
 
 if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
     fail(405, 'Méthode non autorisée.');
@@ -53,7 +59,7 @@ if (!empty($data['company'])) {
 // Per-IP throttle.
 $ip   = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
 $lock = sys_get_temp_dir() . '/akoubri_' . hash('sha256', $ip) . '.lock';
-if (is_file($lock) && (time() - (int) filemtime($lock)) < $THROTTLE_SECONDS) {
+if (is_file($lock) && (time() - (int) filemtime($lock)) < (int) $cfg['throttle']) {
     fail(429, 'Merci de patienter avant un nouvel envoi.');
 }
 @touch($lock);
@@ -92,17 +98,39 @@ $body = "Nouvelle demande depuis akoubri.com\n\n"
       . "Message :\n{$message}\n\n"
       . "---\nIP : {$ip}\nDate : " . date('c') . "\n";
 
+/* Gmail rewrites From to the authenticated account, so there is nothing to
+   gain by putting the enquirer there — and doing so would be the spoof we
+   are avoiding. The sender stays the agency's own address and Reply-To
+   carries the enquirer, so hitting Reply in the inbox answers them. */
+$encode  = static fn (string $s): string => '=?UTF-8?B?' . base64_encode($s) . '?=';
+$from    = (string) $cfg['smtp_user'];
+$to      = (string) $cfg['to'];
+$subject = $encode($cfg['subject'] . ' — ' . $name);
+
 $headers = implode("\r\n", [
-    'From: Site Akoubri <' . $FROM . '>',
-    'Reply-To: ' . $name . ' <' . $email . '>',
-    'Content-Type: text/plain; charset=UTF-8',
+    'From: ' . $encode('Site Akoubri') . ' <' . $from . '>',
+    'To: <' . $to . '>',
+    'Reply-To: ' . $encode($name) . ' <' . $email . '>',
+    'Subject: ' . $subject,
+    'Date: ' . date('r'),
+    'Message-ID: <' . bin2hex(random_bytes(16)) . '@akoubri.com>',
     'MIME-Version: 1.0',
-    'X-Mailer: PHP/' . phpversion(),
+    'Content-Type: text/plain; charset=UTF-8',
+    'Content-Transfer-Encoding: 8bit',
 ]);
 
-$subject = '=?UTF-8?B?' . base64_encode($SUBJECT . ' — ' . $name) . '?=';
-
-if (!@mail($TO, $subject, $body, $headers, '-f' . $FROM)) {
+try {
+    $smtp = Smtp::connect(
+        (string) $cfg['smtp_host'],
+        (int) $cfg['smtp_port'],
+        $from,
+        (string) $cfg['smtp_pass']
+    );
+    $smtp->send($from, $to, $headers, $body);
+    $smtp->quit();
+} catch (Throwable $e) {
+    // The reason is for us, not for the sender.
+    error_log('contact.php SMTP: ' . $e->getMessage());
     fail(500, "L'envoi a échoué.");
 }
 

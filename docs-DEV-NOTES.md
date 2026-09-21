@@ -5,7 +5,7 @@
 
 Site React (Vite) pour un cabinet d'architecture et de design d'intérieur.
 Construit pour tourner sur un **hébergement mutualisé Hostinger** : sortie
-100 % statique, plus un unique script PHP pour le formulaire de contact.
+100 % statique, plus un petit handler PHP pour le formulaire de contact.
 
 ---
 
@@ -39,6 +39,8 @@ npm run preview    # prévisualise le build
      assets/
      media/
      api/contact.php
+     api/smtp.php
+     api/config.php    ← hors dépôt, à téléverser à la main
      robots.txt
      sitemap.xml
    ```
@@ -47,16 +49,30 @@ npm run preview    # prévisualise le build
    > Activez « Afficher les fichiers cachés » pour vérifier que `.htaccess`
    > est bien présent — sans lui, toute URL autre que `/` renvoie une 404.
 
-3. **Configurer l'e-mail** — ouvrez `public_html/api/contact.php` et
-   renseignez en haut du fichier :
+3. **Configurer l'e-mail** — l'envoi passe par **SMTP Gmail authentifié**
+   (et non `mail()`, qui part au nom du serveur et finit en spam).
+
+   Les identifiants sont dans `api/config.php`, **hors dépôt** et donc absent
+   de `dist/` : téléversez-le à la main dans `public_html/api/`, une fois.
 
    ```php
-   $TO   = 'votre@adresse.com';
-   $FROM = 'no-reply@votre-domaine.com';   // doit exister dans hPanel → E-mails
+   return [
+       'to'        => 'akoubriarchi@gmail.com',
+       'smtp_user' => 'akoubriarchi@gmail.com',
+       'smtp_pass' => 'xxxxxxxxxxxxxxxx',   // mot de passe d'application, sans espaces
+       'smtp_host' => 'smtp.gmail.com',
+       'smtp_port' => 587,                  // 465 si le 587 est bloqué
+       'subject'   => 'Nouvelle demande — site Akoubri',
+       'throttle'  => 60,
+   ];
    ```
 
-   Hostinger rejette les envois dont l'adresse `From` n'appartient pas au
-   domaine. Créez la boîte `no-reply@` avant de tester.
+   `smtp_pass` est un **mot de passe d'application** Google, pas le mot de
+   passe du compte : myaccount.google.com/apppasswords, validation en deux
+   étapes requise. Il donne un accès complet au compte — ne le committez pas.
+
+   `smtp_user` doit être le compte qui a généré le mot de passe ; Gmail
+   réécrit `From` vers lui. Le demandeur part en `Reply-To`.
 
 4. **HTTPS** — activez le certificat SSL gratuit dans hPanel. La redirection
    HTTP → HTTPS est déjà écrite dans `.htaccess`.
@@ -90,7 +106,9 @@ public/
       hero-loop.mp4    14 s, muet — fond du hero
       hero-poster.jpg  affiche du hero (aucune image blanche au chargement)
       card-03.mp4      8 s, muet — carte projet Zahiya
-  api/contact.php  handler du formulaire (PHP mail)
+  api/contact.php  handler du formulaire (validation + mise en forme)
+  api/smtp.php     client SMTP minimal (Gmail authentifié, sans Composer)
+  api/config.php   identifiants SMTP — gitignoré, téléversé à la main
   .htaccess        routing SPA, cache, en-têtes de sécurité
 src/
   data/projects.js   catalogue projets, services, process, chiffres

@@ -40,8 +40,8 @@ journal éditorial.
 
 La contrainte fondatrice a façonné toute l'architecture technique :
 **hébergement mutualisé Hostinger, sans runtime Node**. Le site se compile donc
-en HTML/CSS/JS purement statique, et l'unique brique serveur est un fichier PHP
-de 200 lignes pour le formulaire de contact.
+en HTML/CSS/JS purement statique, et l'unique brique serveur est un petit
+handler PHP pour le formulaire de contact, qui poste via SMTP Gmail authentifié.
 
 <table>
 <tr>
@@ -113,7 +113,8 @@ index.html                  ← point d'entrée unique, polices préchargées
 public/                     ← copié tel quel à la racine du serveur
 ├── media/                  ← 55 JPEG + 4 vidéos
 ├── fonts/                  ← 17 woff2 auto-hébergés (372 Ko)
-├── api/contact.php         ← l'intégralité du backend
+├── api/contact.php         ← le backend : validation + envoi
+├── api/smtp.php            ← client SMTP (Gmail authentifié)
 ├── .htaccess               ← routing SPA, cache, CSP, HTTPS
 ├── robots.txt
 └── sitemap.xml
@@ -523,6 +524,8 @@ public_html/
 ├── assets/
 ├── media/
 ├── api/contact.php
+├── api/smtp.php
+├── api/config.php     ← non versionné, à téléverser à la main
 ├── robots.txt
 └── sitemap.xml
 ```
@@ -532,15 +535,39 @@ public_html/
 > point**. Activez « Afficher les fichiers cachés » et vérifiez que `.htaccess`
 > est bien présent — sans lui, **toute URL autre que `/` renvoie une 404**.
 
-**3 — Configurer l'e-mail** dans `public_html/api/contact.php` :
+**3 — Configurer l'e-mail.** Le formulaire envoie via **SMTP Gmail
+authentifié**, et non `mail()` : sur un mutualisé, `mail()` part au nom du
+serveur, ce que Gmail lit comme une usurpation et classe en spam.
+
+Les identifiants vivent dans `api/config.php`, **absent du dépôt** (gitignoré)
+et donc absent de `dist/`. Téléversez-le à la main une fois ; il survit aux
+rebuilds.
 
 ```php
-$TO   = 'votre@adresse.com';
-$FROM = 'no-reply@votre-domaine.com';   // doit exister dans hPanel → E-mails
+return [
+    'to'        => 'akoubriarchi@gmail.com',   // boîte de réception
+    'smtp_user' => 'akoubriarchi@gmail.com',   // compte expéditeur
+    'smtp_pass' => 'xxxxxxxxxxxxxxxx',         // mot de passe d'application, sans espaces
+    'smtp_host' => 'smtp.gmail.com',
+    'smtp_port' => 587,                        // 587 STARTTLS · 465 TLS implicite
+    'subject'   => 'Nouvelle demande — site Akoubri',
+    'throttle'  => 60,
+];
 ```
 
-Hostinger rejette tout envoi dont l'adresse `From` n'appartient pas au domaine.
-**Créez la boîte `no-reply@` avant de tester.**
+> [!IMPORTANT]
+> `smtp_pass` est un **mot de passe d'application** Google
+> ([myaccount.google.com/apppasswords](https://myaccount.google.com/apppasswords)),
+> pas le mot de passe du compte — la validation en deux étapes doit être
+> active. Il ouvre l'accès complet au compte Google : ne le committez jamais.
+> Pour le révoquer, supprimez-le depuis cette même page.
+
+`smtp_user` doit être le compte qui a généré le mot de passe : Gmail réécrit
+l'en-tête `From` vers ce compte. L'adresse du demandeur part en `Reply-To`,
+donc « Répondre » dans la boîte répond bien au client.
+
+> [!NOTE]
+> Si Hostinger bloque le port 587 en sortie, basculez `smtp_port` sur `465`.
 
 **4 — HTTPS** — activez le certificat SSL gratuit dans hPanel. La redirection
 HTTP → HTTPS est déjà écrite dans `.htaccess`.
@@ -557,7 +584,9 @@ HTTP → HTTPS est déjà écrite dans `.htaccess`.
 
 ## ✦ Backend
 
-L'intégralité du backend est **un fichier** : `public/api/contact.php`.
+Le backend tient en trois fichiers : `public/api/contact.php` (validation et
+mise en forme), `public/api/smtp.php` (client SMTP minimal, sans Composer) et
+`public/api/config.php` (identifiants, hors dépôt).
 Trois formulaires y postent du JSON — `/contact`, `/projets/:slug` (devis,
 préfixé `[Projet : X]`) et `/services`.
 
@@ -570,7 +599,10 @@ préfixé `[Projet : X]`) et `/services`.
 | Injection d'en-tête | `\r`, `\n`, `%0a`, `%0d` retirés de tous les champs d'en-tête |
 | Validation | Nom ≥ 2, `FILTER_VALIDATE_EMAIL`, message ≥ 20 |
 | Plafonds | Nom 120 · e-mail 180 · message 5000 |
-| Encodage | Sujet Base64 UTF-8, expéditeur d'enveloppe `-f` |
+| Encodage | Sujet et noms en Base64 UTF-8 |
+| Transport | SMTP Gmail authentifié (STARTTLS, pair vérifié) — pas `mail()` |
+| Secrets | `api/config.php`, gitignoré, téléversé à la main |
+| Erreurs | Détail SMTP en `error_log`, jamais renvoyé au navigateur |
 
 `.htaccess` gère par ailleurs : HTTPS forcé, réécriture SPA, gzip, cache immuable
 d'un an sur les assets empreintés, `no-cache` sur le HTML, `Options -Indexes`,
