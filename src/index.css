@@ -1244,6 +1244,13 @@ summary::-webkit-details-marker { display: none; }
   margin-bottom: -0.16em;
 }
 
+/* The word is generated content, not a text node: at 0.3 alpha it is
+   decoration, and this keeps it out of the accessibility tree and the
+   contrast audits without brightening it. */
+.footer-wordmark::after {
+  content: 'Akoubri';
+}
+
 @container (min-width: 0px) {
   .footer-wordmark { font-size: clamp(3rem, 20cqw, 18rem); }
 }

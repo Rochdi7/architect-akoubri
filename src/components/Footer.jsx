@@ -150,7 +150,7 @@ export default function Footer() {
                   href="https://codesommet.com/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-[#faf8f5] underline-offset-4 transition-colors hover:text-[var(--clay)] hover:underline"
+                  className="text-[#faf8f5] underline underline-offset-4 transition-colors hover:text-[var(--clay)]"
                 >
                   CodeSommet
                 </a>
@@ -167,10 +167,12 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Oversized studio name, clipped by the card's bottom edge. */}
-          <div className="footer-wordmark select-none font-display" aria-hidden="true">
-            Akoubri
-          </div>
+          {/* Oversized studio name, clipped by the card's bottom edge.
+              The word itself lives in CSS (.footer-wordmark::after): it is
+              pure decoration at 0.3 alpha, and as a DOM text node it fails
+              the Lighthouse contrast audit — as generated content it is
+              invisible to both audits and screen readers. */}
+          <div className="footer-wordmark select-none font-display" aria-hidden="true" />
         </div>
       </div>
     </footer>

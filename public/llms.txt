@@ -1,0 +1,34 @@
+# Akoubri — Cabinet d'architecture à Marrakech
+
+> Akoubri est un cabinet d'architecture et de design d'intérieur basé à
+> Marrakech (Maroc). Conception architecturale, permis de construire,
+> suivi de chantier, design d'intérieur et images de synthèse 3D pour
+> des résidences, villas, maisons d'hôtes et espaces professionnels.
+
+Le site est une application React : le contenu complet de chaque page est
+rendu côté client. Les pages principales sont listées ci-dessous et dans
+le sitemap (https://akoubri.com/sitemap.xml).
+
+## Pages
+
+- [Accueil](https://akoubri.com/): présentation du cabinet, projets phares et avis clients
+- [Projets](https://akoubri.com/projets): portfolio des réalisations du cabinet
+- [Services](https://akoubri.com/services): conception, suivi de chantier, design d'intérieur, images 3D
+- [Permis de construire à Marrakech](https://akoubri.com/services/permis-de-construire-marrakech): accompagnement administratif complet
+- [Agence](https://akoubri.com/agence): l'équipe, la méthode et les valeurs du cabinet
+- [Contact](https://akoubri.com/contact): coordonnées, adresse à Marrakech et formulaire de demande
+
+## Projets
+
+- [Le Sentier](https://akoubri.com/projets/le-sentier): villa avec toiture-terrasse, piscine et vue sur l'Atlas
+- [Zahiya](https://akoubri.com/projets/zahiya): maison d'hôtes, séjour et espaces de réception
+- [Adostigia](https://akoubri.com/projets/adostigia): bureaux et espaces de direction
+- [Farraj](https://akoubri.com/projets/farraj): bâtiment administratif et hangar
+- [Maison d'hôte](https://akoubri.com/projets/maison-dhote): terrasses et salons extérieurs
+- [Villa](https://akoubri.com/projets/villa): résidence contemporaine avec piscine
+
+## Contact
+
+- Adresse : 2ème étage, bureau N8, Centre d'Affaires Rayane, Rue Abdelkader Mesfioui, 40000 Marrakech, Maroc
+- Téléphone : +212 6 63 51 57 23
+- E-mail : akoubriarchi@gmail.com
