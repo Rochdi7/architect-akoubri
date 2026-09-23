@@ -1,0 +1,57 @@
+# Build on GitHub, publish the static output to the `production` branch.
+#
+# Hostinger shared hosting has no Node runtime, so the site cannot be built
+# on the server. This workflow runs `npm run build` and force-pushes dist/
+# as a single commit to `production`. public_html on the server is a git
+# checkout of that branch; deploying is, over SSH:
+#
+#   cd ~/domains/akoubri.com/public_html
+#   git fetch origin production && git reset --hard origin/production
+#
+# (fetch + reset, not pull: the branch is rewritten on every build.)
+#
+# api/config.php (SMTP credentials) is gitignored, so it is untracked in
+# that checkout and `git reset --hard` leaves it alone.
+
+name: Build production branch
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: production-build
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      # Also runs the media-ref check, which fails the build on a missing file.
+      - run: npm run build
+
+      - uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: production
+          publish_dir: ./dist
+          force_orphan: true
+          enable_jekyll: true # keep .htaccess and every file as-is
+          user_name: github-actions[bot]
+          user_email: github-actions[bot]@users.noreply.github.com
+          full_commit_message: "build: ${{ github.sha }}"

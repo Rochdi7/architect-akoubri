@@ -16,6 +16,10 @@
   RewriteCond %{HTTP:X-Forwarded-Proto} !https
   RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
 
+  # public_html is a git checkout of the production branch; never serve
+  # its .git folder (FilesMatch below only covers dotfiles, not dot-dirs).
+  RewriteRule (^|/)\.git(/|$) - [F,L]
+
   # Let real files, directories and the PHP API through untouched.
   RewriteCond %{REQUEST_FILENAME} -f [OR]
   RewriteCond %{REQUEST_FILENAME} -d

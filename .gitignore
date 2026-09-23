@@ -7,3 +7,6 @@ dist
 # Contact form secrets (SMTP app password) — deploy by hand
 public/api/config.php
 dist/api/config.php
+
+# Local deploy bundles
+site-dist.tar.gz
