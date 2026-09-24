@@ -45,6 +45,11 @@
   RewriteRule ^ index.html [L]
 </IfModule>
 
+# ── Charset ────────────────────────────────────────────────────────
+# Declare UTF-8 in the Content-Type header too, not only in <meta>.
+AddDefaultCharset UTF-8
+AddCharset UTF-8 .html .css .js .mjs .json .txt .xml .svg
+
 # ── Compression ────────────────────────────────────────────────────
 <IfModule mod_deflate.c>
   AddOutputFilterByType DEFLATE text/html text/plain text/css text/xml

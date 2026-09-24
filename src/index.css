@@ -123,6 +123,8 @@ body {
   -webkit-font-smoothing: auto;
   -moz-osx-font-smoothing: auto;
   text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 /* Paragraph step: every <p> reads at the reference's large-paragraph
@@ -133,8 +135,6 @@ p {
   font-size: 20px;
   line-height: 28px;
   letter-spacing: -0.2px;
-  overflow-x: hidden;
-  overflow-x: clip;
 }
 
 /* Headings match the themed sections: condensed, uppercase, no negative

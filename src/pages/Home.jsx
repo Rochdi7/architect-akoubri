@@ -25,7 +25,7 @@ export default function Home() {
 
   usePageMeta({
     description:
-      "Cabinet d'architecture à Marrakech : conception architecturale, accompagnement au permis de construire, suivi de chantier, design d'intérieur et images de synthèse.",
+      "Architecte à Marrakech : conception architecturale, permis de construire, suivi de chantier, design d'intérieur et images de synthèse 3D.",
     canonical: '/',
   });
 
@@ -72,6 +72,10 @@ export default function Home() {
 function Hero() {
   const [ready, setReady] = useState(false);
   const [paused, setPaused] = useState(false);
+  // The film gets its src only once the page has loaded. Attached at mount,
+  // the phone cut (~13 MB) streamed alongside the first paint and starved
+  // every image and script behind it; the poster covers the wait anyway.
+  const [armed, setArmed] = useState(false);
   const videoRef = useRef(null);
   const sectionRef = useRef(null);
   // What the visitor asked for, as opposed to what the observer did: a
@@ -96,10 +100,6 @@ function Hero() {
     : '/media/projets/akoubri_le-sentier-v3-hero-poster.webp';
 
   useEffect(() => {
-    const v = videoRef.current;
-    const section = sectionRef.current;
-    if (!v || !section) return undefined;
-
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const saveData = navigator.connection?.saveData;
     if (reduced || saveData) {
@@ -109,6 +109,23 @@ function Hero() {
       return undefined;
     }
 
+    let timer;
+    const arm = () => {
+      timer = setTimeout(() => setArmed(true), 1200);
+    };
+    if (document.readyState === 'complete') arm();
+    else window.addEventListener('load', arm, { once: true });
+    return () => {
+      window.removeEventListener('load', arm);
+      clearTimeout(timer);
+    };
+  }, []);
+
+  useEffect(() => {
+    const v = videoRef.current;
+    const section = sectionRef.current;
+    if (!armed || !v || !section) return undefined;
+
     const play = () => {
       const p = v.play();
       // Autoplay can be refused (low power mode). The poster simply stays
@@ -117,7 +134,7 @@ function Hero() {
     };
 
     if (typeof IntersectionObserver === 'undefined') {
-      play();
+      if (!userPaused.current) play();
       return undefined;
     }
 
@@ -134,11 +151,19 @@ function Hero() {
     );
     io.observe(section);
     return () => io.disconnect();
-  }, []);
+  }, [armed]);
 
   const toggle = () => {
     const v = videoRef.current;
     if (!v) return;
+    if (!armed) {
+      // Play pressed before the film was attached (reduced motion, data
+      // saver, or a quick tap): attach it; the observer above starts it.
+      userPaused.current = false;
+      setPaused(false);
+      setArmed(true);
+      return;
+    }
     if (v.paused) {
       userPaused.current = false;
       setPaused(false);
@@ -169,7 +194,7 @@ function Hero() {
           className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ${
             ready ? 'opacity-100' : 'opacity-0'
           }`}
-          src={src}
+          src={armed ? src : undefined}
           poster={poster}
           loop
           muted
@@ -337,6 +362,8 @@ function DesignStories() {
             aria-label="Le Sentier — voir le projet"
           >
             <img
+              loading="lazy"
+              decoding="async"
               src="/media/projets/akoubri_le-sentier-toiture-piscine-atlas-01.webp"
               alt="Toiture-terrasse du Sentier : piscine à débordement bordée d'une terrasse en bois et de bains de soleil, Atlas enneigé à l'horizon"
               width="1388"
@@ -882,7 +909,7 @@ function ProcessRail() {
             onClick={() => goTo(i)}
             aria-label={`Étape ${s.n} : ${s.title}`}
             aria-current={active === i ? 'step' : undefined}
-            className="flex h-6 items-center justify-center px-1"
+            className="flex h-6 min-w-6 items-center justify-center px-1"
           >
             <span
               className={`block h-1.5 rounded-full transition-all duration-300 ${

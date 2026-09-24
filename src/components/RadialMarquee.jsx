@@ -110,6 +110,8 @@ export default function RadialMarquee({ projects }) {
                 alt={repeat ? '' : `${p.name} — ${p.subtitle}`}
                 width="1280"
                 height="800"
+                loading="lazy"
+                decoding="async"
                 draggable="false"
               />
               <span className="m3-radial__caption">

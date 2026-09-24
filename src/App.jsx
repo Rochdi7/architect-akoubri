@@ -21,7 +21,7 @@ import { getPost } from './data/posts';
 import { useReveal } from './hooks/useReveal';
 
 const TITLES = {
-  '/': "Akoubri — Cabinet d'architecture & design d'intérieur",
+  '/': 'Architecte à Marrakech | Permis de construire — Akoubri',
   '/projets': 'Projets — Akoubri',
   '/agence': 'L\'agence — Akoubri',
   '/services': "Services d'architecture à Marrakech | Permis de construire & design intérieur — Akoubri",

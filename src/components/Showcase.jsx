@@ -145,7 +145,7 @@ export default function Showcase({ items }) {
                   <img
                     src={s.src}
                     alt={off === 0 ? s.title : ''}
-                    loading={Math.abs(off) <= 1 ? 'eager' : 'lazy'}
+                    loading="lazy"
                   />
                   {off === 0 && (
                     <Link
@@ -186,7 +186,7 @@ export default function Showcase({ items }) {
               key={current.src}
               src={current.src}
               alt={current.title}
-              loading={i === 0 ? 'eager' : 'lazy'}
+              loading="lazy"
               width="1280"
               height="853"
               className={dir > 0 ? 'slab-in-right' : 'slab-in-left'}
