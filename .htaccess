@@ -1,0 +1,111 @@
+# ═══════════════════════════════════════════════════════════════════
+# Adostigia — Hostinger shared hosting (Apache + LiteSpeed)
+# This file is copied into dist/ by the build and must sit next to
+# index.html inside public_html.
+# ═══════════════════════════════════════════════════════════════════
+
+# ── SPA routing ────────────────────────────────────────────────────
+# React Router owns the URLs. Anything that is not a real file or
+# directory is handed to index.html so deep links survive a refresh.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # Force HTTPS (Hostinger issues a free certificate — keep this on).
+  RewriteCond %{HTTPS} !=on
+  RewriteCond %{HTTP:X-Forwarded-Proto} !https
+  RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+
+  # One canonical host: www.akoubri.com duplicates every URL, so fold it
+  # into the apex the canonical tags and sitemap already point at.
+  RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+  RewriteRule ^ https://%1%{REQUEST_URI} [R=301,L]
+
+  # public_html is a git checkout of the production branch; never serve
+  # its .git folder (FilesMatch below only covers dotfiles, not dot-dirs).
+  RewriteRule (^|/)\.git(/|$) - [F,L]
+
+  # The three villas were renamed "Villa Jumelée" 1–3; keep old links alive.
+  RewriteRule ^projets/villa/?$ /projets/villa-jumelee-1 [R=301,L]
+  RewriteRule ^projets/villa-k/?$ /projets/villa-jumelee-2 [R=301,L]
+  RewriteRule ^projets/villa-targa/?$ /projets/villa-jumelee-3 [R=301,L]
+
+  # Let real files, directories and the PHP API through untouched.
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # A missing *file* must be a real 404, never the SPA fallback: the
+  # fallback answers 200 + index.html for /media/gone.webp or
+  # /ai-catalog.json, which poisons MIME checks and agent probes.
+  # Only extensionful asset-style URLs are affected; routes still fall
+  # through to index.html below.
+  RewriteRule \.(json|txt|xml|css|js|mjs|map|webp|avif|jpg|jpeg|png|gif|svg|ico|mp4|webm|woff2?|ttf|pdf)$ - [R=404,L]
+
+  RewriteRule ^ index.html [L]
+</IfModule>
+
+# ── Charset ────────────────────────────────────────────────────────
+# Declare UTF-8 in the Content-Type header too, not only in <meta>.
+AddDefaultCharset UTF-8
+AddCharset UTF-8 .html .css .js .mjs .json .txt .xml .svg
+
+# ── Compression ────────────────────────────────────────────────────
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/plain text/css text/xml
+  AddOutputFilterByType DEFLATE application/javascript application/x-javascript
+  AddOutputFilterByType DEFLATE application/json application/xml
+  AddOutputFilterByType DEFLATE image/svg+xml
+</IfModule>
+
+# ── Caching ────────────────────────────────────────────────────────
+# Vite fingerprints everything in /assets, so those can be immutable.
+# index.html must never be cached or visitors keep an old bundle.
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/css                "access plus 1 year"
+  ExpiresByType application/javascript  "access plus 1 year"
+  ExpiresByType image/jpeg              "access plus 6 months"
+  ExpiresByType image/png               "access plus 6 months"
+  ExpiresByType image/webp              "access plus 6 months"
+  ExpiresByType image/svg+xml           "access plus 6 months"
+  ExpiresByType video/mp4               "access plus 6 months"
+  ExpiresByType font/woff2              "access plus 1 year"
+</IfModule>
+
+<IfModule mod_headers.c>
+  <FilesMatch "\.(css|js|jpg|jpeg|png|webp|svg|mp4|woff2)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+
+  <FilesMatch "\.(html)$">
+    Header set Cache-Control "no-cache, must-revalidate"
+  </FilesMatch>
+
+  # ── Security headers ─────────────────────────────────────────────
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+  # The site is HTTPS-only (redirect above); pin it for a year. No
+  # includeSubDomains: Hostinger service subdomains are not ours to pin.
+  Header always set Strict-Transport-Security "max-age=31536000"
+  # No window.open/opener handoffs anywhere; external links are
+  # rel=noopener. Isolating the browsing context is free.
+  Header always set Cross-Origin-Opener-Policy "same-origin"
+  # No third parties: every font is self-hosted under /fonts, so the
+  # policy can stay entirely first-party. The sha256 hash whitelists the
+  # ONE inline script — the theme snippet at the top of index.html.
+  # Its bytes are part of the policy: any edit to that script must be
+  # mirrored here (hash of the tag's inner text, see docs-DEV-NOTES).
+  Header always set Content-Security-Policy "default-src 'self'; img-src 'self' data:; media-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self' 'sha256-gznUdUioo9pEZwKBxJK360dva4JO/Id0kQRvOhEKhKM='; connect-src 'self'; frame-ancestors 'self'; base-uri 'self'; form-action 'self'"
+</IfModule>
+
+# ── Hardening ──────────────────────────────────────────────────────
+Options -Indexes
+
+<FilesMatch "^\.">
+  Require all denied
+</FilesMatch>
+
+ErrorDocument 404 /index.html
