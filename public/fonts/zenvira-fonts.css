@@ -1,35 +1,23 @@
 /* ─────────────────────────────────────────────────────────────────
-   Display face: Fjalla One.
+   Display face: Bayon — the same face as the Zenvira reference.
 
-   This replaces Bayon, which was used by the Zenvira reference. Bayon
-   is a Khmer-first font whose Latin subset carries only 98 glyphs and
-   contains NO accented characters — É À Û Ç Ô è é are all absent, in
-   every published version. Its @font-face still declares the range
-   U+0000–00FF, so the browser selected Bayon, failed to find the
-   glyph, and fell back per-character: accented capitals rendered in a
-   different, wider face mid-word. On a French site that affects most
-   headings, so the face had to change.
-
-   Fjalla One is the nearest condensed, single-weight match and covers
-   Latin + Latin Extended in full.
+   The published Bayon (Google Fonts, OFL 1.1, no reserved name) is a
+   Khmer-first font whose Latin covers ASCII only: É À Ç Ô Û Œ do not
+   exist in it, so on a French site every accented capital fell back to
+   another face mid-word. This file is our own build of Bayon with the
+   missing glyphs composed from Bayon's own strokes (the grave bar gives
+   grave/acute/circumflex, the period gives the dieresis, O+E give Œ),
+   plus typographic quotes, dashes, ellipsis, degree and superscript 2.
+   Bayon is unicase, so lowercase accents share the capital shapes.
+   Build script: scripts/fonts/build_bayon.py (fontTools); the subset
+   is Latin only, unhinted, ~6 KB.
    ───────────────────────────────────────────────────────────────── */
-/* latin-ext */
 @font-face {
-  font-family: 'Fjalla One';
+  font-family: 'Bayon';
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url(/fonts/fjalla-latin-ext.woff2) format('woff2');
-  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
-}
-/* latin */
-@font-face {
-  font-family: 'Fjalla One';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url(/fonts/fjalla-latin.woff2) format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  src: url(/fonts/bayon-latin.woff2) format('woff2');
 }
 
 /* devanagari */

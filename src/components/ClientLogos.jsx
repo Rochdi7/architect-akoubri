@@ -10,12 +10,12 @@
  *
  *   · ADOSTIGIA  — the triangular A over the wordmark, copper on the
  *                  backlit dark-marble reception panel
- *                  (akoubri_adostigia-reception-01.webp, -desk-02.webp).
+ *                  (akoubri_adostigia-accueil-enseigne-relief-marbre-01.webp, -accueil-banque-monolithique-02.webp).
  *   · FARAJ      — the olive tree over the wordmark, on the totems at the
  *                  administration entrance and the shop/mosque block
  *                  (akoubri_farraj-administration-entree-01.webp, -magasin-mosquee-07.webp).
  *   · ZAHIYA     — the backlit ZAHIYA / RESIDENCE lettering on the dark
- *                  entrance pier (akoubri_zahiya-entrance-signage-01.webp).
+ *                  entrance pier (akoubri_zahiya-entree-enseigne-crepuscule-01.webp).
  *
  * The crops themselves are unusable as logos: the sources top out at
  * 1280–1600px wide, so each mark is only ~100–270px across and arrives with
@@ -120,11 +120,9 @@ const LOGOS = [
   { key: 'adostigia', label: 'Adostigia', node: <Adostigia /> },
   { key: 'le-sentier', label: 'Le Sentier', node: <Wordmark name="Le Sentier" sub="Résidence" /> },
   { key: 'faraj', label: 'Faraj', node: <Faraj /> },
-  { key: 'villa-targa', label: 'Villa Targa', node: <Wordmark name="Villa Targa" /> },
+  { key: 'villa-jumelee', label: 'Villa Jumelée', node: <Wordmark name="Villa Jumelée" /> },
   { key: 'zahiya', label: 'Zahiya Residence', node: <Zahiya /> },
-  { key: 'maison-dhote', label: "Maison d'hôte", node: <Wordmark name="Maison d'hôte" /> },
-  { key: 'villa-k', label: 'Villa K', node: <Wordmark name="Villa K" /> },
-  { key: 'villa', label: 'Villa', node: <Wordmark name="Villa" /> },
+  { key: 'maison-dhote', label: "Maison d'hôtes", node: <Wordmark name="Maison d'hôtes" /> },
 ];
 
 export default function ClientLogos() {
@@ -158,7 +156,7 @@ export default function ClientLogos() {
         </p>
       </div>
 
-      {/* The set is rendered four times. Eight marks are not wide enough to
+      {/* The set is rendered four times. Six marks are not wide enough to
           fill a desktop row, so a single copy would drag a long empty gap
           across the band before coming round again; four copies keep the
           belt continuously populated at any width. The keyframe shifts by
@@ -166,7 +164,7 @@ export default function ClientLogos() {
           restart is invisible.
 
           Only the first copy is read out: a screen reader should hear the
-          eight clients once, not thirty-two. */}
+          six clients once, not twenty-four. */}
       <div data-reveal data-reveal-delay="80" className="reveal zv-clients-rail">
         <div className="zv-clients-track">
           {[0, 1, 2, 3].map((copy) => (

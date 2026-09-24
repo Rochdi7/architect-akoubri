@@ -21,12 +21,12 @@ export const posts = [
     readingTime: 7,
     author: 'Akoubri',
     excerpt:
-      "Honoraires au pourcentage, au forfait, à la vacation : trois façons de facturer la même mission. Ce qu'il faut vérifier avant de signer, ligne par ligne.",
-    cover: '/media/projets/akoubri_adostigia-reception-01.webp',
+      "Honoraires au pourcentage, au forfait, à la vacation : trois façons de facturer la même mission. Ce qu'il faut vérifier avant de signer, ligne par ligne.",
+    cover: '/media/projets/akoubri_adostigia-accueil-enseigne-relief-marbre-01.webp',
     body: [
       {
         kind: 'p',
-        text: "Un devis d'architecte se lit mal parce qu'il décrit un travail intellectuel dont le volume n'est pas encore connu. Deux agences peuvent chiffrer la même villa à 6 % et à 11 % sans que l'une soit malhonnête : elles ne vendent simplement pas le même périmètre.",
+        text: "Un devis d'architecte se lit mal parce qu'il décrit un travail intellectuel dont le volume n'est pas encore connu. Deux agences peuvent chiffrer la même villa à 6 % et à 11 % sans que l'une soit malhonnête : elles ne vendent simplement pas le même périmètre.",
       },
       { kind: 'h2', text: 'Le pourcentage ne veut rien dire seul' },
       {
@@ -41,24 +41,24 @@ export const posts = [
       {
         kind: 'list',
         items: [
-          "Le périmètre exact : esquisse seule, permis, ou mission complète jusqu'à la réception.",
+          "Le périmètre exact : esquisse seule, permis, ou mission complète jusqu'à la réception.",
           "Le nombre d'allers-retours inclus avant que les modifications deviennent facturables.",
           "Qui paie les bureaux d'études structure, fluides et thermique.",
           "Le nombre de visites de chantier, et ce qui se passe si le chantier s'allonge.",
-          "Les images de synthèse : combien, à quelle définition, et pour quel usage.",
+          "Les images de synthèse : combien, à quelle définition, et pour quel usage.",
           "Les conditions d'arrêt du projet, et le solde dû à chaque phase.",
         ],
       },
       {
         kind: 'image',
-        src: '/media/projets/akoubri_adostigia-director-office-08.webp',
-        alt: "Plans et échantillons de matières posés sur une table de réunion",
+        src: '/media/projets/akoubri_adostigia-accueil-enseigne-fauteuils-08.webp',
+        alt: "Accueil Adostigia : enseigne rétroéclairée sur marbre sombre, fauteuils ronds clairs et banque en pierre",
         caption: 'Une phase de conception se mesure en arbitrages, pas en heures.',
       },
       { kind: 'h2', text: 'La ligne que personne ne lit' },
       {
         kind: 'p',
-        text: "C'est celle des modifications. Un projet évolue toujours — c'est normal et sain. Ce qui pose problème, c'est un devis qui reste muet sur le sujet : à la troisième version des plans, la discussion devient commerciale au lieu de rester architecturale.",
+        text: "C'est celle des modifications. Un projet évolue toujours — c'est normal et sain. Ce qui pose problème, c'est un devis qui reste muet sur le sujet : à la troisième version des plans, la discussion devient commerciale au lieu de rester architecturale.",
       },
       {
         kind: 'quote',
@@ -80,7 +80,7 @@ export const posts = [
     author: 'Akoubri',
     excerpt:
       "Une image de synthèse n'est pas un argument de vente. C'est un outil d'arbitrage qui déplace les mauvaises surprises de la phase chantier vers la phase conception, là où elles ne coûtent presque rien.",
-    cover: '/media/projets/akoubri_adostigia-waiting-lounge-22.webp',
+    cover: '/media/projets/akoubri_adostigia-salon-attente-canape-courbe-22.webp',
     body: [
       {
         kind: 'p',
@@ -89,13 +89,13 @@ export const posts = [
       { kind: 'h2', text: "Corriger sur l'image coûte mille fois moins cher" },
       {
         kind: 'p',
-        text: "Déplacer une baie vitrée dans un fichier prend une heure. La déplacer sur un chantier engage une reprise de linteau, un ajustement d'étanchéité, un nouveau vitrage et deux semaines de décalage. Le rendu ne rend pas le projet plus beau : il rend les erreurs négociables.",
+        text: "Déplacer une baie vitrée dans un fichier prend une heure. La déplacer sur un chantier engage une reprise de linteau, un ajustement d'étanchéité, un nouveau vitrage et deux semaines de décalage. Le rendu ne rend pas le projet plus beau : il rend les erreurs négociables.",
       },
       {
         kind: 'image',
-        src: '/media/projets/akoubri_zahiya-entrance-signage-01.webp',
-        alt: "Séjour rendu en images de synthèse, lumière de fin de journée",
-        caption: 'Zahiya — étude de lumière rasante sur le séjour, avant validation des baies.',
+        src: '/media/projets/akoubri_zahiya-entree-enseigne-crepuscule-01.webp',
+        alt: "Entrée de la résidence Zahiya au crépuscule, enseigne lumineuse sur bardage sombre",
+        caption: "Zahiya — l'entrée de la résidence en lumière de fin de journée, avant validation des baies.",
       },
       { kind: 'h2', text: 'Ce qu’une image doit montrer honnêtement' },
       {
@@ -118,7 +118,7 @@ export const posts = [
       { kind: 'h2', text: 'Et pour la commercialisation' },
       {
         kind: 'p',
-        text: "Les mêmes fichiers servent ensuite au dossier investisseurs, aux supports de vente et aux visites virtuelles. C'est le seul cas où un travail de conception se rentabilise deux fois : une fois pour décider, une fois pour convaincre.",
+        text: "Les mêmes fichiers servent ensuite au dossier investisseurs, aux supports de vente et aux visites virtuelles. C'est le seul cas où un travail de conception se rentabilise deux fois : une fois pour décider, une fois pour convaincre.",
       },
     ],
   },
@@ -130,7 +130,7 @@ export const posts = [
     readingTime: 8,
     author: 'Akoubri',
     excerpt:
-      "À cette latitude, le soleil n'est pas un agrément : c'est une contrainte structurante. Loggias profondes, brise-soleil et béton teinté — comment la façade du Sentier a été calée sur la course du soleil.",
+      "À cette latitude, le soleil n'est pas un agrément : c'est une contrainte structurante. Loggias profondes, brise-soleil et béton teinté — comment la façade du Sentier a été calée sur la course du soleil.",
     cover: '/media/projets/akoubri_le-sentier-toiture-piscine-atlas-01.webp',
     body: [
       {
@@ -140,13 +140,13 @@ export const posts = [
       { kind: 'h2', text: 'La profondeur plutôt que le verre teinté' },
       {
         kind: 'p',
-        text: "La réponse la plus simple au surchauffage n'est pas un vitrage performant : c'est de l'ombre. Sur Le Sentier, chaque étage recule derrière une loggia de deux mètres. La façade n'est jamais un plan mais une série de plans successifs, et l'ombre portée fait le travail que le verre ferait mal et cher.",
+        text: "La réponse la plus simple au surchauffage n'est pas un vitrage performant : c'est de l'ombre. Sur Le Sentier, chaque étage recule derrière une loggia de deux mètres. La façade n'est jamais un plan mais une série de plans successifs, et l'ombre portée fait le travail que le verre ferait mal et cher.",
       },
       {
         kind: 'image',
         src: '/media/projets/akoubri_le-sentier-toiture-piscine-crepuscule-03.webp',
-        alt: 'Loggias profondes en béton teinté sur la façade du Sentier',
-        caption: "Deux mètres de retrait : l'ombre portée protège la baie sans obstruer la vue.",
+        alt: 'Piscine de la toiture-terrasse du Sentier au crépuscule, parasols repliés et palmiers',
+        caption: "Le Sentier — la toiture-terrasse au crépuscule : l'ombre des parasols et des palmiers fait le travail du verre.",
       },
       { kind: 'h2', text: 'Le béton teinté, choisi pour la fin de journée' },
       {
@@ -161,8 +161,8 @@ export const posts = [
       {
         kind: 'list',
         items: [
-          "Protéger par la géométrie avant de protéger par le vitrage : c'est moins cher et cela ne vieillit pas.",
-          "Traiter les ouvertures ouest avec plus de sévérité que les ouvertures sud : le soleil rasant entre plus loin.",
+          "Protéger par la géométrie avant de protéger par le vitrage : c'est moins cher et cela ne vieillit pas.",
+          "Traiter les ouvertures ouest avec plus de sévérité que les ouvertures sud : le soleil rasant entre plus loin.",
           "Vérifier chaque parti en rendu solaire aux quatre saisons avant de figer les plans.",
         ],
       },
@@ -180,36 +180,36 @@ export const posts = [
     readingTime: 6,
     author: 'Akoubri',
     excerpt:
-      "Travertin, noyer, laiton brossé : trois matières qui vieillissent bien, et la méthode que nous suivons pour les arbitrer avec un maître d'ouvrage sans y passer six mois.",
-    cover: '/media/projets/akoubri_adostigia-director-office-16.webp',
+      "Travertin, noyer, laiton brossé : trois matières qui vieillissent bien, et la méthode que nous suivons pour les arbitrer avec un maître d'ouvrage sans y passer six mois.",
+    cover: '/media/projets/akoubri_adostigia-bureau-direction-lambris-bibliotheque-16.webp',
     body: [
       {
         kind: 'p',
-        text: "Le choix des matières est le moment où un projet d'intérieur devient concret, et aussi celui où il s'enlise le plus souvent. La cause est toujours la même : on présente trop d'options, trop tôt, sans hiérarchie.",
+        text: "Le choix des matières est le moment où un projet d'intérieur devient concret, et aussi celui où il s'enlise le plus souvent. La cause est toujours la même : on présente trop d'options, trop tôt, sans hiérarchie.",
       },
       { kind: 'h2', text: 'Trois familles, pas trente échantillons' },
       {
         kind: 'p',
-        text: "Nous présentons systématiquement trois univers complets plutôt qu'un catalogue. Chacun est cohérent de bout en bout : sol, mur, plan de travail, quincaillerie, textile. Le maître d'ouvrage arbitre entre trois ambiances, pas entre deux cents références.",
+        text: "Nous présentons systématiquement trois univers complets plutôt qu'un catalogue. Chacun est cohérent de bout en bout : sol, mur, plan de travail, quincaillerie, textile. Le maître d'ouvrage arbitre entre trois ambiances, pas entre deux cents références.",
       },
       {
         kind: 'image',
-        src: '/media/projets/akoubri_adostigia-director-office-11.webp',
-        alt: 'Mur de travertin rainuré rétroéclairé et comptoir en pierre claire',
-        caption: 'Travertin rainuré et rétroéclairage : la matière fait le décor, rien n’est rapporté.',
+        src: '/media/projets/akoubri_adostigia-bureau-direction-plan-noir-11.webp',
+        alt: 'Bureau de direction Adostigia : plan de travail noir, fauteuils clairs, lambris de bois et grande fenêtre voilée',
+        caption: 'Adostigia — lambris de bois et pierre claire : la matière fait le décor, rien n’est rapporté.',
       },
-      { kind: 'h2', text: 'La question qui tranche : comment cela vieillit-il ?' },
+      { kind: 'h2', text: 'La question qui tranche : comment cela vieillit-il ?' },
       {
         kind: 'p',
-        text: "Une matière se choisit sur son état à dix ans, pas à la livraison. Le laiton brossé se patine et gagne ; un chrome brillant se raye et perd. Le noyer massif se répare ; un placage fin ne se répare pas. Le travertin se recharge ; un composite se remplace.",
+        text: "Une matière se choisit sur son état à dix ans, pas à la livraison. Le laiton brossé se patine et gagne ; un chrome brillant se raye et perd. Le noyer massif se répare ; un placage fin ne se répare pas. Le travertin se recharge ; un composite se remplace.",
       },
       {
         kind: 'list',
         items: [
-          'Se répare-t-elle localement, ou faut-il tout remplacer ?',
-          "Se patine-t-elle dans le bon sens, ou se dégrade-t-elle ?",
-          "Est-elle disponible au Maroc, ou faut-il l'importer à chaque reprise ?",
-          'Supporte-t-elle un entretien ordinaire, sans produit spécifique ?',
+          'Se répare-t-elle localement, ou faut-il tout remplacer ?',
+          "Se patine-t-elle dans le bon sens, ou se dégrade-t-elle ?",
+          "Est-elle disponible au Maroc, ou faut-il l'importer à chaque reprise ?",
+          'Supporte-t-elle un entretien ordinaire, sans produit spécifique ?',
         ],
       },
       {
@@ -224,7 +224,7 @@ export const posts = [
   },
   {
     slug: 'permis-de-construire-maroc',
-    title: 'Permis de construire au Maroc : le calendrier réel',
+    title: 'Permis de construire au Maroc : le calendrier réel',
     category: 'Métier',
     date: '2026-01-29',
     readingTime: 9,
@@ -235,14 +235,14 @@ export const posts = [
     body: [
       {
         kind: 'p',
-        text: "La question revient à chaque premier rendez-vous : « combien de temps pour le permis ? ». La réponse honnête est qu'un dossier bien préparé passe en quelques mois, et qu'un dossier mal préparé peut ne jamais passer. La différence se joue avant le dépôt.",
+        text: "La question revient à chaque premier rendez-vous : « combien de temps pour le permis ? ». La réponse honnête est qu'un dossier bien préparé passe en quelques mois, et qu'un dossier mal préparé peut ne jamais passer. La différence se joue avant le dépôt.",
       },
       { kind: 'h2', text: 'Les étapes, dans l’ordre' },
       {
         kind: 'list',
         items: [
           'Vérification du titre foncier et du règlement d’urbanisme applicable à la parcelle.',
-          'Note de renseignements urbanistiques : ce que la parcelle autorise réellement.',
+          'Note de renseignements urbanistiques : ce que la parcelle autorise réellement.',
           'Conception et mise au point du dossier avec les bureaux d’études.',
           'Dépôt en commission, puis passage devant les services concernés.',
           'Réponse, réserves éventuelles, reprise du dossier, autorisation.',
@@ -251,12 +251,12 @@ export const posts = [
       { kind: 'h2', text: 'Les trois causes de retard évitables' },
       {
         kind: 'p',
-        text: "La première est un dossier incomplet déposé pour « gagner du temps ». Il n'en fait jamais gagner : il remet le projet en file d'attente. La deuxième est un écart entre le projet dessiné et ce que le règlement autorise — hauteur, emprise, recul, stationnement. La troisième est l'absence des bureaux d'études au moment du dépôt.",
+        text: "La première est un dossier incomplet déposé pour « gagner du temps ». Il n'en fait jamais gagner : il remet le projet en file d'attente. La deuxième est un écart entre le projet dessiné et ce que le règlement autorise — hauteur, emprise, recul, stationnement. La troisième est l'absence des bureaux d'études au moment du dépôt.",
       },
       {
         kind: 'image',
         src: '/media/projets/akoubri_le-sentier-toiture-terrasse-aerien-01.webp',
-        alt: "Vue aérienne verticale d'un immeuble résidentiel : emprise au sol, retraits d'étages et terrasses plantées",
+        alt: "Vue aérienne verticale d'un immeuble résidentiel : emprise au sol, retraits d'étages et terrasses plantées",
         caption: "Le règlement d'urbanisme décide de la volumétrie avant l'architecte.",
       },
       {
@@ -283,11 +283,11 @@ export const posts = [
     author: 'Akoubri',
     excerpt:
       "Dans un plateau de bureaux, l'acoustique décide du confort bien avant la couleur des murs. Ce que nous avons appris en traitant les salles de réunion du siège Adostigia en absorption intégrale.",
-    cover: '/media/projets/akoubri_adostigia-director-office-desk-14.webp',
+    cover: '/media/projets/akoubri_adostigia-suspension-globes-panneau-bois-14.webp',
     body: [
       {
         kind: 'p',
-        text: "On juge un bureau sur ce qu'on y voit, on l'endure sur ce qu'on y entend. Un plateau bien dessiné mais réverbérant devient invivable en trois semaines, et personne ne sait nommer le problème : on dit simplement qu'on s'y sent fatigué.",
+        text: "On juge un bureau sur ce qu'on y voit, on l'endure sur ce qu'on y entend. Un plateau bien dessiné mais réverbérant devient invivable en trois semaines, et personne ne sait nommer le problème : on dit simplement qu'on s'y sent fatigué.",
       },
       { kind: 'h2', text: "L'ennemi n'est pas le bruit, c'est la réverbération" },
       {
@@ -296,16 +296,16 @@ export const posts = [
       },
       {
         kind: 'image',
-        src: '/media/projets/akoubri_adostigia-director-office-19.webp',
-        alt: 'Salle de réunion traitée en absorption acoustique, textile mural et tapis épais',
-        caption: 'Plafond suspendu, textile mural, tapis épais : trois surfaces, une seule intention.',
+        src: '/media/projets/akoubri_adostigia-bureau-direction-plongee-19.webp',
+        alt: 'Bureau de direction Adostigia vu en plongée : plan noir, bibliothèque éclairée et fauteuils clairs',
+        caption: 'Adostigia — plafond suspendu, lambris et tapis : trois surfaces, une seule intention.',
       },
       {
         kind: 'list',
         items: [
-          'Le plafond en premier : c’est la plus grande surface disponible et la plus efficace.',
+          'Le plafond en premier : c’est la plus grande surface disponible et la plus efficace.',
           'Le textile mural ensuite, sur le mur opposé à la source principale.',
-          'Le tapis en dernier : il traite les pas plus que les voix.',
+          'Le tapis en dernier : il traite les pas plus que les voix.',
         ],
       },
       {

@@ -18,7 +18,14 @@ export default function Showcase({ items }) {
   const [i, setI] = useState(0);
   const [dir, setDir] = useState(1);
   const touch = useRef(null);
+  // Which preview a touch tap is opening (-1 left, 1 right, 0 none). On a
+  // pointer the preview has already widened under hover before the click;
+  // a finger has no hover, so the tap plays that widening first and only
+  // then pages. Kept in a data-* attribute, not the className.
+  const [opening, setOpening] = useState(0);
+  const openTimer = useRef(null);
   const n = items.length;
+  const phone = usePhone();
 
   const at = useCallback((k) => items[((k % n) + n) % n], [items, n]);
 
@@ -29,6 +36,22 @@ export default function Showcase({ items }) {
     },
     [n]
   );
+
+  const openPreview = (step) => {
+    if (opening) return;
+    const hoverOpens = window.matchMedia(
+      '(min-width: 1024px) and (hover: hover) and (pointer: fine)'
+    ).matches;
+    const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (hoverOpens || still || phone) { go(step); return; }
+    setOpening(step);
+    openTimer.current = setTimeout(() => {
+      setOpening(0);
+      go(step);
+    }, 520);
+  };
+
+  useEffect(() => () => clearTimeout(openTimer.current), []);
 
   // Arrow keys page through while the carousel has focus.
   const onKeyDown = (e) => {
@@ -43,7 +66,7 @@ export default function Showcase({ items }) {
     touch.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
   };
   const onTouchEnd = (e) => {
-    if (!touch.current) return;
+    if (!touch.current || opening) return;
     const dx = e.changedTouches[0].clientX - touch.current.x;
     const dy = e.changedTouches[0].clientY - touch.current.y;
     if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy)) go(dx < 0 ? 1 : -1);
@@ -72,7 +95,7 @@ export default function Showcase({ items }) {
               <br />
               vous imaginez
             </InkTitle>
-            <p className="mt-4 text-ink-soft md:hidden">
+            <p className="mt-4 md:hidden">
               Des volumes clairs, des matières franches et une lumière pensée
               pièce par pièce.
             </p>
@@ -98,7 +121,52 @@ export default function Showcase({ items }) {
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
       >
-        <div className="slab-row">
+        {phone ? (
+          /* Phone: a track, not three fixed slots. Each figure is keyed by
+             the slide it shows, so paging hands the same node a new role
+             and CSS eases its width: the tapped sliver grows into the centre
+             while the old centre narrows into a sliver, with nothing
+             swapped or snapped back. Two zero-width figures wait off each
+             edge so the incoming sliver has a node to grow from. */
+          <div className="slab-row slab-track">
+            {[-2, -1, 0, 1, 2].map((off) => {
+              const k = (((i + off) % n) + n) % n;
+              const s = items[k];
+              const role =
+                off === 0 ? 'main' : off === -1 ? 'left' : off === 1 ? 'right'
+                : off < 0 ? 'off-left' : 'off-right';
+              return (
+                <figure
+                  key={k}
+                  className={`slab slab--${role}`}
+                  aria-hidden={off === 0 ? undefined : 'true'}
+                  onClick={off === -1 || off === 1 ? () => openPreview(off) : undefined}
+                >
+                  <img
+                    src={s.src}
+                    alt={off === 0 ? s.title : ''}
+                    loading={Math.abs(off) <= 1 ? 'eager' : 'lazy'}
+                  />
+                  {off === 0 && (
+                    <Link
+                      to={`/projets/${s.slug}`}
+                      className="slab-cta"
+                      aria-label={`Voir le projet — ${s.title}`}
+                    >
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M7 17 17 7M9 7h8v8" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </Link>
+                  )}
+                </figure>
+              );
+            })}
+          </div>
+        ) : (
+        <div
+          className="slab-row"
+          data-opening={opening < 0 ? 'left' : opening > 0 ? 'right' : undefined}
+        >
           {/* Left preview — trapezoid leaning right. It widens on hover, so
               it is also clickable: a panel that opens up under the pointer
               but does nothing when clicked reads as broken. Kept out of the
@@ -107,7 +175,7 @@ export default function Showcase({ items }) {
           <figure
             className="slab slab--left"
             aria-hidden="true"
-            onClick={() => go(-1)}
+            onClick={() => openPreview(-1)}
           >
             <img key={at(i - 1).src} src={at(i - 1).src} alt="" loading="lazy" />
           </figure>
@@ -145,21 +213,22 @@ export default function Showcase({ items }) {
           <figure
             className="slab slab--right"
             aria-hidden="true"
-            onClick={() => go(1)}
+            onClick={() => openPreview(1)}
           >
             <img key={at(i + 1).src} src={at(i + 1).src} alt="" loading="lazy" />
           </figure>
         </div>
+        )}
 
         {/* Live region so the slide change is announced without moving focus. */}
         <p className="sr-only" aria-live="polite">
-          {`Image ${i + 1} sur ${n} : ${current.title}`}
+          {`Image ${i + 1} sur ${n} : ${current.title}`}
         </p>
 
         {/* Caption for phones, where it cannot sit over the small panel. */}
         <div className="mt-5 text-center md:hidden">
           <p className="font-display text-lg uppercase">{current.title}</p>
-          <p className="mt-1 text-sm leading-relaxed text-ink-soft">{current.caption}</p>
+          <p className="mt-1">{current.caption}</p>
         </div>
 
         {/* Dots */}
@@ -169,7 +238,7 @@ export default function Showcase({ items }) {
               key={s.src}
               type="button"
               onClick={() => { setDir(k > i ? 1 : -1); setI(k); }}
-              aria-label={`Aller à l'image ${k + 1} : ${s.title}`}
+              aria-label={`Aller à l'image ${k + 1} : ${s.title}`}
               aria-current={k === i || undefined}
               /* The dot is 8px tall by design; the button around it is
                  44px so it can actually be hit with a thumb. */
@@ -215,4 +284,20 @@ function NavBtn({ label, onClick, dir }) {
       </svg>
     </button>
   );
+}
+
+/* True below the phone breakpoint, kept in sync on resize/rotation. */
+function usePhone() {
+  const query = '(max-width: 767.98px)';
+  const [phone, setPhone] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia(query).matches
+  );
+  useEffect(() => {
+    const mq = window.matchMedia(query);
+    const on = () => setPhone(mq.matches);
+    on();
+    mq.addEventListener('change', on);
+    return () => mq.removeEventListener('change', on);
+  }, []);
+  return phone;
 }

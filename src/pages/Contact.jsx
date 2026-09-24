@@ -39,7 +39,7 @@ export default function Contact() {
 
   usePageMeta({
     description:
-      "Contacter un architecte à Marrakech : conception architecturale, permis de construire, suivi de chantier et design d'intérieur. Réponse sous 48 heures ouvrées.",
+      "Contacter un architecte à Marrakech : conception architecturale, permis de construire, suivi de chantier et design d'intérieur. Réponse sous 48 heures ouvrées.",
     canonical: '/contact',
   });
   const ink = useInkFill({ play: true });
@@ -58,7 +58,7 @@ export default function Contact() {
             data-reveal-delay="160"
             className="reveal zv-lead zv-muted mx-auto mt-5 max-w-xl"
           >
-            Un terrain, un plan ou une simple intention : écrivez-nous et nous
+            Un terrain, un plan ou une simple intention : écrivez-nous et nous
             revenons vers vous avec une première lecture.
           </p>
         </div>
@@ -70,8 +70,8 @@ export default function Contact() {
           <div className="grid items-start gap-10 lg:grid-cols-2 lg:gap-16">
             <div data-reveal className="reveal zv-media">
               <img
-                src="/media/projets/akoubri_adostigia-reception-01.webp"
-                alt="Accueil du projet Adostigia : enseigne en relief sur panneau de marbre sombre rétroéclairé, murs de pierre claire cannelée"
+                src="/media/projets/akoubri_adostigia-accueil-enseigne-relief-marbre-01.webp"
+                alt="Accueil du projet Adostigia : enseigne en relief sur panneau de marbre sombre rétroéclairé, murs de pierre claire cannelée"
                 width="1280"
                 height="960"
                 fetchpriority="high"

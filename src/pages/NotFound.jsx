@@ -7,7 +7,7 @@ export default function NotFound() {
       <div className="shell text-center">
         <span className="zv-subtitle">Erreur 404</span>
         <InkTitle as="h1" play className="zv-h1 mt-5">Cette page n'existe pas</InkTitle>
-        <p className="zv-lead zv-muted mx-auto mt-5 max-w-md">
+        <p className="zv-lead mx-auto mt-5 max-w-md">
           Le lien est peut-être ancien, ou la page a été déplacée.
         </p>
         <div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row">

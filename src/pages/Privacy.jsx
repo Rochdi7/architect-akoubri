@@ -37,7 +37,7 @@ export default function Privacy() {
           <div data-reveal className="reveal mx-auto max-w-3xl">
             <span className="zv-subtitle">Vos données</span>
             <InkTitle as="h1" play className="zv-h1 mt-5">Politique de confidentialité</InkTitle>
-            <p className="zv-lead zv-muted mt-5 max-w-xl">
+            <p className="zv-lead mt-5 max-w-xl">
               Ce que nous collectons, pourquoi, combien de temps nous le
               conservons, et comment exercer vos droits.
             </p>
@@ -49,7 +49,7 @@ export default function Privacy() {
         <div className="shell">
           <article className="mx-auto max-w-3xl space-y-14 md:space-y-20">
             <Block n="01" title="Responsable du traitement">
-              <p className="zv-body zv-muted">
+              <p className="zv-body">
                 Le responsable du traitement est {business.legalName}, dont le
                 siège et les coordonnées figurent dans les{' '}
                 <Link to="/mentions-legales" className="underline underline-offset-4 hover:text-[var(--zv-primary)]">
@@ -64,7 +64,7 @@ export default function Privacy() {
             </Block>
 
             <Block n="02" title="Données collectées">
-              <p className="zv-body zv-muted">
+              <p className="zv-body">
                 Nous ne collectons que les données que vous nous transmettez via
                 le formulaire de contact, auxquelles s&apos;ajoute votre adresse IP
                 pour des raisons de sécurité&nbsp;:
@@ -81,21 +81,21 @@ export default function Privacy() {
                   </div>
                 ))}
               </dl>
-              <p className="zv-small zv-muted mt-6">
+              <p className="zv-small mt-6">
                 Aucune donnée sensible n&apos;est demandée. Nous ne vous demandons
                 jamais de coordonnées bancaires par ce formulaire.
               </p>
             </Block>
 
             <Block n="03" title="Finalité et base légale">
-              <p className="zv-body zv-muted">
+              <p className="zv-body">
                 Vos données servent exclusivement à traiter votre demande et à
                 assurer le suivi commercial qui en découle. La base légale est
                 votre consentement, matérialisé par l&apos;envoi volontaire du
                 formulaire, ainsi que notre intérêt légitime à protéger le site
                 contre les envois automatisés.
               </p>
-              <p className="zv-body zv-muted mt-5">
+              <p className="zv-body mt-5">
                 Vos données ne sont ni vendues, ni louées, ni transmises à des
                 fins publicitaires. Aucune prospection commerciale non sollicitée
                 ne vous sera adressée.
@@ -103,7 +103,7 @@ export default function Privacy() {
             </Block>
 
             <Block n="04" title="Destinataires et sous-traitants">
-              <p className="zv-body zv-muted">
+              <p className="zv-body">
                 Les messages sont reçus par courrier électronique par l&apos;équipe
                 de l&apos;agence, seule destinataire. L&apos;acheminement technique
                 est assuré par notre hébergeur, Hostinger, qui agit en qualité de
@@ -112,7 +112,7 @@ export default function Privacy() {
             </Block>
 
             <Block n="05" title="Durée de conservation">
-              <p className="zv-body zv-muted">
+              <p className="zv-body">
                 Les demandes sans suite sont conservées douze mois à compter du
                 dernier échange, puis supprimées. Les échanges liés à un projet
                 engagé suivent la durée légale de conservation des documents
@@ -125,7 +125,7 @@ export default function Privacy() {
             </Block>
 
             <Block n="06" title="Cookies et mesure d'audience">
-              <p className="zv-body zv-muted">
+              <p className="zv-body">
                 Ce site ne dépose aucun cookie publicitaire et n&apos;utilise aucun
                 traceur de mesure d&apos;audience. Les polices d&apos;écriture sont
                 servies depuis nos propres serveurs&nbsp;: la navigation ne
@@ -135,7 +135,7 @@ export default function Privacy() {
             </Block>
 
             <Block n="07" title="Sécurité">
-              <p className="zv-body zv-muted">
+              <p className="zv-body">
                 Le site est servi exclusivement en HTTPS. Le formulaire est
                 protégé par un champ leurre, une limitation du nombre
                 d&apos;envois par adresse IP et un filtrage des contenus soumis.
@@ -145,7 +145,7 @@ export default function Privacy() {
             </Block>
 
             <Block n="08" title="Vos droits">
-              <p className="zv-body zv-muted">
+              <p className="zv-body">
                 Conformément à la loi 09-08 relative à la protection des personnes
                 physiques à l&apos;égard du traitement des données à caractère
                 personnel, vous disposez des droits suivants&nbsp;:
@@ -160,7 +160,7 @@ export default function Privacy() {
                   </li>
                 ))}
               </ul>
-              <p className="zv-body zv-muted mt-7">
+              <p className="zv-body mt-7">
                 Pour exercer ces droits, écrivez à {business.email}. Nous
                 répondons sous trente jours. Vous pouvez également saisir la
                 Commission Nationale de contrôle de la protection des Données à
@@ -175,7 +175,7 @@ export default function Privacy() {
         <div className="shell">
           <div data-reveal className="reveal mx-auto max-w-2xl text-center">
             <InkTitle className="zv-h3">Une demande concernant vos données&nbsp;?</InkTitle>
-            <p className="zv-lead zv-muted mx-auto mt-5 max-w-md">
+            <p className="zv-lead mx-auto mt-5 max-w-md">
               Un simple e-mail suffit — nous traitons chaque demande
               individuellement.
             </p>

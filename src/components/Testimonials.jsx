@@ -53,7 +53,7 @@ export default function Testimonials({ items }) {
           <InkTitle className="mt-3 font-display text-3xl tracking-tight md:text-4xl">
             Ce qu'en disent les maîtres d'ouvrage
           </InkTitle>
-          <p className="mt-4 text-lg text-ink-soft">
+          <p className="mt-4">
             Promoteurs, entreprises et particuliers, après livraison.
           </p>
         </div>

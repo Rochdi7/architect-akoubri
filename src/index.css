@@ -56,9 +56,10 @@
      One type system across the whole site: the sections that predate the
      Zenvira theme (header, project cards, showcase, testimonials, CTA and
      footer) now resolve to the same two faces as the themed sections, so
-     nothing switches typeface mid-page. Fjalla One replaces Fraunces for
-     display and Poppins replaces Inter for body. */
-  --font-display: 'Fjalla One', 'Arial Narrow', sans-serif;
+     nothing switches typeface mid-page. Bayon (the reference's display
+     face, in our accent-extended build) replaces Fraunces for display and
+     Poppins replaces Inter for body. */
+  --font-display: 'Bayon', Impact, 'Arial Narrow', sans-serif;
   --font-body: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 
   /* Rhythm */
@@ -122,6 +123,16 @@ body {
   -webkit-font-smoothing: auto;
   -moz-osx-font-smoothing: auto;
   text-rendering: optimizeLegibility;
+}
+
+/* Paragraph step: every <p> reads at the reference's large-paragraph
+   size in the full ink, in the older sections as much as the themed
+   ones (user decision 2026-09-24). Labels set as <p> (eyebrows, the
+   testimonial name and role) keep their utility sizes, which win here. */
+p {
+  font-size: 20px;
+  line-height: 28px;
+  letter-spacing: -0.2px;
   overflow-x: hidden;
   overflow-x: clip;
 }
@@ -138,6 +149,11 @@ h1, h2, h3, h4, h5 {
   text-transform: uppercase;
   color: var(--ink);
 }
+
+/* Running text everywhere gets the `pretty` rag: no lone word on the last
+   line, even line lengths. Zero specificity, so any component can opt out.
+   Pairs with the no-break space the French copy uses before : ; ? ! » */
+:where(p, li, dd, dt, figcaption, blockquote, summary) { text-wrap: pretty; }
 
 a {
   color: inherit;
@@ -1196,6 +1212,83 @@ summary::-webkit-details-marker { display: none; }
   .slab-caption { display: none; }
 }
 
+/* Tap-to-open, touch and tablet. Showcase sets data-opening on the row
+   for ~520ms before paging: the tapped preview widens and straightens
+   while the centre gives way, the same gesture the desktop plays on
+   hover. Only the preview's flex-basis animates; the centre is flex:1
+   and simply absorbs the remainder, so the row always adds up. The
+   transition lives on the opening state only, so the row snaps back
+   while the next slide fades in over it. */
+@media not all and (min-width: 1024px) and (hover: hover) and (pointer: fine) {
+  .slab--main { min-width: 0; }
+
+  .slab-row[data-opening] > .slab {
+    transition:
+      flex-basis 520ms cubic-bezier(0.65, 0, 0.35, 1),
+      opacity 520ms cubic-bezier(0.65, 0, 0.35, 1),
+      clip-path 520ms cubic-bezier(0.65, 0, 0.35, 1);
+  }
+
+  .slab-row[data-opening='left'] > .slab--left,
+  .slab-row[data-opening='right'] > .slab--right {
+    flex-basis: 64%;
+    -webkit-clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+  }
+
+  .slab-row[data-opening='left'] > .slab--left img,
+  .slab-row[data-opening='right'] > .slab--right img { opacity: 1; }
+
+  .slab-row[data-opening='left'] > .slab:not(.slab--left),
+  .slab-row[data-opening='right'] > .slab:not(.slab--right) { opacity: 0.72; }
+}
+
+/* Phone track (Showcase renders .slab-track below 768px). Every figure
+   has an explicit flex-basis for its role so a role change can ease;
+   all of them run the same duration and curve, so the five widths
+   (plus the cancelled gaps of the two hidden ones) always sum to the
+   row and it never shifts sideways mid-page. */
+@media (max-width: 767.98px) {
+  .slab-track {
+    --side: clamp(52px, 15vw, 72px);
+    --gap: 0.5rem;
+  }
+
+  .slab-track > .slab {
+    min-width: 0;
+    transition:
+      flex-basis 560ms cubic-bezier(0.65, 0, 0.35, 1),
+      margin 560ms cubic-bezier(0.65, 0, 0.35, 1),
+      border-radius 560ms cubic-bezier(0.65, 0, 0.35, 1);
+  }
+
+  .slab-track > .slab--main {
+    flex: 0 0 calc(100% - 2 * var(--side) - 2 * var(--gap));
+  }
+
+  /* Hidden neighbours: zero wide, with a negative margin eating the gap
+     beside them so they take no room at all. */
+  .slab-track > .slab--off-left,
+  .slab-track > .slab--off-right {
+    flex: 0 0 0px;
+    border-radius: 12px;
+  }
+  .slab-track > .slab--off-left { margin-right: calc(-1 * var(--gap)); }
+  .slab-track > .slab--off-right { margin-left: calc(-1 * var(--gap)); }
+
+  .slab-track > .slab img {
+    opacity: 1;
+    transition: opacity 560ms cubic-bezier(0.65, 0, 0.35, 1);
+  }
+  .slab-track > .slab--left img,
+  .slab-track > .slab--right img { opacity: 0.92; }
+}
+
+@media (max-width: 767.98px) and (prefers-reduced-motion: reduce) {
+  .slab-track > .slab,
+  .slab-track > .slab img { transition: none; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .slab-in-right,
   .slab-in-left { animation: none; }
@@ -1228,8 +1321,8 @@ summary::-webkit-details-marker { display: none; }
      same relation to the panel at every width. */
   font-size: clamp(3rem, 20cqw, 18rem);
   line-height: 0.78;
-  /* Fjalla One is condensed and already tightly fitted; the -0.035em that
-     suited Fraunces at this size would collide the letterforms. */
+  /* Bayon is already tightly fitted; the -0.035em that suited Fraunces
+     at this size would collide the letterforms. */
   letter-spacing: 0;
   text-transform: uppercase;
   color: rgba(250, 248, 245, 0.3);

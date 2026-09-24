@@ -24,8 +24,8 @@ le sitemap (https://akoubri.com/sitemap.xml).
 - [Zahiya](https://akoubri.com/projets/zahiya): maison d'hôtes, séjour et espaces de réception
 - [Adostigia](https://akoubri.com/projets/adostigia): bureaux et espaces de direction
 - [Farraj](https://akoubri.com/projets/farraj): bâtiment administratif et hangar
-- [Maison d'hôte](https://akoubri.com/projets/maison-dhote): terrasses et salons extérieurs
-- [Villa](https://akoubri.com/projets/villa): résidence contemporaine avec piscine
+- [Maison d'hôtes](https://akoubri.com/projets/maison-dhote): terrasses et salons extérieurs
+- [Villa Jumelée](https://akoubri.com/projets/villa-jumelee-1): résidence contemporaine avec piscine
 
 ## Contact
 

@@ -89,7 +89,7 @@ export default function BlogDetail() {
             </span>
           </div>
           <h1 ref={ink} className="zv-h2 mt-6">{post.title}</h1>
-          <p className="zv-lead zv-muted mx-auto mt-6 max-w-2xl">{post.excerpt}</p>
+          <p className="zv-lead mx-auto mt-6 max-w-2xl">{post.excerpt}</p>
         </header>
 
         {/* Cover — deliberately NOT data-reveal. It is the LCP element and it
@@ -158,7 +158,7 @@ export default function BlogDetail() {
               </ol>
 
               <div className="mt-8 border-t border-[var(--zv-border)] pt-6">
-                <p className="zv-small zv-muted">
+                <p className="zv-small">
                   Un projet en tête&nbsp;? Nous répondons sous 48&nbsp;heures
                   ouvrées.
                 </p>
@@ -243,7 +243,7 @@ function Body({ blocks, onOpen }) {
             return (
               <ul key={i} data-reveal className="reveal space-y-3">
                 {block.items.map((item) => (
-                  <li key={item} className="zv-body zv-muted flex items-start gap-4">
+                  <li key={item} className="zv-body flex items-start gap-4">
                     <span className="zv-marker" aria-hidden="true" />
                     <span>{item}</span>
                   </li>

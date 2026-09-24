@@ -25,6 +25,11 @@
   # its .git folder (FilesMatch below only covers dotfiles, not dot-dirs).
   RewriteRule (^|/)\.git(/|$) - [F,L]
 
+  # The three villas were renamed "Villa Jumelée" 1–3; keep old links alive.
+  RewriteRule ^projets/villa/?$ /projets/villa-jumelee-1 [R=301,L]
+  RewriteRule ^projets/villa-k/?$ /projets/villa-jumelee-2 [R=301,L]
+  RewriteRule ^projets/villa-targa/?$ /projets/villa-jumelee-3 [R=301,L]
+
   # Let real files, directories and the PHP API through untouched.
   RewriteCond %{REQUEST_FILENAME} -f [OR]
   RewriteCond %{REQUEST_FILENAME} -d

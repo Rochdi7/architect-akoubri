@@ -13,7 +13,7 @@ export default function Projects() {
 
   usePageMeta({
     description:
-      "Projets d'architecture à Marrakech : résidences, villas, aménagement de bureaux, unités industrielles et maisons d'hôte. Conception architecturale et images de synthèse.",
+      "Projets d'architecture à Marrakech : résidences, villas, aménagement de bureaux, unités industrielles et maisons d'hôte. Conception architecturale et images de synthèse.",
     canonical: '/projets',
   });
 

@@ -25,7 +25,7 @@ export default function Home() {
 
   usePageMeta({
     description:
-      "Cabinet d'architecture à Marrakech : conception architecturale, accompagnement au permis de construire, suivi de chantier, design d'intérieur et images de synthèse.",
+      "Cabinet d'architecture à Marrakech : conception architecturale, accompagnement au permis de construire, suivi de chantier, design d'intérieur et images de synthèse.",
     canonical: '/',
   });
 
@@ -89,11 +89,11 @@ function Hero() {
     window.matchMedia('(max-aspect-ratio: 3/4)').matches;
 
   const src = portrait
-    ? '/media/projets/akoubri_le-sentier-v2-hero-portrait.mp4'
-    : '/media/projets/akoubri_le-sentier-v2-hero.mp4';
+    ? '/media/projets/akoubri_le-sentier-v3-hero-portrait.mp4'
+    : '/media/projets/akoubri_le-sentier-v3-hero.mp4';
   const poster = portrait
-    ? '/media/projets/akoubri_le-sentier-v2-hero-poster-portrait.webp'
-    : '/media/projets/akoubri_le-sentier-v2-hero-poster.webp';
+    ? '/media/projets/akoubri_le-sentier-v3-hero-poster-portrait.webp'
+    : '/media/projets/akoubri_le-sentier-v3-hero-poster.webp';
 
   useEffect(() => {
     const v = videoRef.current;
@@ -206,7 +206,7 @@ function Hero() {
                     line instead of dangling at the end of the first. */}
                 Cabinet d'architecture
                 <br />
-                &amp; design d'intérieur
+                &amp; design
               </InkTitle>
             </div>
 
@@ -305,7 +305,7 @@ function DesignStories() {
             Les lieux que vous imaginez, tenus jusqu'au chantier
           </InkTitle>
           <div className="max-w-[473px]">
-            <p className="zv-body zv-muted">
+            <p className="zv-lead">
               Chaque projet est modélisé et rendu avant d'être construit. Vous
               arbitrez sur des images fidèles, pas sur des intentions — de la
               conception jusqu'au dépôt du dossier.
@@ -338,7 +338,7 @@ function DesignStories() {
           >
             <img
               src="/media/projets/akoubri_le-sentier-toiture-piscine-atlas-01.webp"
-              alt="Toiture-terrasse du Sentier : piscine à débordement bordée d'une terrasse en bois et de bains de soleil, Atlas enneigé à l'horizon"
+              alt="Toiture-terrasse du Sentier : piscine à débordement bordée d'une terrasse en bois et de bains de soleil, Atlas enneigé à l'horizon"
               width="1388"
               height="1000"
               className="h-full min-h-[320px] w-full object-cover md:min-h-[460px]"
@@ -353,8 +353,8 @@ function DesignStories() {
           </Link>
 
           {[
-            { slug: 'zahiya', src: '/media/projets/akoubri_zahiya-entrance-signage-01.webp', name: 'Zahiya', meta: 'Résidence · Marrakech' },
-            { slug: 'adostigia', src: '/media/projets/akoubri_adostigia-reception-01.webp', name: 'Adostigia', meta: 'Aménagement de bureaux · Marrakech' },
+            { slug: 'zahiya', src: '/media/projets/akoubri_zahiya-entree-enseigne-crepuscule-01.webp', name: 'Zahiya', meta: 'Résidence · Marrakech' },
+            { slug: 'adostigia', src: '/media/projets/akoubri_adostigia-accueil-enseigne-relief-marbre-01.webp', name: 'Adostigia', meta: 'Aménagement de bureaux · Marrakech' },
           ].map((p, i) => (
             <Link
               key={p.slug}
@@ -437,13 +437,13 @@ const MOSAIC = [
   {
     slug: 'le-sentier',
     src: '/media/projets/akoubri_le-sentier-toiture-brasero-07.webp',
-    alt: "Piscine de la toiture-terrasse du Sentier au crépuscule, bains de soleil alignés et chaîne de l'Atlas enneigée à l'horizon",
+    alt: "Salon de plein air sur la toiture-terrasse du Sentier : banquettes basses autour d'un brasero allumé, sous des voiles d'ombrage",
     name: 'Le Sentier',
     meta: 'Toiture-terrasse · Marrakech',
   },
   {
     slug: 'adostigia',
-    src: '/media/projets/akoubri_adostigia-director-office-16.webp',
+    src: '/media/projets/akoubri_adostigia-bureau-direction-lambris-bibliotheque-16.webp',
     name: 'Adostigia',
     meta: 'Bureau de direction · Marrakech',
   },
@@ -547,7 +547,7 @@ function CoreValues() {
               </span>
               <div>
                 <h3 className="zv-h5">{v.title}</h3>
-                <p className="zv-small mt-2 text-[var(--zv-gray-400)]">{v.text}</p>
+                <p className="zv-small mt-2">{v.text}</p>
               </div>
             </div>
           ))}
@@ -659,7 +659,12 @@ function Services() {
           <InkTitle className="zv-h2">Quatre métiers, un seul interlocuteur</InkTitle>
         </div>
 
-        <div className="grid gap-5 sm:grid-cols-2">
+        {/* Phones: a swipe rail with a counter, arrows and a progress bar —
+            deliberately not the dot strip the method steps use further
+            down, so the two rails read as different things. */}
+        <ServicesRail />
+
+        <div className="hidden gap-5 sm:grid sm:grid-cols-2">
           {services.map((s, i) => (
             <div
               key={s.n}
@@ -667,24 +672,133 @@ function Services() {
               data-reveal-delay={i * 80}
               className="reveal zv-card zv-icon-card"
             >
-              <span className="zv-icon">
-                <span className="zv-h6 leading-none">{s.n}</span>
-              </span>
-              <h3 className="zv-h4">{s.title}</h3>
-              <p className="zv-body zv-muted">{s.text}</p>
-              <ul className="space-y-3 border-t border-[var(--zv-border)] pt-6">
-                {s.points.map((pt) => (
-                  <li key={pt} className="zv-small zv-muted flex items-start gap-3">
-                    <span className="zv-marker" aria-hidden="true" />
-                    {pt}
-                  </li>
-                ))}
-              </ul>
+              <ServiceBody service={s} />
             </div>
           ))}
         </div>
       </div>
     </section>
+  );
+}
+
+function ServiceBody({ service: s }) {
+  return (
+    <>
+      <span className="zv-icon">
+        <span className="zv-h6 leading-none">{s.n}</span>
+      </span>
+      <h3 className="zv-h4">{s.title}</h3>
+      <p className="zv-body">{s.text}</p>
+      <ul className="space-y-3 border-t border-[var(--zv-border)] pt-6">
+        {s.points.map((pt) => (
+          <li key={pt} className="zv-small zv-muted flex items-start gap-3">
+            <span className="zv-marker" aria-hidden="true" />
+            {pt}
+          </li>
+        ))}
+      </ul>
+    </>
+  );
+}
+
+/* Tracks which card of a snap rail sits at the resting edge and exposes a
+   scroll-to for the indicators. Shared by the services and method rails. */
+function useSnapRail(count) {
+  const railRef = useRef(null);
+  const [active, setActive] = useState(0);
+
+  useEffect(() => {
+    const rail = railRef.current;
+    if (!rail) return undefined;
+    let frame = 0;
+    const onScroll = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const cards = rail.querySelectorAll('[data-step]');
+        if (!cards.length) return;
+        // The last card can't reach the left edge, so "scrolled to the end"
+        // counts as the last step rather than leaving the second-last lit.
+        if (rail.scrollLeft + rail.clientWidth >= rail.scrollWidth - 4) {
+          setActive(cards.length - 1);
+          return;
+        }
+        const origin = rail.getBoundingClientRect().left + parseFloat(getComputedStyle(rail).scrollPaddingLeft || 0);
+        let best = 0;
+        let bestDist = Infinity;
+        cards.forEach((card, i) => {
+          const d = Math.abs(card.getBoundingClientRect().left - origin);
+          if (d < bestDist) { bestDist = d; best = i; }
+        });
+        setActive(best);
+      });
+    };
+    rail.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      cancelAnimationFrame(frame);
+      rail.removeEventListener('scroll', onScroll);
+    };
+  }, []);
+
+  const goTo = (i) => {
+    const rail = railRef.current;
+    const idx = Math.max(0, Math.min(count - 1, i));
+    const card = rail?.querySelectorAll('[data-step]')[idx];
+    if (!card) return;
+    const pad = parseFloat(getComputedStyle(rail).scrollPaddingLeft || 0);
+    rail.scrollTo({ left: card.offsetLeft - pad, behavior: 'smooth' });
+  };
+
+  return { railRef, active, goTo };
+}
+
+const RAIL_CLASS =
+  'reveal scrollbar-hide -mx-[var(--gutter)] flex snap-x snap-mandatory scroll-pl-[var(--gutter)] gap-4 overflow-x-auto overflow-y-hidden overscroll-x-contain px-[var(--gutter)] pb-2 after:block after:w-px after:shrink-0';
+
+const ARROW_CLASS =
+  'flex h-10 w-10 items-center justify-center rounded-full border border-[var(--zv-border-dark)] text-[var(--zv-primary)] transition disabled:opacity-30';
+
+/* Services rail, phones only. Wider cards than the method rail because
+   each carries a four-line list; the indicator is a 01 / 04 counter with
+   prev/next arrows and a copper progress bar that fills as you swipe. */
+function ServicesRail() {
+  const { railRef, active, goTo } = useSnapRail(services.length);
+  const n = services.length;
+
+  return (
+    <div className="sm:hidden">
+      <div ref={railRef} data-reveal role="region" aria-label="Nos métiers" className={RAIL_CLASS}>
+        {services.map((s) => (
+          <div
+            key={s.n}
+            data-step
+            className="zv-card zv-icon-card !h-auto w-[82vw] max-w-[340px] shrink-0 snap-start"
+          >
+            <ServiceBody service={s} />
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-6 flex items-center gap-4">
+        <span className="zv-h6 tabular-nums leading-none" aria-live="polite">
+          {services[active].n}
+          <span className="zv-muted"> / {String(n).padStart(2, '0')}</span>
+        </span>
+        <span className="relative h-px flex-1 bg-[var(--zv-border)]" aria-hidden="true">
+          <span
+            className="absolute inset-y-0 left-0 bg-[var(--zv-accent)] transition-[width] duration-300"
+            style={{ width: `${((active + 1) / n) * 100}%` }}
+          />
+        </span>
+        <span className="flex gap-2">
+          <button type="button" onClick={() => goTo(active - 1)} disabled={active === 0} aria-label="Métier précédent" className={ARROW_CLASS}>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M10 3 5 8l5 5" /></svg>
+          </button>
+          <button type="button" onClick={() => goTo(active + 1)} disabled={active === n - 1} aria-label="Métier suivant" className={ARROW_CLASS}>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m6 3 5 5-5 5" /></svg>
+          </button>
+        </span>
+      </div>
+    </div>
   );
 }
 
@@ -696,7 +810,16 @@ function Process() {
           <span className="zv-subtitle">Méthode</span>
           <InkTitle className="zv-h2">Comment on travaille</InkTitle>
         </div>
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+
+        {/* Phones: the four steps stacked ran two full screens deep, so
+            they become a swipe rail instead (see ProjectDetail's related
+            rail for the recipe). The rail reveals as one piece — a card
+            parked off to the right never intersects, so a per-card reveal
+            would leave it stuck at translateY and make the rail scroll
+            vertically. Tablet and desktop keep the staggered grid. */}
+        <ProcessRail />
+
+        <div className="hidden gap-5 sm:grid sm:grid-cols-2 lg:grid-cols-4">
           {process.map((s, i) => (
             <div
               key={s.n}
@@ -704,16 +827,72 @@ function Process() {
               data-reveal-delay={i * 90}
               className="reveal zv-card zv-icon-card zv-icon-card--start"
             >
-              <span className="zv-icon">
-                <span className="zv-h6 leading-none">{s.n}</span>
-              </span>
-              <h3 className="zv-h5">{s.title}</h3>
-              <p className="zv-small zv-muted">{s.text}</p>
+              <ProcessStep step={s} />
             </div>
           ))}
         </div>
       </div>
     </section>
+  );
+}
+
+function ProcessStep({ step }) {
+  return (
+    <>
+      <span className="zv-icon">
+        <span className="zv-h6 leading-none">{step.n}</span>
+      </span>
+      <h3 className="zv-h5">{step.title}</h3>
+      <p className="zv-small">{step.text}</p>
+    </>
+  );
+}
+
+/* Swipe rail for the method steps, phones only. The dots track the card
+   nearest the rail's resting edge and double as a jump control; the next
+   card peeking in from the right is the main hint that the row scrolls. */
+function ProcessRail() {
+  const { railRef, active, goTo } = useSnapRail(process.length);
+
+  return (
+    <div className="sm:hidden">
+      <div
+        ref={railRef}
+        data-reveal
+        role="region"
+        aria-label="Étapes de travail"
+        className={RAIL_CLASS}
+      >
+        {process.map((s) => (
+          <div
+            key={s.n}
+            data-step
+            className="zv-card zv-icon-card zv-icon-card--start !h-auto w-[76vw] max-w-[320px] shrink-0 snap-start"
+          >
+            <ProcessStep step={s} />
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-6 flex items-center justify-center gap-2">
+        {process.map((s, i) => (
+          <button
+            key={s.n}
+            type="button"
+            onClick={() => goTo(i)}
+            aria-label={`Étape ${s.n} : ${s.title}`}
+            aria-current={active === i ? 'step' : undefined}
+            className="flex h-6 items-center justify-center px-1"
+          >
+            <span
+              className={`block h-1.5 rounded-full transition-all duration-300 ${
+                active === i ? 'w-6 bg-white' : 'w-1.5 bg-white/35'
+              }`}
+            />
+          </button>
+        ))}
+      </div>
+    </div>
   );
 }
 

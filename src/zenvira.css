@@ -2,8 +2,8 @@
    ZENVIRA THEME LAYER
    ───────────────────────────────────────────────────────────────
    Ported from the Zenvira reference (zenvira-nextjs.vercel.app).
-   Fjalla One for display (condensed, uppercase), Poppins for body, on a
-   warm cream ground with a deep olive-black primary.
+   Bayon for display (uppercase), Poppins for body, on a warm cream
+   ground with a deep olive-black primary.
 
    IMPORTANT — scoping contract:
    These tokens and the `.zv` utilities are OPT-IN. Nothing here
@@ -87,10 +87,10 @@
   --zv-secondary: #a3adba;
 
   /* Type families.
-     Display is Fjalla One, not the reference's Bayon: Bayon ships no
-     accented glyphs at all, so every É/À/Û in a French heading fell back
-     to a different face mid-word. See the note in public/fonts. */
-  --zv-display: 'Fjalla One', 'Arial Narrow', sans-serif;
+     Display is the reference's Bayon. The published font ships no
+     accented glyphs, so this is our own build with É/À/Ç/Œ composed
+     from Bayon's strokes — see the note in public/fonts. */
+  --zv-display: 'Bayon', Impact, 'Arial Narrow', sans-serif;
   --zv-body: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 
   /* Type scale — reference desktop sizes, made fluid so they hold on
@@ -178,8 +178,9 @@
 }
 
 /* ── Display headings ──────────────────────────────────────────
-   Fjalla One is a single-weight condensed face; the reference renders it
-   uppercase at normal weight with no negative tracking. */
+   Bayon is a single-weight face; the reference renders it uppercase at
+   normal weight. Tracking is per level below (the reference tightens
+   h2–h6 slightly, h1 not at all). */
 .zv h1, .zv h2, .zv h3, .zv h4, .zv h5, .zv h6,
 .zv-h1, .zv-h2, .zv-h3, .zv-h4, .zv-h5, .zv-h6 {
   font-family: var(--zv-display);
@@ -221,19 +222,17 @@
    document-structure decision and size is a visual one; these selectors let
    the two be chosen independently, which is the whole point of the classes.
    Same technique as .zv-card-title further down. */
-/* Fjalla One asks for 1.257em per line (hhea ascent 2066 + descent 508
- * over a 2048 upem). Every value on this scale was under that, so a title
- * that wrapped had the accents of line two striking line one — worst at
- * --zv-h1, which tops out at 88px with a line-height of exactly 1.
- * These titles are set ALL CAPS and so carry no descenders: the ink only
- * fills the cap height, which is why a value under the full 1.257 still
- * clears. 1.14 is measured against É and À, the tallest ink in French. */
-.zv-h1.zv-h1 { font-size: var(--zv-h1); line-height: 1.14; }
-.zv-h2.zv-h2 { font-size: var(--zv-h2); line-height: 1.14; }
-.zv-h3.zv-h3 { font-size: var(--zv-h3); line-height: 1.15; }
-.zv-h4.zv-h4 { font-size: var(--zv-h4); line-height: 1.13; }
-.zv-h5.zv-h5 { font-size: var(--zv-h5); line-height: 1.33; }
-.zv-h6.zv-h6 { font-size: var(--zv-h6); line-height: 1.4; }
+/* Bayon's caps reach 0.70em and its accents top out at 0.93em, so a
+ * wrapped ALL CAPS title clears at the reference's own leading (h1 88/88,
+ * h2 72/82, h3 52/60, h4 32/36). h1 keeps a hair more than 1.0 so a comma
+ * ending line one (0.13em deep) cannot touch an accent starting line two.
+ * Tracking follows the reference in em (h2 -2.46px at 72px and so on). */
+.zv-h1.zv-h1 { font-size: var(--zv-h1); line-height: 1.06; letter-spacing: 0; }
+.zv-h2.zv-h2 { font-size: var(--zv-h2); line-height: 1.14; letter-spacing: -0.034em; }
+.zv-h3.zv-h3 { font-size: var(--zv-h3); line-height: 1.15; letter-spacing: -0.02em; }
+.zv-h4.zv-h4 { font-size: var(--zv-h4); line-height: 1.13; letter-spacing: -0.02em; }
+.zv-h5.zv-h5 { font-size: var(--zv-h5); line-height: 1.33; letter-spacing: -0.01em; }
+.zv-h6.zv-h6 { font-size: var(--zv-h6); line-height: 1.4; letter-spacing: -0.01em; }
 
 /* ── Body copy ─────────────────────────────────────────────────── */
 .zv-lead {
@@ -244,6 +243,23 @@
 
 .zv-body  { font-size: var(--zv-p);    line-height: 26px; letter-spacing: -0.18px; }
 .zv-small { font-size: var(--zv-p-sm); line-height: 24px; letter-spacing: -0.16px; }
+
+/* Every paragraph reads at the reference's large-paragraph step, in the
+   full ink, whatever class it carries (user decision 2026-09-24). Only
+   <p> is levelled: spans, meta lines and labels keep their own steps. */
+p.zv-body, p.zv-small, p.zv-quote__lede {
+  font-size: var(--zv-p-lg);
+  line-height: 28px;
+  letter-spacing: -0.2px;
+}
+p.zv-muted, p.zv-quote__lede { color: inherit; }
+
+/* Paragraph rag: `pretty` keeps a lone word off the last line and evens
+   the line lengths. French punctuation in the copy (" :", " ?", « ») uses
+   a no-break space, so a colon can never open a line on its own. */
+.zv-lead,
+.zv-body,
+.zv-small { text-wrap: pretty; }
 
 /* Muted body text. A real palette step rather than an opacity wash, so
    the tone is identical wherever it lands and stays legible on both the
@@ -577,7 +593,8 @@
 
 /* These rows were drawn for figures — « 12 », « 96k » — and sized like the
    section title, 72px. They carry words now (see `practice` in projects.js),
-   and the longest, HOSPITALITÉ, sets 4.52em wide: 325px in a 253px column.
+   and the longest, RÉSIDENTIEL, sets 4.33em wide in Bayon (HOSPITALITÉ was
+   4.52em in Fjalla One): at 72px that is 312px in a 253px column.
    On Home the words ran through the dividers; on Agence, where the heading
    reset allows a mid-word break, they split into RÉSIDENTI / EL.
 
@@ -585,7 +602,7 @@
    grid is the container rather than the cell, because the first cell drops
    its left padding and would otherwise set its word larger than the other
    three. 8cqi in the two-column layout and 3.6cqi in the four-column one
-   both leave the longest word at about 80% of the narrowest cell, so it
+   both leave the longest word under 80% of the narrowest cell, so it
    never reaches a rule. The caps keep it under the section title above. */
 .zv-stat-cq { container-type: inline-size; }
 
@@ -857,14 +874,10 @@ select.zv-input:has(option[value='']:checked) { color: var(--zv-gray-400); }
   to   { transform: translateX(-50%); }
 }
 
-.zv-ticker:hover .zv-ticker-track { animation-play-state: paused; }
-
-/* :hover never fires on a touch screen, so the drift cannot be paused to
-   read a frame. Give coarse pointers a real scroller instead. */
-@media (hover: none) {
-  .zv-ticker { overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
-  .zv-ticker::-webkit-scrollbar { display: none; }
-  .zv-ticker-track { animation: none; }
+/* Pause-on-hover only for real pointers: on touch a tap leaves :hover
+   stuck, which would freeze the strip. Phones keep the same drift. */
+@media (hover: hover) {
+  .zv-ticker:hover .zv-ticker-track { animation-play-state: paused; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1356,15 +1369,6 @@ select.zv-field:open {
       linear-gradient(180deg, rgba(9, 20, 36, 0.55) 0%, rgba(9, 20, 36, 0) 18%),
       linear-gradient(0deg, rgba(9, 20, 36, 0.95) 0%, rgba(9, 20, 36, 0.86) 38%, rgba(9, 20, 36, 0.5) 60%, rgba(9, 20, 36, 0.08) 80%, rgba(9, 20, 36, 0) 90%);
   }
-}
-
-/* The hero once patched the accent collision locally (« INTÉRIEUR »
-   striking the line above) with 1.05, which was still under the 1.257em
-   Fjalla One actually needs. The scale now carries a leading that clears
-   it everywhere, so the hero only keeps the phone step, where the type is
-   small enough to bind the lines a little tighter. */
-@media (max-width: 640px) {
-  .zv-hero .zv-h1.zv-h1 { line-height: 1.12; }
 }
 
 /* Grain — one static noise tile over the film. No blend mode and no
@@ -2045,6 +2049,37 @@ select.zv-field:open {
   .zv-pair { align-items: flex-start; }
 }
 
+/* Phones: the staggered pair is a two-card deck. Tapping the render behind
+   pulls it out past its partner's edge, over the top, and back into its
+   slot, while the other one settles underneath. z-index is stepped inside
+   the keyframes so the swap happens at the outermost point of the arc,
+   where the cards no longer overlap and the change is invisible. */
+@media (max-width: 767px) {
+  .zv-pair-card { z-index: 1; cursor: pointer; }
+  .zv-pair-card[data-pair~='front'] { z-index: 2; cursor: auto; }
+
+  /* Each card leaves outward, away from its partner. */
+  .zv-pair-card:first-child { --out-x: -9%; --out-y: -7%; --out-r: -4deg; }
+  .zv-pair-card:last-child  { --out-x: 9%;  --out-y: 9%;  --out-r: 4deg; }
+
+  .zv-pair-card[data-pair~='rising'] { animation: zv-pair-rise 760ms cubic-bezier(0.65, 0, 0.35, 1); }
+  .zv-pair-card[data-pair~='sinking'] { animation: zv-pair-sink 760ms cubic-bezier(0.65, 0, 0.35, 1); }
+}
+
+@keyframes zv-pair-rise {
+  0%   { transform: none; z-index: 1; }
+  48%  { transform: translate(var(--out-x), var(--out-y)) rotate(var(--out-r)) scale(1.02); z-index: 1; }
+  52%  { transform: translate(var(--out-x), var(--out-y)) rotate(var(--out-r)) scale(1.02); z-index: 2; }
+  100% { transform: none; z-index: 2; }
+}
+
+@keyframes zv-pair-sink {
+  0%   { transform: none; filter: none; z-index: 2; }
+  48%  { transform: scale(0.94); filter: brightness(0.82); z-index: 2; }
+  52%  { transform: scale(0.94); filter: brightness(0.82); z-index: 1; }
+  100% { transform: none; filter: none; z-index: 1; }
+}
+
 /* Caption plate sitting on the image, legible over any render. */
 .zv-tile-cap {
   position: absolute;
@@ -2364,9 +2399,13 @@ select.zv-field:open {
   will-change: transform;
 }
 .m3-radial__wheel.is-paused,
-.m3-radial__wheel:has(.m3-radial__card:hover),
 .m3-radial__wheel:has(.m3-radial__card:focus-visible) {
   animation-play-state: paused;
+}
+/* Hover-pause only where hover is real: on touch a tap leaves :hover stuck
+   and the wheel would stay frozen after the finger lifts. */
+@media (hover: hover) {
+  .m3-radial__wheel:has(.m3-radial__card:hover) { animation-play-state: paused; }
 }
 @keyframes m3-spin {
   to { transform: rotate(-360deg); }
@@ -2452,7 +2491,9 @@ select.zv-field:open {
     margin-top: -14px;
     margin-bottom: 0;
   }
-  .m3-radial__wheel { top: 6px; animation-duration: 90s; }
+  /* Twice the old 90s: on a phone only the centre card reads, so the
+     next project should arrive every ~2s rather than every 4.5s. */
+  .m3-radial__wheel { top: 6px; animation-duration: 45s; }
 
   .m3-radial__card { padding: 8px; border-radius: 16px; }
   .m3-radial__card img { border-radius: 10px; }
@@ -3017,4 +3058,35 @@ select.zv-field:open {
   }
   .m3-lb__panel { transform: none; opacity: 1; }
   .m3-lb-open:hover img { transform: none; }
+}
+
+/* Inline text link inside body copy. A 1px copper hairline drawn as a
+   background, not a border: a border on a wrapped inline link draws a
+   heavy rule under every line fragment at its own offset, which read as
+   a form field. The gradient sits just under the baseline, follows each
+   line via box-decoration-break, and on hover the text takes the copper
+   while the hairline thickens slightly. --zv-accent-deep flips at night. */
+.zv-inline-link {
+  color: inherit;
+  text-decoration: none;
+  background-image: linear-gradient(var(--zv-accent), var(--zv-accent));
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 100% 1px;
+  padding-bottom: 1px;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  transition: color 0.25s ease, background-size 0.25s ease;
+}
+.zv-inline-link:hover {
+  color: var(--zv-accent-deep);
+  background-size: 100% 2px;
+}
+.zv-inline-link:focus-visible {
+  outline: 2px solid var(--zv-accent);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .zv-inline-link { transition: none; }
 }

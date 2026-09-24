@@ -86,7 +86,7 @@ export default function Blog() {
           {/* Defensive: every category currently has at least one post, but a
               future edit to posts.js could empty one. */}
           {shown.length === 0 && (
-            <p className="zv-body zv-muted py-10 text-center">
+            <p className="zv-body py-10 text-center">
               Aucun article dans cette catégorie pour le moment.
             </p>
           )}

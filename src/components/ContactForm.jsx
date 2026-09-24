@@ -231,7 +231,7 @@ export default function ContactForm({ compact = false, submitLabel, context, cla
           className="absolute -left-[9999px] h-0 w-0 opacity-0"
         />
 
-        <button type="submit" className="m3-send zv-btn w-full" disabled={status === 'sending'} aria-busy={status === 'sending'}>
+        <button type="submit" className="zv-btn w-full" disabled={status === 'sending'} aria-busy={status === 'sending'}>
           {status === 'sending' ? 'Envoi…' : submitLabel || 'Envoyer le message'}
         </button>
       </div>
@@ -259,33 +259,13 @@ export function Field({ label, required, error, children, id }) {
       })
     : children;
 
-  /* The wrapper is the unit the enquiry band's entrance animates (.m3-row),
-     and `.m3-line` is a second rule laid exactly over the field's own
-     bottom border so it can be drawn across without touching the control.
-
-     It is transparent at rest and stays that way unless a scene animates
-     it: no GSAP, no line, and the field keeps exactly the 1px border it
-     has always had. The band's entrance draws it across in the ink tone
-     and fades it back out as it lands, so the rule is a stroke of the pen
-     rather than a permanent second border.
-
-     Now that the control is a box rather than a rule, the overlay traces
-     the whole outline — inset to sit on the border, with the same radius —
-     instead of underlining it. A 1px line across the bottom would have cut
-     the box's own edge in half. */
   return (
-    <Wrapper className="m3-row relative block w-full">
+    <Wrapper className="relative block w-full">
       <span id={labelId} className="zv-small font-medium">
         {label}
         {required && <span className="text-[var(--zv-primary)]" aria-hidden="true"> *</span>}
       </span>
-      <span className="relative block">
-        {control}
-        <span
-          aria-hidden="true"
-          className="m3-line pointer-events-none absolute inset-0 rounded-xl border border-[var(--zv-primary)] opacity-0"
-        />
-      </span>
+      {control}
       {error && (
         <span id={errorId} className="mt-1.5 flex items-center gap-1.5 text-xs text-[#b4342b]">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true" className="shrink-0">

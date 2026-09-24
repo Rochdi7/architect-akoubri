@@ -39,7 +39,7 @@ const stages = [
   {
     n: '05',
     title: "L'instruction et l'autorisation",
-    text: "Réponse, réserves éventuelles, reprise du dossier, autorisation. L'instruction administrative ne dépend pas de nous ; la qualité du dossier, si.",
+    text: "Réponse, réserves éventuelles, reprise du dossier, autorisation. L'instruction administrative ne dépend pas de nous ; la qualité du dossier, si.",
   },
 ];
 
@@ -56,19 +56,19 @@ const handled = [
 
 const faq = [
   {
-    q: 'Quel est le délai entre le premier contact et le permis ?',
-    a: "Comptez trois à cinq mois selon la commune : deux à trois semaines pour l'esquisse, six à huit semaines pour le dossier, puis l'instruction administrative que nous ne maîtrisons pas.",
+    q: 'Quel est le délai entre le premier contact et le permis ?',
+    a: "Comptez trois à cinq mois selon la commune : deux à trois semaines pour l'esquisse, six à huit semaines pour le dossier, puis l'instruction administrative que nous ne maîtrisons pas.",
   },
   {
-    q: 'Pouvez-vous intervenir uniquement sur le permis ?',
+    q: 'Pouvez-vous intervenir uniquement sur le permis ?',
     a: "Oui. C'est une mission partielle, facturée au forfait, comme les intérieurs seuls ou les images seules. Le devis est fixé avant tout démarrage.",
   },
   {
-    q: 'Travaillez-vous en dehors de Marrakech ?',
+    q: 'Travaillez-vous en dehors de Marrakech ?',
     a: "Oui. Nous suivons des chantiers partout au Maroc. Au-delà de 200 km, nous calons un rythme de visites groupées pour maîtriser les frais de déplacement.",
   },
   {
-    q: 'Que se passe-t-il après l’autorisation ?',
+    q: 'Que se passe-t-il après l’autorisation ?',
     a: "La mission peut se poursuivre en suivi de chantier — visite hebdomadaire, arbitrages en direct, réception — puis en design d'intérieur si le programme le justifie.",
   },
 ];
@@ -78,7 +78,7 @@ export default function Permis() {
 
   usePageMeta({
     description:
-      "Accompagnement au permis de construire à Marrakech : lecture du règlement d'urbanisme, conception architecturale, constitution et dépôt du dossier, suivi jusqu'à l'autorisation.",
+      "Accompagnement au permis de construire à Marrakech : lecture du règlement d'urbanisme, conception architecturale, constitution et dépôt du dossier, suivi jusqu'à l'autorisation.",
     canonical: '/services/permis-de-construire-marrakech',
   });
 
@@ -92,7 +92,7 @@ export default function Permis() {
             <h1 ref={heroInk} className="zv-h2 mt-5">
               Permis de construire à Marrakech
             </h1>
-            <p className="zv-lead zv-muted mx-auto mt-5 max-w-xl">
+            <p className="zv-lead mx-auto mt-5 max-w-xl">
               Une demande d'autorisation se prépare bien avant le dépôt. Nous lisons
               le règlement applicable à la parcelle, concevons le projet dans ce
               cadre, puis constituons et déposons le dossier.
@@ -118,8 +118,8 @@ export default function Permis() {
           <div data-reveal className="reveal lg:sticky lg:top-32 lg:self-start">
             <span className="zv-subtitle">La mission</span>
             <InkTitle className="zv-h2 mt-5">Ce que nous prenons en charge</InkTitle>
-            <p className="zv-body zv-muted mt-6 max-w-md">
-              Le permis n'est pas une formalité détachée du projet : il découle de la
+            <p className="zv-lead mt-6 max-w-md">
+              Le permis n'est pas une formalité détachée du projet : il découle de la
               conception architecturale. C'est pourquoi nous ne dessinons rien avant
               d'avoir vérifié ce que la parcelle autorise.
             </p>
@@ -130,7 +130,7 @@ export default function Permis() {
               {handled.map((item) => (
                 <li
                   key={item}
-                  className="zv-body zv-muted flex items-start gap-3 border-t border-[var(--zv-border)] pt-5"
+                  className="zv-body flex items-start gap-3 border-t border-[var(--zv-border)] pt-5"
                 >
                   <span className="zv-marker" aria-hidden="true" />
                   {item}
@@ -138,13 +138,13 @@ export default function Permis() {
               ))}
             </ul>
 
-            <p className="zv-body zv-muted mt-10 max-w-xl">
+            <p className="zv-lead mt-10 max-w-xl">
               Les délais varient d'une commune à l'autre. Nous annonçons une
               fourchette observée sur nos propres dossiers dans la ville concernée,
               jamais une moyenne nationale. Notre méthode complète est détaillée dans{' '}
               <Link
                 to="/journal/permis-de-construire-maroc"
-                className="border-b border-[var(--zv-primary)] pb-0.5 transition-opacity hover:opacity-70"
+                className="zv-inline-link"
               >
                 notre article sur le calendrier réel d'un permis de construire au Maroc
               </Link>
@@ -174,7 +174,7 @@ export default function Permis() {
                   <span className="zv-h6 leading-none">{s.n}</span>
                 </span>
                 <h2 className="zv-h5">{s.title}</h2>
-                <p className="zv-body zv-muted">{s.text}</p>
+                <p className="zv-body">{s.text}</p>
               </div>
             ))}
           </div>
@@ -196,7 +196,7 @@ export default function Permis() {
           <div data-reveal className="reveal zv-media">
             <img
               src="/media/projets/akoubri_le-sentier-toiture-piscine-atlas-01.webp"
-              alt="Immeuble résidentiel en cours d'étude, vue d'angle"
+              alt="Toiture-terrasse du Sentier : piscine à débordement, terrasse en bois et Atlas enneigé à l'horizon"
               loading="lazy"
               width="1280"
               height="853"
@@ -207,29 +207,29 @@ export default function Permis() {
           <div data-reveal data-reveal-delay="90" className="reveal">
             <span className="zv-subtitle">Ensuite</span>
             <InkTitle className="zv-h3 mt-5">Du permis au chantier</InkTitle>
-            <p className="zv-body zv-muted mt-6 max-w-md">
+            <p className="zv-lead mt-6 max-w-md">
               L'autorisation obtenue, la mission se poursuit naturellement en{' '}
               <Link
                 to="/services"
-                className="border-b border-[var(--zv-primary)] pb-0.5 transition-opacity hover:opacity-70"
+                className="zv-inline-link"
               >
                 suivi de chantier
               </Link>{' '}
               : visite hebdomadaire, arbitrages en direct, réception. Puis en{' '}
               <Link
                 to="/services"
-                className="border-b border-[var(--zv-primary)] pb-0.5 transition-opacity hover:opacity-70"
+                className="zv-inline-link"
               >
                 design d'intérieur
               </Link>{' '}
               lorsque le programme le justifie.
             </p>
-            <p className="zv-body zv-muted mt-5 max-w-md">
+            <p className="zv-lead mt-5 max-w-md">
               Chaque étape est arbitrée sur des images de synthèse fidèles plutôt que
               sur des intentions —{' '}
               <Link
                 to="/projets"
-                className="border-b border-[var(--zv-primary)] pb-0.5 transition-opacity hover:opacity-70"
+                className="zv-inline-link"
               >
                 nos projets livrés à Marrakech
               </Link>{' '}

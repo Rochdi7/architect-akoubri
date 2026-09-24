@@ -99,7 +99,7 @@ export const spatialProjects = [
     slug: 'adostigia',
     ...meta('adostigia'),
     note:
-      "Un plateau de bureaux en coupe : accueil en travertin cannelé et comptoir monolithe, couloir en lames de bois, salle de réunion et bureau de direction en noyer.",
+      "Un plateau de bureaux en coupe : accueil en travertin cannelé et comptoir monolithe, couloir en lames de bois, salle de réunion et bureau de direction en noyer.",
     camera: {
       az: 0.5,
       el: 0.14,
@@ -122,7 +122,7 @@ export const spatialProjects = [
     navTitle: 'Appartement 48',
     subtitle: 'Appartement témoin N°48 · 4ᵉ étage',
     note:
-      "Le plan de l'appartement témoin coupé à hauteur d'allège : séjour, cuisine ouverte et deux chambres autour d'un couloir, sous le cadre de la loggia qui court en façade.",
+      "Le plan de l'appartement témoin coupé à hauteur d'allège : séjour, cuisine ouverte et deux chambres autour d'un couloir, sous le cadre de la loggia qui court en façade.",
     camera: {
       az: 0.3,
       el: 0.1,

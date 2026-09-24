@@ -328,7 +328,7 @@ export default function SpatialStories({ projects = spatialProjects, headingTag:
                   type="button"
                   className="ss-spot"
                   data-on="false"
-                  aria-label={`Entrer : ${v.label}`}
+                  aria-label={`Entrer : ${v.label}`}
                   onClick={() => setViewId(v.id)}
                 >
                   <span className="ss-spot-dot" aria-hidden="true" />

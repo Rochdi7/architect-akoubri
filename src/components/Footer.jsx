@@ -40,7 +40,7 @@ export default function Footer() {
             </InkTitle>
           </div>
           <div data-reveal data-reveal-delay="120" className="reveal lg:text-right">
-            <p className="mb-6 leading-relaxed text-ink-soft lg:ml-auto lg:max-w-sm">
+            <p className="mb-6 lg:ml-auto lg:max-w-sm">
               Premier échange sans engagement. On vous dit franchement si le projet
               tient debout — techniquement et budgétairement.
             </p>
@@ -64,7 +64,7 @@ export default function Footer() {
               {/* Identity */}
               <div className="lg:w-[30%] lg:shrink-0">
                 <Mark />
-                <p className="mt-5 max-w-xs text-sm leading-relaxed on-dark-soft sm:mt-6 sm:text-base">
+                <p className="mt-5 max-w-xs on-dark sm:mt-6">
                   Cabinet d'architecture et de design d'intérieur. Résidences,
                   villas et espaces de travail au Maroc.
                 </p>

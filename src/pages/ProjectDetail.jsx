@@ -85,12 +85,12 @@ export default function ProjectDetail() {
             <div className="flex flex-col gap-4 lg:sticky lg:top-28">
               <div data-reveal className="reveal zv-panel">
                 <h1 ref={ink} className="zv-h3">{project.name}</h1>
-                <p className="zv-body zv-muted mt-5 md:mt-8">{project.excerpt}</p>
+                <p className="zv-lead mt-5 md:mt-8">{project.excerpt}</p>
 
                 <dl className="mt-10 grid max-w-sm grid-cols-1 gap-y-5 min-[420px]:grid-cols-2 min-[420px]:gap-x-6 min-[420px]:gap-y-8 md:mt-16">
                   {specs.map(([k, v]) => (
                     <div key={k}>
-                      <dt className="zv-small zv-muted">{k} :</dt>
+                      <dt className="zv-small zv-muted">{k} :</dt>
                       <dd className={`zv-small mt-2 ${v ? 'font-medium' : 'italic opacity-60'}`}>
                         {v || 'À confirmer'}
                       </dd>
@@ -108,13 +108,13 @@ export default function ProjectDetail() {
                   form itself would re-run against the changed subtree. */}
               <div data-reveal data-reveal-delay="100" className="reveal zv-panel">
                 <h2 className="zv-h5">Demander un devis</h2>
-                <p className="zv-small zv-muted mt-2 mb-7">
+                <p className="zv-small mt-2 mb-7">
                   Un projet comparable&nbsp;? Décrivez le vôtre, nous revenons
                   vers vous sous 48&nbsp;heures ouvrées.
                 </p>
                 <ContactForm
                   compact
-                  context={`Projet : ${project.name}`}
+                  context={`Projet : ${project.name}`}
                   submitLabel="Demander un devis"
                 />
               </div>
@@ -137,7 +137,7 @@ export default function ProjectDetail() {
                   onClick={() => setLightbox(0)}
                   data-reveal
                   className="mask-reveal zv-panel-media group relative"
-                  aria-label={`Agrandir : ${project.gallery[0].alt}`}
+                  aria-label={`Agrandir : ${project.gallery[0].alt}`}
                 >
                   <img
                     src={project.cover}
@@ -166,7 +166,7 @@ export default function ProjectDetail() {
                 <h2 className="zv-h5">{project.subtitle} · {project.location}</h2>
                 <div className="mt-4 space-y-5">
                   {project.body.map((para, i) => (
-                    <p key={i} className="zv-body zv-muted">
+                    <p key={i} className="zv-body">
                       {para}
                     </p>
                   ))}
@@ -218,7 +218,7 @@ export default function ProjectDetail() {
                       type="button"
                       onClick={() => setLightbox(indexOf(g))}
                       className="group relative block w-full overflow-hidden rounded-2xl border border-[var(--zv-border)] bg-white"
-                      aria-label={`Agrandir : ${g.alt}`}
+                      aria-label={`Agrandir : ${g.alt}`}
                     >
                       <img
                         src={g.src}
@@ -319,7 +319,7 @@ function ProjectVideo({ src, poster, caption, priority = false }) {
             type="button"
             onClick={() => setPlaying(true)}
             className="group relative block w-full"
-            aria-label={caption ? `Lire la vidéo : ${caption}` : 'Lire la vidéo du projet'}
+            aria-label={caption ? `Lire la vidéo : ${caption}` : 'Lire la vidéo du projet'}
           >
             <img
               src={poster}
@@ -354,7 +354,7 @@ function GalleryTile({ entry, index, onOpen }) {
         type="button"
         onClick={() => onOpen(index)}
         className="zv-panel-media group relative block w-full"
-        aria-label={`Agrandir : ${entry.alt}`}
+        aria-label={`Agrandir : ${entry.alt}`}
       >
         <img
           src={entry.src}
@@ -436,7 +436,7 @@ function RelatedCard({ project }) {
           the excerpt clamps at two lines or three. */}
       <div className="flex flex-1 flex-col p-6">
         <h3 className="zv-h5">{project.name}</h3>
-        <p className="zv-small zv-muted mt-2.5 line-clamp-3">{project.excerpt}</p>
+        <p className="zv-small mt-2.5 line-clamp-3">{project.excerpt}</p>
 
         <dl className="mt-auto pt-5">
           {[
@@ -486,7 +486,7 @@ function RelatedRow({ project, delay, flip = false }) {
         }`}
       >
         <h3 className="zv-h4">{project.name}</h3>
-        <p className="zv-small zv-muted mt-3 max-w-sm">{project.excerpt}</p>
+        <p className="zv-small mt-3 max-w-sm">{project.excerpt}</p>
 
         <Link to={`/projets/${project.slug}`} className="zv-btn zv-btn-outline mt-6 w-max max-w-full md:mt-7">
           Voir le projet

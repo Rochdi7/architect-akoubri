@@ -148,13 +148,13 @@ export default function ProjectCard({ project, delay = 0 }) {
                 </span>
               )}
             </div>
-            <p className="mt-1 text-sm text-ink-soft">
+            <p className="mt-1">
               {project.subtitle} · {project.location}
             </p>
             {/* grow pushes the meta row to the card’s foot, so the rules
                 line up across a row whether the excerpt runs two lines or
                 three. */}
-            <p className="mt-3 grow text-sm leading-relaxed text-ink-soft">
+            <p className="mt-3 grow">
               {project.excerpt}
             </p>
             {(project.surface || project.status) && (

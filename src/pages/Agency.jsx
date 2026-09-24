@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import InkTitle from '../components/InkTitle';
 import { stats, journey, agencyFaq } from '../data/projects';
@@ -44,7 +45,7 @@ export default function Agency() {
 
   usePageMeta({
     description:
-      "Agence d'architecture à Marrakech : résidentiel, tertiaire, industriel et hospitalité. Conception architecturale, permis de construire, suivi de chantier et design d'intérieur.",
+      "Agence d'architecture à Marrakech : résidentiel, tertiaire, industriel et hospitalité. Conception architecturale, permis de construire, suivi de chantier et design d'intérieur.",
     canonical: '/agence',
   });
 
@@ -89,7 +90,7 @@ function SplitHero() {
               un interlocuteur
             </InkTitle>
 
-            <p className="mt-6 max-w-md leading-relaxed on-dark-soft">
+            <p className="mt-6 max-w-md on-dark">
               Chaque ligne, chaque matière et chaque ouverture est choisie pour une
               raison. Nous dessinons des lieux qui parlent bas et tiennent longtemps.
             </p>
@@ -105,8 +106,8 @@ function SplitHero() {
 
           <div data-reveal data-reveal-delay="120" className="reveal overflow-hidden rounded-[28px]">
             <img
-              src="/media/projets/akoubri_zahiya-living-dining-07.webp"
-              alt="Séjour et salle à manger d'un appartement Zahiya : table ovale en bois, suspension linéaire et corniches lumineuses"
+              src="/media/projets/akoubri_zahiya-facade-angle-commerces-07.webp"
+              alt="Angle de la résidence Zahiya : commerces vitrés en rez-de-chaussée, loggias et palmiers"
               width="1280"
               height="853"
               fetchPriority="high"
@@ -124,6 +125,19 @@ function SplitHero() {
    ruled row of figures divided by hairlines.                             */
 function AboutStats() {
   const ink = useInkFill();
+  // Which render of the offset pair sits on top on phones; `swapped` stays
+  // false until the first tap so nothing animates on load.
+  const [front, setFront] = useState(0);
+  const [swapped, setSwapped] = useState(false);
+  const bringToFront = (i) => {
+    if (i === front || !window.matchMedia('(max-width: 767px)').matches) return;
+    setFront(i);
+    setSwapped(true);
+  };
+  // State goes in a data attribute, not className: useReveal adds
+  // .is-visible straight to the DOM, and a re-rendered className would wipe it.
+  const pairState = (i) =>
+    front === i ? (swapped ? 'front rising' : 'front') : swapped ? 'sinking' : '';
   return (
     <section className="zv zv-section">
       <div className="shell">
@@ -137,8 +151,8 @@ function AboutStats() {
               orientation, vues, règlement. Notre travail consiste à faire de
               cette contrainte le sujet du projet.
             </h2>
-            <p className="zv-lead zv-muted mt-6 max-w-3xl">
-              Nous travaillons avec un vocabulaire court : enduit minéral, pierre
+            <p className="zv-lead mt-6 max-w-3xl">
+              Nous travaillons avec un vocabulaire court : enduit minéral, pierre
               claire cannelée, noyer, marbre sombre, liège et bambou selon les
               programmes. Ce qui fait un projet, ce n'est pas le nombre de gestes,
               c'est la justesse d'un seul — une loggia assez profonde, une corniche
@@ -171,11 +185,16 @@ function AboutStats() {
            into it — so they read as one composition rather than two stacked
            blocks. From md up the original side-by-side grid takes over. */}
         <div className="zv-pair mt-8 grid gap-0 md:mt-20 md:grid-cols-[1.5fr_1fr] md:gap-6">
-          <div data-reveal className="reveal relative z-10 mr-10 sm:mr-16 md:mr-0">
+          <div
+            data-reveal
+            data-pair={pairState(0)}
+            onClick={() => bringToFront(0)}
+            className="reveal zv-pair-card relative mr-10 sm:mr-16 md:mr-0"
+          >
             <div className="zv-media">
               <img
-                src="/media/projets/akoubri_adostigia-reception-01.webp"
-                alt="Accueil Adostigia : enseigne en relief sur panneau de marbre sombre rétroéclairé et murs de pierre claire cannelée"
+                src="/media/projets/akoubri_adostigia-accueil-enseigne-relief-marbre-01.webp"
+                alt="Accueil Adostigia : enseigne en relief sur panneau de marbre sombre rétroéclairé et murs de pierre claire cannelée"
                 loading="lazy"
                 width="1280"
                 height="720"
@@ -202,11 +221,13 @@ function AboutStats() {
           <div
             data-reveal
             data-reveal-delay="120"
-            className="reveal zv-media -mt-16 ml-10 sm:-mt-24 sm:ml-16 md:mt-14 md:ml-0"
+            data-pair={pairState(1)}
+            onClick={() => bringToFront(1)}
+            className="reveal zv-pair-card zv-media relative -mt-16 ml-10 sm:-mt-24 sm:ml-16 md:mt-14 md:ml-0"
           >
             <img
-              src="/media/projets/akoubri_maison-dhote-terrace-lounge-07.webp"
-              alt="Terrasse de la maison d'hôte : banquette filante le long d'un mur en pierre sèche, sous un plafond de bambou"
+              src="/media/projets/akoubri_maison-dhote-chambre-armoire-bois-arche-07.webp"
+              alt="Chambre de la maison d'hôtes : armoire en bois devant une arche blanche, porte cintrée et petit tapis tissé"
               loading="lazy"
               width="1280"
               height="720"
@@ -263,7 +284,7 @@ function Journey() {
                   {j.year} <span className="px-1">·</span> {j.month}
                 </div>
                 <h3 className="zv-h4 mt-2">{j.title}</h3>
-                <p className="zv-body zv-muted mt-3 max-w-lg">{j.text}</p>
+                <p className="zv-body mt-3 max-w-lg">{j.text}</p>
               </div>
             </li>
           ))}
@@ -282,7 +303,7 @@ function CoreValues() {
         <div data-reveal className="reveal zv-section-head">
           <span className="zv-subtitle">Convictions</span>
           <InkTitle className="zv-h2">Nos convictions</InkTitle>
-          <p className="zv-body zv-muted mx-auto max-w-xl">
+          <p className="zv-lead mx-auto max-w-xl">
             Six principes qui décident de la façon dont nous dessinons, chiffrons
             et suivons un projet.
           </p>
@@ -300,7 +321,7 @@ function CoreValues() {
                 <ValueIcon name={v.icon} />
               </span>
               <h3 className="zv-h5">{v.title}</h3>
-              <p className="zv-small zv-muted">{v.text}</p>
+              <p className="zv-small">{v.text}</p>
             </div>
           ))}
         </div>

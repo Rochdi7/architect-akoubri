@@ -73,7 +73,7 @@ export default function GetInTouch({
           <div data-reveal className="reveal text-center">
             <span className="zv-subtitle">{eyebrow}</span>
             <InkTitle className="zv-h2 mt-5">{title}</InkTitle>
-            <p className="zv-body zv-muted mx-auto mt-4 max-w-md">
+            <p className="zv-lead mx-auto mt-4 max-w-md">
               {children ?? (
                 <>
                   Décrivez-nous le terrain, le programme et l&apos;échéance. Nous
@@ -83,11 +83,8 @@ export default function GetInTouch({
             </p>
           </div>
 
-          {/* No data-reveal here: the form's entrance is the desk scene's
-              per-field stagger, and a wrapper fading the whole block in at
-              once would play over the top of it. Without the scene the
-              form simply renders, which is its resting state anyway. */}
-          <div className="m3-desk mt-10">
+          {/* The form is deliberately static: no reveal, no entrance. */}
+          <div className="mt-10">
             <ContactForm compact submitLabel={submitLabel} />
           </div>
         </div>
