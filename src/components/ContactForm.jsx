@@ -45,7 +45,7 @@ const EMPTY = {
   company: '', // honeypot — must stay empty
 };
 
-export default function ContactForm({ compact = false, submitLabel, context, className = '' }) {
+export default function ContactForm({ compact = false, submitLabel, context, className = '', messageRows }) {
   const [form, setForm] = useState(EMPTY);
   const [status, setStatus] = useState('idle'); // idle | sending | sent | error
   const [errors, setErrors] = useState({});
@@ -213,7 +213,7 @@ export default function ContactForm({ compact = false, submitLabel, context, cla
             onChange={set('message')}
             onBlur={blur('message')}
             className="zv-field"
-            rows={compact ? 4 : 5}
+            rows={messageRows || (compact ? 4 : 5)}
             placeholder="Terrain, surface, programme, échéance…"
             required
           />

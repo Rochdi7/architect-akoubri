@@ -128,7 +128,7 @@ export default function QuoteModal({ open, onClose }) {
         </div>
 
         <div className="zv-quote__body">
-          <ContactForm submitLabel="Envoyer ma demande" />
+          <ContactForm submitLabel="Envoyer ma demande" messageRows={3} />
 
           <p className="zv-quote__foot">
             Ou écrivez-nous directement à{' '}
