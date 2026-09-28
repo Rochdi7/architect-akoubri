@@ -65,8 +65,9 @@ export default function Footer() {
               <div className="lg:w-[30%] lg:shrink-0">
                 <Mark />
                 <p className="mt-5 max-w-xs on-dark sm:mt-6">
-                  Cabinet d'architecture et de design d'intérieur. Résidences,
-                  villas et espaces de travail au Maroc.
+                  Cabinet d’architecture, d’urbanisme et de design d’intérieur.
+                  Nous concevons des résidences, villas et espaces
+                  professionnels, de l’étude à la réalisation, au Maroc.
                 </p>
                 <div className="mt-6 flex items-center gap-5 sm:mt-7 sm:gap-4">
                   <Social label="Instagram" href={business.social.instagram} stroke>

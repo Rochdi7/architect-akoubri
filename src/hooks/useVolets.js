@@ -1,88 +1,110 @@
 import { useRef } from 'react';
 import { CONDITIONS, replayOnScroll, useGsapScene } from '../lib/motion';
 
-/* III. Les volets — the alternating service rows reveal behind a rising mask.
+/* III. Les volets — the alternating service rows open like a brise-soleil.
 
-   The row's media block is uncovered by a clip-path window that opens from
-   the bottom, while the image inside drifts up behind it and settles: the
-   render appears to be drawn onto the page rather than dropped on it. The
-   text column trails in 0.08s later from the outer side, as before.
+   Each render sits in a .svc-plate (CAD corner marks, a dimension line
+   captioned « Fig. 0N — Métier »). Over the image lies the same render cut
+   into vertical louvers. They start edge-on, reading as thin lines over a
+   navy blueprint grid, and swing open in 3D as the row scrolls in — the
+   visitor opens the façade screen onto the project with the scrollbar.
+   Scrubbed, so scrolling back closes them again.
 
-   This replaces an earlier rotateY "shutter" hinge (±32deg on a 1400px
-   perspective). The hinge left the panel visibly skewed for most of its
-   travel, which read as a rendering fault on a photographic render rather
-   than as motion, and any interruption before onComplete stranded it that
-   way. A mask never distorts the image: at every point of the tween the
-   visible part of the render is upright and true to its aspect ratio.
+   Once fully open the plate is marked .is-built and the louvers step aside
+   for the real <img>, so the resting state has no slat seams and keeps the
+   usual hover zoom. The louver layer only appears when this scene builds
+   (.is-louvered); without GSAP, or with reduced motion, the plain image
+   is shown as rendered.
 
-   The image drifts further than the mask travels, so the two move at
-   different rates and the reveal has depth — the parallax is what keeps a
-   simple wipe from looking like a loading bar.
-
-   Replays each time the row comes back into view, from either direction
-   (see replayOnScroll); every inline style is cleared on completion so the
-   row rests exactly as rendered, and written again by the rewind.
+   History: first a rotateY "shutter" hinge on the whole panel (read as a
+   rendering fault), then a clip-path window whose half-open state showed a
+   square-cut edge on a rounded image (owner called it bugged), then a grey
+   to colour fade (owner: "too simple", 2026-09-28).
 
    Markup contract (Services.jsx › service rows):
-     [ref]          the existing `.shell` column — the scope
-       row          the existing grid row (keeps its data-reveal)
-         .m3-volet  block wrapper around the existing .zv-media
-         div        the existing text column (no data-reveal — GSAP may
-                    tween it directly)                                     */
+     [ref]              the existing `.shell` column — the scope
+       row              the grid row (keeps its data-reveal)
+         .svc-plate     figure: frame (img + .svc-louvers), corners, caption
+         div            the text column (no data-reveal — GSAP tweens it) */
 
-const RISE = { desktop: 68, phone: 44 };  // px the image drifts up behind the mask
 const TRAIL = { desktop: 24, phone: 16 }; // px the text column slides in from
 
 function build({ gsap, ScrollTrigger, mm, scope, ease }) {
-  const panels = gsap.utils.toArray('.m3-volet', scope);
-  if (!panels.length) return;
+  const plates = gsap.utils.toArray('.svc-plate', scope);
+  if (!plates.length) return;
 
   mm.add(CONDITIONS, ({ conditions: { motion, desktop } }) => {
     if (!motion) return;
 
-    const rise = desktop ? RISE.desktop : RISE.phone;
     const trail = desktop ? TRAIL.desktop : TRAIL.phone;
 
-    panels.forEach((panel, i) => {
-      const row = panel.parentElement;
-      const text = panel.nextElementSibling;
+    plates.forEach((plate, i) => {
+      const row = plate.parentElement;
+      const text = plate.nextElementSibling;
       const fromRight = i % 2 === 1;
-      // The <img> inside .zv-media is what drifts; the panel carries the mask.
-      const media = panel.querySelector('img') || panel.firstElementChild;
-      const targets = text ? [panel, text] : [panel];
+      const louvers = plate.querySelectorAll('.svc-louver');
+      const faces = plate.querySelectorAll('.svc-louver__face');
+      const shades = plate.querySelectorAll('.svc-louver__shade');
+      const corners = plate.querySelectorAll('.svc-plate__corner');
+      const rule = plate.querySelector('.svc-plate__rule');
+      const label = plate.querySelector('.svc-plate__label');
+
+      plate.classList.add('is-louvered');
+
+      // Flat slats, no 3D: a rotateY with perspective warped every slat into
+      // a trapezoid mid-turn and read as a glitch (owner, 2026-09-28). Now
+      // alternate slats slide in from above and below, from the centre out,
+      // while the picture inside each counter-drifts. The mid-state is a
+      // clean kinetic-façade stripe over the blueprint grid.
+      const from = 'center';
+      const dir = (k) => (k % 2 ? 1 : -1);
 
       const tl = gsap.timeline({
-        paused: true,
-        defaults: { ease, duration: 1.1 },
-        onStart: () =>
-          gsap.set(targets, { willChange: 'transform, opacity, clip-path' }),
-        onComplete: () =>
-          gsap.set([...targets, media].filter(Boolean), {
-            clearProps: 'transform,clipPath,opacity,willChange,scale',
-          }),
+        defaults: { ease: 'none' },
+        scrollTrigger: {
+          trigger: plate,
+          start: desktop ? 'top 88%' : 'top 92%',
+          end: desktop ? 'center 50%' : 'center 55%',
+          scrub: 0.7,
+          onUpdate: (self) => plate.classList.toggle('is-built', self.progress > 0.995),
+          onRefresh: (self) => plate.classList.toggle('is-built', self.progress > 0.995),
+        },
       });
 
-      // The mask opens upward. inset() keeps the panel's own border-radius,
-      // so the rounded corners of .zv-media are preserved throughout.
+      tl.fromTo(corners, { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.25, stagger: 0.03, ease: 'power2.out' }, 0);
+
       tl.fromTo(
-        panel,
-        { clipPath: 'inset(100% 0% 0% 0% round 18px)' },
-        { clipPath: 'inset(0% 0% 0% 0% round 18px)' },
-        0
+        louvers,
+        { yPercent: (k) => dir(k) * 102 },
+        { yPercent: 0, duration: 0.6, ease: 'power3.out', stagger: { each: 0.04, from } },
+        0.05
       );
+      tl.fromTo(
+        faces,
+        { yPercent: (k) => dir(k) * -35 },
+        { yPercent: 0, duration: 0.6, ease: 'power3.out', stagger: { each: 0.04, from } },
+        0.05
+      );
+      tl.fromTo(shades, { opacity: 1 }, { opacity: 0, duration: 0.6, ease: 'power1.in', stagger: { each: 0.04, from } }, 0.05);
 
-      // The render drifts up further than the window travels, and a hair of
-      // scale keeps its top edge from showing through at the start.
-      if (media) {
-        tl.from(media, { y: rise, scale: 1.06 }, 0);
-      }
+      if (rule) tl.fromTo(rule, { scaleX: 0 }, { scaleX: 1, duration: 0.4, ease: 'power2.out' }, 0.35);
+      if (label) tl.fromTo(label, { opacity: 0, y: 6 }, { opacity: 1, y: 0, duration: 0.25 }, 0.6);
 
+      // The text is not scrubbed: a copy column dragging with the wheel reads
+      // as lag. It plays once per entry, as before.
       if (text) {
-        tl.from(text, { opacity: 0, x: fromRight ? -trail : trail }, 0.08);
+        const tt = gsap.timeline({
+          paused: true,
+          onComplete: () => gsap.set(text, { clearProps: 'transform,opacity' }),
+        });
+        tt.from(text, { opacity: 0, x: fromRight ? -trail : trail, duration: 1, ease }, 0);
+        replayOnScroll({ ScrollTrigger, animation: tt, trigger: row });
       }
 
-      replayOnScroll({ ScrollTrigger, animation: tl, trigger: row });
+      return undefined;
     });
+
+    return () => plates.forEach((p) => p.classList.remove('is-louvered', 'is-built'));
   });
 }
 

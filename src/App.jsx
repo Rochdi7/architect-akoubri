@@ -94,8 +94,22 @@ function RouteEffects() {
   const navigationType = useNavigationType();
 
   useEffect(() => {
-    /* Only reset for real navigations. On POP (back/forward) the browser
-       restores the previous offset, which is what the user expects there. */
+    /* The title is set on every navigation, POP included: a direct page
+       load is a POP too, and skipping it left every deep link (each
+       /projets/:slug) with the Home title from index.html. */
+    let title = TITLES[pathname];
+    if (!title && pathname.startsWith('/projets/')) {
+      const project = getProject(pathname.split('/')[2]);
+      title = project ? `${project.name} — Akoubri` : 'Projet — Akoubri';
+    }
+    if (!title && pathname.startsWith('/journal/')) {
+      const post = getPost(pathname.split('/')[2]);
+      title = post ? `${post.title} — Akoubri` : 'Journal — Akoubri';
+    }
+    document.title = title || 'Akoubri';
+
+    /* Only reset scroll for real navigations. On POP (back/forward) the
+       browser restores the previous offset, which is what the user expects. */
     if (navigationType === 'POP') return;
 
     /* `html { scroll-behavior: smooth }` applies to programmatic scrolls too,
@@ -108,17 +122,6 @@ function RouteEffects() {
     /* Browsers restore the scroll offset asynchronously, after this effect
        runs, so a single call can be undone. Re-assert on the next frame. */
     const frame = requestAnimationFrame(jump);
-
-    let title = TITLES[pathname];
-    if (!title && pathname.startsWith('/projets/')) {
-      const project = getProject(pathname.split('/')[2]);
-      title = project ? `${project.name} — Akoubri` : 'Projet — Akoubri';
-    }
-    if (!title && pathname.startsWith('/journal/')) {
-      const post = getPost(pathname.split('/')[2]);
-      title = post ? `${post.title} — Akoubri` : 'Journal — Akoubri';
-    }
-    document.title = title || 'Akoubri';
 
     return () => cancelAnimationFrame(frame);
   }, [pathname, navigationType]);

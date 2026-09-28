@@ -2,10 +2,10 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import InkTitle from '../components/InkTitle';
 import { stats, journey, agencyFaq } from '../data/projects';
-import Accordion from '../components/Accordion';
 import GetInTouch from '../components/GetInTouch';
 import { useInkFill } from '../hooks/useInkFill';
 import { usePageMeta } from '../hooks/usePageMeta';
+import { useFaqSchema } from '../hooks/useFaqSchema';
 import { useTrace } from '../hooks/useTrace';
 
 const values = [
@@ -48,6 +48,9 @@ export default function Agency() {
       "Agence d'architecture à Marrakech : résidentiel, tertiaire, industriel et hospitalité. Conception architecturale, permis de construire, suivi de chantier et design d'intérieur.",
     canonical: '/agence',
   });
+  // FAQ kept for search engines only; no longer rendered.
+  useFaqSchema(agencyFaq);
+
 
   return (
     <>
@@ -59,7 +62,6 @@ export default function Agency() {
           data/projects.js. */}
       {journey.length > 0 && <Journey />}
       <CoreValues />
-      <Faq />
       <GetInTouch alt />
     </>
   );
@@ -325,43 +327,6 @@ function CoreValues() {
             </div>
           ))}
         </div>
-      </div>
-    </section>
-  );
-}
-
-/* ── FAQ ────────────────────────────────────────────────────────────────
-   Big title and CTA on the left, stacked accordion pills on the right.    */
-function Faq() {
-  return (
-    <section className="zv zv-section">
-      <div className="shell grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16">
-        <div className="lg:sticky lg:top-32 lg:self-start">
-          <span data-reveal className="reveal zv-subtitle">FAQ</span>
-          <InkTitle data-reveal data-reveal-delay="40" className="reveal zv-h2 mt-5">
-            Questions
-            <br />
-            fréquentes
-          </InkTitle>
-          <div data-reveal data-reveal-delay="90" className="reveal mt-8">
-            <Link to="/contact" className="zv-btn zv-btn-outline">
-              Poser la vôtre
-              <ArrowNE />
-            </Link>
-          </div>
-        </div>
-
-        <Accordion
-          items={agencyFaq}
-          summaryClass="flex cursor-pointer list-none items-center justify-between gap-3 p-4 sm:gap-5 sm:p-6"
-          renderIcon={() => (
-            <span className="zv-acc-icon zv-acc-icon-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[var(--zv-border)] sm:h-9 sm:w-9">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="m6 9 6 6 6-6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </span>
-          )}
-        />
       </div>
     </section>
   );

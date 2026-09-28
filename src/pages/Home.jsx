@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import InkTitle from '../components/InkTitle';
 import { Link } from 'react-router-dom';
 import { projects, services, stats, process, testimonials, showcase, agencyFaq } from '../data/projects';
-import Accordion from '../components/Accordion';
 import RadialMarquee from '../components/RadialMarquee';
 import ClientLogos from '../components/ClientLogos';
 import GetInTouch from '../components/GetInTouch';
@@ -11,6 +10,8 @@ import Showcase from '../components/Showcase';
 import { useCoupe } from '../hooks/useCoupe';
 import { useFloorPlates } from '../hooks/useFloorPlates';
 import { usePageMeta } from '../hooks/usePageMeta';
+import { useFaqSchema } from '../hooks/useFaqSchema';
+import { useSnapRail, RAIL_CLASS, ARROW_CLASS } from '../hooks/useSnapRail';
 
 /* Home — laid out on the Zenvira reference homepage.
 
@@ -28,6 +29,9 @@ export default function Home() {
       "Architecte à Marrakech : conception architecturale, permis de construire, suivi de chantier, design d'intérieur et images de synthèse 3D.",
     canonical: '/',
   });
+  // FAQ kept for search engines only; no longer rendered.
+  useFaqSchema(agencyFaq);
+
 
   return (
     <>
@@ -45,7 +49,6 @@ export default function Home() {
           un titre au-dessus du vide si le tableau venait à être vidé. */}
       {testimonials.length > 0 && <Testimonials items={testimonials} />}
       <Process />
-      <Faq />
       <GetInTouch />
     </>
   );
@@ -66,9 +69,9 @@ export default function Home() {
      layer (zv-hero-grain) makes that softness read as film rather than as
      a bad upscale. It is a static tile: no blend mode, no per-frame cost.
    · Moving content that starts by itself must be pausable (WCAG 2.2.2), so
-     there is a real pause button. Reduced-motion and data-saver visitors
-     get the poster and a play button instead of autoplay, and the film
-     stops decoding whenever the hero is scrolled out of view.            */
+     there is a real pause button. Data-saver visitors get the poster and
+     a play button instead of autoplay; a refused autoplay (low power mode)
+     retries on the first tap; the film stops decoding off screen.            */
 function Hero() {
   const [ready, setReady] = useState(false);
   const [paused, setPaused] = useState(false);
@@ -100,9 +103,11 @@ function Hero() {
     : '/media/projets/akoubri_le-sentier-v3-hero-poster.webp';
 
   useEffect(() => {
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // Only data saver holds the film back. Reduced motion used to as well,
+    // but Android battery savers switch "remove animations" on silently, so
+    // most phones got a frozen poster; the pause button covers WCAG 2.2.2.
     const saveData = navigator.connection?.saveData;
-    if (reduced || saveData) {
+    if (saveData) {
       // No autoplay: the poster stays, and the button offers the film.
       userPaused.current = true;
       setPaused(true);
@@ -126,21 +131,55 @@ function Hero() {
     const section = sectionRef.current;
     if (!armed || !v || !section) return undefined;
 
+    // React sets `muted` as a property only, never the attribute, and iOS
+    // Safari's autoplay check can miss it. Set both before any play().
+    v.muted = true;
+    v.defaultMuted = true;
+    v.setAttribute('muted', '');
+
+    let inView = true;
+    let retryArmed = false;
+    const retry = () => {
+      if (!userPaused.current && inView) play();
+    };
+    const armRetry = () => {
+      if (retryArmed) return;
+      retryArmed = true;
+      ['touchend', 'click', 'keydown'].forEach((t) =>
+        window.addEventListener(t, retry, { once: true, passive: true })
+      );
+    };
+    const disarmRetry = () => {
+      ['touchend', 'click', 'keydown'].forEach((t) =>
+        window.removeEventListener(t, retry)
+      );
+      retryArmed = false;
+    };
+
     const play = () => {
       const p = v.play();
-      // Autoplay can be refused (low power mode). The poster simply stays
-      // put and the control flips to "play" — never a blank frame.
-      if (p?.catch) p.catch(() => setPaused(true));
+      if (!p?.then) return;
+      p.then(() => {
+        setPaused(false);
+        disarmRetry();
+      }).catch(() => {
+        // Autoplay refused (iOS Low Power Mode, Android battery saver).
+        // The poster stays and the control shows "play", but the first
+        // tap anywhere counts as a gesture, so start the film on it.
+        setPaused(true);
+        armRetry();
+      });
     };
 
     if (typeof IntersectionObserver === 'undefined') {
       if (!userPaused.current) play();
-      return undefined;
+      return disarmRetry;
     }
 
     // Decode only while the banner is on screen.
     const io = new IntersectionObserver(
       ([entry]) => {
+        inView = entry.isIntersecting;
         if (entry.isIntersecting) {
           if (!userPaused.current) play();
         } else {
@@ -150,7 +189,10 @@ function Hero() {
       { threshold: 0.05 }
     );
     io.observe(section);
-    return () => io.disconnect();
+    return () => {
+      io.disconnect();
+      disarmRetry();
+    };
   }, [armed]);
 
   const toggle = () => {
@@ -196,6 +238,7 @@ function Hero() {
           }`}
           src={armed ? src : undefined}
           poster={poster}
+          autoPlay
           loop
           muted
           playsInline
@@ -584,44 +627,6 @@ function CoreValues() {
   );
 }
 
-/* ── FAQ ────────────────────────────────────────────────────────────────
-   Sticky title on the left, accordion list on the right — the reference's
-   home-page FAQ shape.                                                   */
-function Faq() {
-  return (
-    <section className="zv zv-section">
-      <div className="shell grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
-        <div className="lg:sticky lg:top-32 lg:self-start">
-          <span data-reveal className="reveal zv-subtitle">FAQ</span>
-          <InkTitle data-reveal data-reveal-delay="40" className="reveal zv-h2 mt-5">
-            Questions
-            <br />
-            fréquentes
-          </InkTitle>
-          <div data-reveal data-reveal-delay="90" className="reveal mt-8">
-            <Link to="/contact" className="zv-btn zv-btn-outline">
-              Poser la vôtre
-              <ArrowNE />
-            </Link>
-          </div>
-        </div>
-
-        <Accordion
-          items={agencyFaq.slice(0, 5)}
-          summaryClass="flex cursor-pointer list-none items-center justify-between gap-3 p-4 sm:gap-5 sm:p-6"
-          renderIcon={() => (
-            <span className="zv-acc-icon zv-acc-icon-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[var(--zv-border)] sm:h-9 sm:w-9">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="m6 9 6 6 6-6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </span>
-          )}
-        />
-      </div>
-    </section>
-  );
-}
-
 /* Get in touch — the closing enquiry band now lives in
    components/GetInTouch.jsx, shared with the other pages. */
 
@@ -697,7 +702,8 @@ function Services() {
               key={s.n}
               data-reveal
               data-reveal-delay={i * 80}
-              className="reveal zv-card zv-icon-card"
+              data-n={s.n}
+              className={`reveal zv-card zv-icon-card svc-card svc-card--${i + 1}`}
             >
               <ServiceBody service={s} />
             </div>
@@ -708,11 +714,35 @@ function Services() {
   );
 }
 
+/* One line icon per métier, keyed on the service number. Drawn on the
+   same 24-unit grid and 1.6 stroke as the other inline icons on the page. */
+const SERVICE_ICONS = {
+  // Architecture — a building with a pitched roof and a door
+  '01': 'M3 21h18M5 21V10l7-5 7 5v11M10 21v-5h4v5M9 12h.01M15 12h.01',
+  // Design d'intérieur — an armchair
+  '02': 'M6 11V8a3 3 0 0 1 3-3h6a3 3 0 0 1 3 3v3M4 12a2 2 0 0 1 4 0v2h8v-2a2 2 0 0 1 4 0v5H4zM6 17v2M18 17v2',
+  // Images de synthèse — an isometric 3D cube
+  '03': 'M12 3 20 7.5v9L12 21l-8-4.5v-9zM12 12l8-4.5M12 12v9M12 12 4 7.5',
+  // Direction artistique — a pen nib
+  '04': 'M12 3 18 10l-3 9H9l-3-9zM12 3v8M12 13.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3M9 19h6v2H9z',
+};
+
+function ServiceIcon({ n }) {
+  return (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d={SERVICE_ICONS[n]} stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 function ServiceBody({ service: s }) {
   return (
     <>
+      {/* An icon, not the number: the number is already the card's
+          watermark (.svc-card::after), and showing it twice read as a
+          duplicate. */}
       <span className="zv-icon">
-        <span className="zv-h6 leading-none">{s.n}</span>
+        <ServiceIcon n={s.n} />
       </span>
       <h3 className="zv-h4">{s.title}</h3>
       <p className="zv-body">{s.text}</p>
@@ -728,62 +758,6 @@ function ServiceBody({ service: s }) {
   );
 }
 
-/* Tracks which card of a snap rail sits at the resting edge and exposes a
-   scroll-to for the indicators. Shared by the services and method rails. */
-function useSnapRail(count) {
-  const railRef = useRef(null);
-  const [active, setActive] = useState(0);
-
-  useEffect(() => {
-    const rail = railRef.current;
-    if (!rail) return undefined;
-    let frame = 0;
-    const onScroll = () => {
-      cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(() => {
-        const cards = rail.querySelectorAll('[data-step]');
-        if (!cards.length) return;
-        // The last card can't reach the left edge, so "scrolled to the end"
-        // counts as the last step rather than leaving the second-last lit.
-        if (rail.scrollLeft + rail.clientWidth >= rail.scrollWidth - 4) {
-          setActive(cards.length - 1);
-          return;
-        }
-        const origin = rail.getBoundingClientRect().left + parseFloat(getComputedStyle(rail).scrollPaddingLeft || 0);
-        let best = 0;
-        let bestDist = Infinity;
-        cards.forEach((card, i) => {
-          const d = Math.abs(card.getBoundingClientRect().left - origin);
-          if (d < bestDist) { bestDist = d; best = i; }
-        });
-        setActive(best);
-      });
-    };
-    rail.addEventListener('scroll', onScroll, { passive: true });
-    return () => {
-      cancelAnimationFrame(frame);
-      rail.removeEventListener('scroll', onScroll);
-    };
-  }, []);
-
-  const goTo = (i) => {
-    const rail = railRef.current;
-    const idx = Math.max(0, Math.min(count - 1, i));
-    const card = rail?.querySelectorAll('[data-step]')[idx];
-    if (!card) return;
-    const pad = parseFloat(getComputedStyle(rail).scrollPaddingLeft || 0);
-    rail.scrollTo({ left: card.offsetLeft - pad, behavior: 'smooth' });
-  };
-
-  return { railRef, active, goTo };
-}
-
-const RAIL_CLASS =
-  'reveal scrollbar-hide -mx-[var(--gutter)] flex snap-x snap-mandatory scroll-pl-[var(--gutter)] gap-4 overflow-x-auto overflow-y-hidden overscroll-x-contain px-[var(--gutter)] pb-2 after:block after:w-px after:shrink-0';
-
-const ARROW_CLASS =
-  'flex h-10 w-10 items-center justify-center rounded-full border border-[var(--zv-border-dark)] text-[var(--zv-primary)] transition disabled:opacity-30';
-
 /* Services rail, phones only. Wider cards than the method rail because
    each carries a four-line list; the indicator is a 01 / 04 counter with
    prev/next arrows and a copper progress bar that fills as you swipe. */
@@ -794,11 +768,12 @@ function ServicesRail() {
   return (
     <div className="sm:hidden">
       <div ref={railRef} data-reveal role="region" aria-label="Nos métiers" className={RAIL_CLASS}>
-        {services.map((s) => (
+        {services.map((s, i) => (
           <div
             key={s.n}
             data-step
-            className="zv-card zv-icon-card !h-auto w-[82vw] max-w-[340px] shrink-0 snap-start"
+            data-n={s.n}
+            className={`zv-card zv-icon-card svc-card svc-card--${i + 1} !h-auto w-[82vw] max-w-[340px] shrink-0 snap-start`}
           >
             <ServiceBody service={s} />
           </div>

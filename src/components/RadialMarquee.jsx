@@ -6,24 +6,26 @@ import { Link } from 'react-router-dom';
    The cards sit on the rim of a large circle whose centre is far below the
    section, so only the top arc is visible: the middle card upright, its
    neighbours leaning away like sheets fanned on a drawing board. The wheel
-   turns continuously (a CSS keyframe, so it runs with no script at all and
-   stops under prefers-reduced-motion by media query), and scrolling spins it
+   turns continuously (a CSS keyframe, so it runs with no script at all;
+   under prefers-reduced-motion it turns at half speed rather than stopping), and scrolling spins it
    faster: the script scales the animation's playbackRate with scroll speed
    and lets it ease back to 1.
 
-   Four projects fill twenty slots; the sixteen repeats are aria-hidden with
-   their links out of the tab order, so assistive tech and the keyboard see
-   four projects, not twenty. Phones run the very same wheel with smaller
+   Every project is on the wheel — the slot count is the smallest multiple
+   of the project count near twenty (ten projects → twenty slots, each shown
+   twice), so no project is ever dropped and the repeats stay even. The
+   repeats are aria-hidden with their links out of the tab order, so
+   assistive tech and the keyboard see each project once. Phones run the very same wheel with smaller
    cards (see zenvira.css). Images are deliberately not lazy: the wheel is
    a transformed track, so a frame in the hidden half never intersects the
    viewport and a lazy image there would only load as it swung into view.
-   Four unique files are fetched; the repeats hit the cache.
+   One file per project is fetched; the repeats hit the cache.
 
    Off-screen the animation is paused (IntersectionObserver), so a wheel
    below the fold costs nothing. Hovering a card pauses the wheel too, so a
    moving link can actually be clicked.                                    */
 
-const SLOTS = 20;
+const TARGET_SLOTS = 20; // the arc's spacing is tuned around ~20 slots
 const MAX_RATE = 7; // playbackRate ceiling while scrolling hard
 const GAIN = 3; // rate per px/ms of scroll velocity
 const DECAY = 0.08; // ease-back factor per frame
@@ -84,14 +86,16 @@ export default function RadialMarquee({ projects }) {
     };
   }, []);
 
-  const slots = Array.from({ length: SLOTS }, (_, i) => ({
+  const n = projects.length;
+  const count = Math.max(n, Math.round(TARGET_SLOTS / n) * n);
+  const slots = Array.from({ length: count }, (_, i) => ({
     project: projects[i % projects.length],
     i,
-    repeat: i >= projects.length,
+    repeat: i >= n,
   }));
 
   return (
-    <div className="m3-radial">
+    <div className="m3-radial" style={{ '--m3-radial-n': count }}>
       <div ref={wheelRef} className="m3-radial__wheel">
         {slots.map(({ project: p, i, repeat }) => (
           <div
@@ -110,7 +114,7 @@ export default function RadialMarquee({ projects }) {
                 alt={repeat ? '' : `${p.name} — ${p.subtitle}`}
                 width="1280"
                 height="800"
-                loading="lazy"
+                loading="eager"
                 decoding="async"
                 draggable="false"
               />

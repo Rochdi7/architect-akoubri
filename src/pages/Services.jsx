@@ -1,11 +1,12 @@
 import { Link } from 'react-router-dom';
 import InkTitle from '../components/InkTitle';
 import { services, stats } from '../data/projects';
-import Accordion from '../components/Accordion';
 import { useVolets } from '../hooks/useVolets';
 import { useInkFill } from '../hooks/useInkFill';
 import { usePageMeta } from '../hooks/usePageMeta';
+import { useFaqSchema } from '../hooks/useFaqSchema';
 import GetInTouch from '../components/GetInTouch';
+import { useSnapRail, RAIL_CLASS, ARROW_CLASS } from '../hooks/useSnapRail';
 
 // Frames for the banner ticker, drawn from across the project renders.
 const ticker = [
@@ -42,6 +43,10 @@ const shots = [
   },
 ];
 
+// Louver count for the brise-soleil reveal; the CSS reads it as --n.
+const LOUVERS = 9;
+
+/* Not rendered: kept for search engines as FAQPage JSON-LD. */
 const faq = [
   {
     q: 'Travaillez-vous en dehors de Marrakech ?',
@@ -71,6 +76,8 @@ export default function Services() {
       "Missions d'architecture à Marrakech et au Maroc : conception architecturale, permis de construire, suivi de chantier, design d'intérieur, images de synthèse et direction artistique.",
     canonical: '/services',
   });
+  useFaqSchema(faq);
+
 
   return (
     <>
@@ -141,17 +148,22 @@ export default function Services() {
               four full-width stacked rules made a long, thin list. The
               caption is capped so it breaks in two even lines on desktop
               instead of leaving one orphaned word. */}
-          <div className="grid grid-cols-2 gap-x-5 gap-y-9 sm:gap-x-8 lg:grid-cols-4">
+          {/* Phones: a swipe rail, like the Home services rail. */}
+          <PracticeRail />
+
+          {/* Tablet and desktop: the same cards as a grid — the Home
+              service-card treatment (hue wash, top rule, number watermark,
+              icon chip), one hue per family. */}
+          <div className="hidden gap-5 sm:grid sm:grid-cols-2 lg:grid-cols-4">
             {stats.map((s, i) => (
               <div
                 key={s.label}
                 data-reveal
                 data-reveal-delay={i * 90}
-                className="reveal border-t border-[var(--zv-primary)] pt-4"
+                data-n={String(i + 1).padStart(2, '0')}
+                className={`reveal zv-card zv-icon-card svc-card svc-card--${i + 1}`}
               >
-                <span className="zv-subtitle">{String(i + 1).padStart(2, '0')}</span>
-                <div className="zv-h4 mt-5 sm:mt-7">{s.value}</div>
-                <p className="zv-small mt-3 max-w-[24ch]">{s.label}</p>
+                <PracticeBody item={s} />
               </div>
             ))}
           </div>
@@ -169,18 +181,45 @@ export default function Services() {
                 i % 2 ? 'lg:[&>*:first-child]:order-2' : ''
               }`}
             >
-              <div className="m3-volet">
-              <div className="zv-media">
-                <img
-                  src={shots[i].src}
-                  alt={shots[i].alt}
-                  loading={i === 0 ? 'eager' : 'lazy'}
-                  width="1280"
-                  height="853"
-                  className="aspect-[4/3] w-full object-cover"
-                />
-              </div>
-              </div>
+              {/* A drawing plate: CAD corner marks and a dimension line
+                  frame the render, captioned like a figure on a sheet. */}
+              <figure className="svc-plate" style={{ '--n': LOUVERS }}>
+                <div className="svc-plate__frame zv-media">
+                  <img
+                    src={shots[i].src}
+                    alt={shots[i].alt}
+                    loading={i === 0 ? 'eager' : 'lazy'}
+                    width="1280"
+                    height="853"
+                    className="aspect-[4/3] w-full object-cover"
+                  />
+                  {/* Brise-soleil: the same render cut into vertical louvers
+                      that swing open with the scroll (useVolets). Hidden
+                      until the scene builds, so without JS the plain <img>
+                      above is all there is. */}
+                  <div className="svc-louvers" aria-hidden="true">
+                    {Array.from({ length: LOUVERS }, (_, k) => (
+                      <span key={k} className="svc-louver" style={{ '--k': k }}>
+                        <span
+                          className="svc-louver__face"
+                          style={{ backgroundImage: `url(${shots[i].src})` }}
+                        />
+                        <span className="svc-louver__shade" />
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <span className="svc-plate__corner svc-plate__corner--tl" aria-hidden="true" />
+                <span className="svc-plate__corner svc-plate__corner--tr" aria-hidden="true" />
+                <span className="svc-plate__corner svc-plate__corner--bl" aria-hidden="true" />
+                <span className="svc-plate__corner svc-plate__corner--br" aria-hidden="true" />
+                <figcaption className="svc-plate__caption">
+                  <span className="svc-plate__rule" aria-hidden="true" />
+                  <span className="svc-plate__label">
+                    Fig. {s.n}&nbsp;— {s.title}
+                  </span>
+                </figcaption>
+              </figure>
               <div>
                 <span className="zv-icon">
                   <span className="zv-h6 leading-none">{s.n}</span>
@@ -215,29 +254,79 @@ export default function Services() {
         </div>
       </section>
 
-      {/* FAQ */}
-      <section className="zv zv-alt zv-section">
-        <div className="shell grid gap-12 lg:grid-cols-[0.7fr_1.3fr] lg:gap-20">
-          <div data-reveal className="reveal lg:sticky lg:top-32 lg:self-start">
-            <span className="zv-subtitle">Questions</span>
-            <InkTitle className="zv-h2 mt-5">Avant de nous écrire</InkTitle>
-          </div>
-          <Accordion
-            items={faq}
-            stagger={70}
-            summaryClass="flex cursor-pointer list-none items-center justify-between gap-4 p-4 sm:gap-6 sm:p-6"
-            bodyClass="zv-body zv-muted max-w-2xl px-6 pb-6"
-            renderIcon={() => (
-              <span className="relative h-4 w-4 shrink-0">
-                <span className="absolute top-1/2 block h-px w-full bg-[var(--zv-primary)]" />
-                <span className="zv-acc-icon zv-acc-icon-bar absolute left-1/2 block h-full w-px bg-[var(--zv-primary)]" />
-              </span>
-            )}
-          />
-        </div>
-      </section>
-
-      <GetInTouch />
+      <GetInTouch alt />
     </>
+  );
+}
+
+/* One line icon per programme family, keyed on its name; same 24-unit
+   grid and stroke as the Home service icons. */
+const PRACTICE_ICONS = {
+  // Résidentiel — a house
+  'Résidentiel': 'M3 11 12 4l9 7M5 9.5V20h14V9.5M10 20v-5h4v5',
+  // Tertiaire — an office tower
+  'Tertiaire': 'M6 21V4h12v17M3 21h18M9 7h2M13 7h2M9 10.5h2M13 10.5h2M9 14h2M13 14h2M11 21v-3h2v3',
+  // Industriel — a sawtooth-roof factory with a chimney
+  'Industriel': 'M3 21V11l5 3v-3l5 3v-3l5 3V4h3v17zM3 21h18M7 17h2M12 17h2',
+  // Hospitalité — a bed
+  'Hospitalité': 'M3 19V6M3 15h18v4M21 15v-3a3 3 0 0 0-3-3h-7v6M7 12.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3',
+};
+
+function PracticeBody({ item }) {
+  return (
+    <>
+      <span className="zv-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d={PRACTICE_ICONS[item.value]} stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </span>
+      <h3 className="zv-h4">{item.value}</h3>
+      <p className="zv-small zv-muted">{item.label}</p>
+    </>
+  );
+}
+
+/* Programme families as a swipe rail, phones only: counter, arrows and a
+   copper progress line, the same controls as the Home services rail. */
+function PracticeRail() {
+  const { railRef, active, goTo } = useSnapRail(stats.length);
+  const n = stats.length;
+
+  return (
+    <div className="sm:hidden">
+      <div ref={railRef} data-reveal role="region" aria-label="Domaines d'intervention" className={RAIL_CLASS}>
+        {stats.map((s, i) => (
+          <div
+            key={s.label}
+            data-step
+            data-n={String(i + 1).padStart(2, '0')}
+            className={`zv-card zv-icon-card svc-card svc-card--${i + 1} !h-auto w-[76vw] max-w-[320px] shrink-0 snap-start`}
+          >
+            <PracticeBody item={s} />
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-6 flex items-center gap-4">
+        <span className="zv-h6 tabular-nums leading-none" aria-live="polite">
+          {String(active + 1).padStart(2, '0')}
+          <span className="zv-muted"> / {String(n).padStart(2, '0')}</span>
+        </span>
+        <span className="relative h-px flex-1 bg-[var(--zv-border)]" aria-hidden="true">
+          <span
+            className="absolute inset-y-0 left-0 bg-[var(--zv-accent)] transition-[width] duration-300"
+            style={{ width: `${((active + 1) / n) * 100}%` }}
+          />
+        </span>
+        <span className="flex gap-2">
+          <button type="button" onClick={() => goTo(active - 1)} disabled={active === 0} aria-label="Domaine précédent" className={ARROW_CLASS}>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M10 3 5 8l5 5" /></svg>
+          </button>
+          <button type="button" onClick={() => goTo(active + 1)} disabled={active === n - 1} aria-label="Domaine suivant" className={ARROW_CLASS}>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m6 3 5 5-5 5" /></svg>
+          </button>
+        </span>
+      </div>
+    </div>
   );
 }

@@ -195,6 +195,8 @@ The owner confirmed these are **three distinct projects**, one render each:
 | **Villa** | Two-storey house, upper floor cantilevered over the terrace, timber-battened soffit, pool edged with bamboo |
 | **Villa K** | Semi-detached pair in pale stone, a helical timber stair read from outside through a full-height glazed slot |
 | **Villa Targa** | Corner house in offset volumes, dark split-stone tower with full-height lit glazing reveals |
+| **Villa Plain-Pied 1** (2026-09-25) | Single-storey L-shaped house in grey veined stone around a pool, timber soffit; separate travertine cantilever pavilion with outdoor dining and sunken bar |
+| **Villa Plain-Pied 2** (2026-09-25) | Two-storey earth-render villa (name is the owner's choice), pool terrace, garden façade under a louvred pergola, night entrance arch in a lit geometric screen |
 
 Previously the catalogue held a single "Villa Bambou" with an invented
 narrative. All three are now described only from what is visible.

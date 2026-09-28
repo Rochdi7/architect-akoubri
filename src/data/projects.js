@@ -665,6 +665,76 @@ export const projects = [
         "La tour d'angle et ses jambages lumineux"),
     ],
   },
+
+  /* ── 7. Villa Plain-Pied ─────────────────────────────────────────
+     Two separate projects that share one name, like Villa Jumelée —
+     the owner supplied them as two folders titled "VILLA PLAIN PIED"
+     (2026-09-25). Only the first is actually single-storey; the second
+     keeps the name by the owner's choice, so its copy never calls it
+     de plain-pied.                                                     */
+  {
+    slug: 'villa-plain-pied-1',
+    name: 'Villa Plain-Pied',
+    subtitle: 'Maison de plain-pied',
+    category: 'Villa',
+    year: null,
+    location: 'Marrakech, Maroc',
+    surface: null,
+    status: null,
+    mission: 'Architecture, piscine, paysage',
+    excerpt:
+      "Une villa de plain-pied en L autour de sa piscine : de grandes baies vitrées sous un débord de toiture à sous-face en bois, ouvertes sur une terrasse minérale et un jardin.",
+    body: [
+      "La maison tient sur un seul niveau et se replie en L autour du bassin. Les murs sont parementés d'une pierre grise veinée, et toute la façade sur jardin s'ouvre par de grandes baies coulissantes à menuiseries noires.",
+      "La toiture plate déborde largement au-dessus de la terrasse. Sa rive blanche est soulignée d'une ligne de lumière et sa sous-face en lames de bois porte des spots sur rail noir : le débord abrite la terrasse le jour et l'éclaire le soir.",
+      "Face au bassin, un pavillon à part : une épaisse dalle de travertin clair, cernée d'un filet lumineux, coiffe un mur en tasseaux de bois. Dessous, la table à manger en plein air ; devant, un bar en contrebas de la piscine, avec ses tabourets et un foyer.",
+    ],
+    cover: `${M}/akoubri_villa-plain-pied-piscine-terrasse-01.webp`,
+    coverAlt:
+      "Villa Plain-Pied : maison de plain-pied en L autour d'une piscine, murs en pierre grise veinée, baies vitrées et débord de toiture à sous-face en bois",
+    hover: `${M}/akoubri_villa-plain-pied-dalle-porte-a-faux-piscine-02.webp`,
+    gallery: [
+      img('akoubri_villa-plain-pied-piscine-terrasse-01.webp',
+        "Villa Plain-Pied : maison de plain-pied en L autour d'une piscine, murs en pierre grise veinée, baies vitrées et débord de toiture à sous-face en bois",
+        'La terrasse sous le débord de toiture'),
+      img('akoubri_villa-plain-pied-dalle-porte-a-faux-piscine-02.webp',
+        "Pavillon de piscine : dalle de travertin clair en porte-à-faux cernée d'un filet lumineux, mur en tasseaux de bois, table à manger extérieure et bar en contrebas du bassin",
+        'Le pavillon — la dalle en porte-à-faux'),
+    ],
+  },
+  {
+    slug: 'villa-plain-pied-2',
+    name: 'Villa Plain-Pied',
+    subtitle: 'Maison individuelle',
+    category: 'Villa',
+    year: null,
+    location: 'Marrakech, Maroc',
+    surface: null,
+    status: null,
+    mission: 'Architecture, piscine, paysage',
+    excerpt:
+      "Une villa en enduit brun terre aux volumes cubiques, ouverte sur une terrasse dallée et une piscine, dont l'entrée passe sous une arche creusée dans un panneau ajouré.",
+    body: [
+      "La maison est composée de volumes cubiques en enduit brun terre, coiffés d'acrotères simples. Côté piscine, un grand pan sombre monte sur toute la hauteur et tient l'angle, à côté d'un balcon filant à garde-corps noir.",
+      "La façade sur jardin s'ouvre au rez-de-chaussée par trois grandes baies encadrées de noir, sous une pergola à lames posée sur des poteaux de bois. Elle abrite la terrasse, la table à manger et les salons extérieurs, dans le prolongement de la piscine.",
+      "L'entrée est pensée pour la nuit : une arche profonde s'ouvre dans un panneau ajouré à motif géométrique, éclairé de l'intérieur. L'allée dallée qui y mène est bordée de lanternes, d'oliviers et de cyprès éclairés depuis le sol.",
+    ],
+    cover: `${M}/akoubri_villa-plain-pied-facade-piscine-salon-exterieur-03.webp`,
+    coverAlt:
+      "Villa Plain-Pied : villa à étage en enduit brun terre, balcon à garde-corps noir, piscine et salon extérieur sous un parasol déporté",
+    hover: `${M}/akoubri_villa-plain-pied-entree-arche-nuit-05.webp`,
+    gallery: [
+      img('akoubri_villa-plain-pied-facade-piscine-salon-exterieur-03.webp',
+        "Villa Plain-Pied : villa à étage en enduit brun terre, balcon à garde-corps noir, piscine et salon extérieur sous un parasol déporté",
+        'Le salon extérieur au bord de la piscine'),
+      img('akoubri_villa-plain-pied-facade-jardin-pergola-04.webp',
+        "Façade sur jardin : trois baies encadrées de noir sous une pergola à lames, terrasse dallée avec table à manger et canapés, piscine et palmiers",
+        'La façade sur jardin et sa pergola'),
+      img('akoubri_villa-plain-pied-entree-arche-nuit-05.webp',
+        "Entrée de la villa la nuit : arche dans un panneau ajouré à motif géométrique éclairé, allée dallée bordée de lanternes, d'oliviers et de cyprès",
+        "L'entrée la nuit, sous l'arche ajourée"),
+    ],
+  },
 ];
 
 export const getProject = (slug) => projects.find((p) => p.slug === slug);
@@ -977,7 +1047,8 @@ export const showcase = [
   },
 ];
 
-/* FAQ for the Agence page. */
+/* Studio FAQ — no longer rendered (2026-09-25); Home and Agence emit it as
+   FAQPage JSON-LD through hooks/useFaqSchema. */
 export const agencyFaq = [
   {
     q: 'Quels types de programmes traitez-vous ?',

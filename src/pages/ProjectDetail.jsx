@@ -4,6 +4,7 @@ import { Link, Navigate, useParams } from 'react-router-dom';
 import { getProject, projects } from '../data/projects';
 import { useReveal } from '../hooks/useReveal';
 import { useInkFill } from '../hooks/useInkFill';
+import { usePageMeta } from '../hooks/usePageMeta';
 import Lightbox from '../components/Lightbox';
 import ContactForm from '../components/ContactForm';
 
@@ -33,6 +34,13 @@ export default function ProjectDetail() {
   const ink = useInkFill({ play: true });
 
   useReveal([slug]);
+
+  /* Each project owns its description (the excerpt, written from the
+     renders) and canonical; before this every project inherited Home's. */
+  usePageMeta({
+    description: project?.excerpt,
+    canonical: project ? `/projets/${project.slug}` : undefined,
+  });
 
   if (!project) return <Navigate to="/projets" replace />;
 

@@ -562,6 +562,101 @@ p.zv-muted, p.zv-quote__lede { color: inherit; }
 
 .zv-dark .zv-marker { background: var(--zv-accent); }
 
+/* ── Service cards: one hue per card (Home métiers, Services families) ──
+   The four « Quatre métiers » cards were four identical white boxes. Each
+   now carries its own muted hue in --svc — copper, sage, slate blue,
+   mulberry, all pulled toward the navy/sand palette — used as a wash, a
+   top rule, the number chip and the chevrons. Every mix is made against
+   the theme tokens, so the night theme only has to lift the four hues. */
+.svc-card--1 { --svc: #b8774f; }
+.svc-card--2 { --svc: #6c8a5b; }
+.svc-card--3 { --svc: #43698f; }
+.svc-card--4 { --svc: #8c5676; }
+:root[data-theme='dark'] .svc-card--1 { --svc: #d29c78; }
+:root[data-theme='dark'] .svc-card--2 { --svc: #9fbb8c; }
+:root[data-theme='dark'] .svc-card--3 { --svc: #8db0d6; }
+:root[data-theme='dark'] .svc-card--4 { --svc: #cf9bbb; }
+
+.svc-card {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  border-color: color-mix(in srgb, var(--svc) 24%, var(--zv-border));
+  background:
+    radial-gradient(120% 70% at 100% 0%, color-mix(in srgb, var(--svc) 16%, transparent), transparent 62%),
+    linear-gradient(180deg, color-mix(in srgb, var(--svc) 6%, var(--zv-white)), var(--zv-white) 70%);
+  transition:
+    border-color 300ms var(--ease-soft),
+    box-shadow 400ms var(--ease-soft),
+    translate 400ms var(--ease-soft);
+}
+
+/* Top rule: a short stub at rest that draws across on hover. */
+.svc-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--svc), color-mix(in srgb, var(--svc) 40%, transparent));
+  transform: scaleX(0.28);
+  transform-origin: left;
+  transition: transform 600ms var(--ease-soft);
+}
+
+/* The number again, as a large pale watermark behind the top corner. */
+.svc-card::after {
+  content: attr(data-n);
+  position: absolute;
+  top: 10px;
+  right: 22px;
+  z-index: -1;
+  font-family: var(--zv-display);
+  font-size: 128px;
+  line-height: 1;
+  color: color-mix(in srgb, var(--svc) 13%, transparent);
+  pointer-events: none;
+  transition: color 400ms var(--ease-soft), translate 600ms var(--ease-soft);
+}
+
+.svc-card .zv-icon {
+  background: color-mix(in srgb, var(--svc) 13%, var(--zv-white));
+  border-color: color-mix(in srgb, var(--svc) 40%, transparent);
+  color: color-mix(in srgb, var(--svc) 70%, var(--zv-primary));
+  transition: background-color 300ms var(--ease-soft), color 300ms var(--ease-soft), border-color 300ms var(--ease-soft);
+}
+
+.svc-card > ul { border-top-color: color-mix(in srgb, var(--svc) 30%, var(--zv-border)); }
+.svc-card .zv-marker { background: var(--svc); }
+
+/* Hover only where hover is real: a tap would leave it stuck on phones. */
+@media (hover: hover) {
+  .svc-card:hover {
+    border-color: color-mix(in srgb, var(--svc) 70%, transparent);
+    box-shadow: 0 22px 48px -28px color-mix(in srgb, var(--svc) 75%, transparent);
+    translate: 0 -4px;
+  }
+  .svc-card:hover::before { transform: scaleX(1); }
+  .svc-card:hover::after {
+    color: color-mix(in srgb, var(--svc) 22%, transparent);
+    translate: -6px 4px;
+  }
+  .svc-card:hover .zv-icon {
+    background: var(--svc);
+    border-color: var(--svc);
+    color: var(--zv-white);
+  }
+}
+
+@media (max-width: 640px) {
+  .svc-card::after { font-size: 96px; right: 16px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .svc-card,
+  .svc-card::before,
+  .svc-card::after { transition: none; }
+}
+
 /* Browsers with no mask support (very old Safari) would show a solid 6x9
    block, which is worse than the dash was — fall back to the bar there. */
 @supports not ((-webkit-mask: none) or (mask: none)) {
@@ -689,6 +784,144 @@ p.zv-muted, p.zv-quote__lede { color: inherit; }
 
 .zv-media img { transition: transform 900ms var(--ease-arch); }
 .zv-media:hover img { transform: scale(1.04); }
+
+/* ── Services page: drawing plates ─────────────────────────────
+   Each service render is set like a figure on a drawing sheet: four CAD
+   corner marks just outside the image, and a dimension line under it with
+   end ticks and a « Fig. 0N — Métier » caption. useVolets draws the marks
+   in and develops the render from grey to colour; at rest (and with
+   reduced motion) the plate is simply shown complete. Nothing is clipped,
+   so an interrupted tween can never leave a half-cut image. */
+.svc-plate {
+  --plate-ink: var(--zv-accent);
+  --plate-gap: 12px;
+  position: relative;
+  margin: 0;
+  padding: var(--plate-gap) var(--plate-gap) 0;
+}
+
+.svc-plate__frame { position: relative; }
+
+/* Brise-soleil louvers. Each slat is a window onto a full-frame copy of
+   the render (face: N times the slat width, shifted left by k slats), so
+   the slats together tile the exact image the <img> shows. Behind them the
+   frame turns into a navy blueprint grid, seen between the louvers while
+   they are still edge-on. The layer only exists once useVolets marks the
+   plate .is-louvered, and steps aside again (.is-built) when fully open,
+   so the resting state is always the real, seamless <img>. */
+.svc-louvers { display: none; }
+
+.svc-plate.is-louvered .svc-plate__frame {
+  background-color: var(--band);
+  background-image:
+    linear-gradient(color-mix(in srgb, #fff 9%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, #fff 9%, transparent) 1px, transparent 1px);
+  background-size: 28px 28px;
+  background-position: -1px -1px;
+}
+.svc-plate.is-louvered:not(.is-built) .svc-plate__frame > img { opacity: 0; }
+.svc-plate.is-louvered:not(.is-built) .svc-louvers { display: block; }
+
+.svc-louvers {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.svc-louver {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(100% / var(--n) * var(--k));
+  /* A hair wider than its share so no seam shows between open slats. */
+  width: calc(100% / var(--n) + 1px);
+  overflow: hidden;
+  will-change: transform;
+}
+.svc-louver__face {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(-100% * var(--k));
+  width: calc(100% * var(--n));
+  background-size: cover;
+  background-position: center;
+}
+/* The slat's own shadow while it is turned away from the light, plus a
+   copper edge-light on its leading face. */
+.svc-louver__shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(8, 18, 32, 0.6), rgba(8, 18, 32, 0.15));
+}
+
+.svc-plate__corner {
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  border: 0 solid var(--plate-ink);
+  pointer-events: none;
+  transition: translate 500ms var(--ease-soft);
+}
+.svc-plate__corner--tl { top: 0; left: 0; border-top-width: 1.5px; border-left-width: 1.5px; transform-origin: 0 0; }
+.svc-plate__corner--tr { top: 0; right: 0; border-top-width: 1.5px; border-right-width: 1.5px; transform-origin: 100% 0; }
+.svc-plate__corner--bl { bottom: 38px; left: 0; border-bottom-width: 1.5px; border-left-width: 1.5px; transform-origin: 0 100%; }
+.svc-plate__corner--br { bottom: 38px; right: 0; border-bottom-width: 1.5px; border-right-width: 1.5px; transform-origin: 100% 100%; }
+
+/* Dimension line: a hairline with end ticks, the caption sitting on it. */
+.svc-plate__caption {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 38px;
+  margin-top: 0;
+}
+.svc-plate__rule {
+  position: absolute;
+  left: var(--plate-gap);
+  right: var(--plate-gap);
+  top: 50%;
+  height: 1px;
+  background: color-mix(in srgb, var(--zv-primary) 35%, transparent);
+  transform-origin: 0 50%;
+}
+.svc-plate__rule::before,
+.svc-plate__rule::after {
+  content: '';
+  position: absolute;
+  top: -5px;
+  width: 1px;
+  height: 11px;
+  background: inherit;
+}
+.svc-plate__rule::before { left: 0; }
+.svc-plate__rule::after { right: 0; }
+
+.svc-plate__label {
+  position: relative;
+  padding: 0 14px;
+  background: var(--zv-bg);
+  font-family: var(--zv-body);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--zv-muted);
+  white-space: nowrap;
+}
+
+@media (hover: hover) {
+  .svc-plate:hover .svc-plate__corner--tl { translate: -5px -5px; }
+  .svc-plate:hover .svc-plate__corner--tr { translate: 5px -5px; }
+  .svc-plate:hover .svc-plate__corner--bl { translate: -5px 5px; }
+  .svc-plate:hover .svc-plate__corner--br { translate: 5px 5px; }
+}
+
+@media (max-width: 640px) {
+  .svc-plate { --plate-gap: 8px; }
+  .svc-plate__corner { width: 18px; height: 18px; }
+  .svc-plate__label { font-size: 11px; padding: 0 10px; }
+}
 
 /* Boxed variant of the field, used inside the project-detail panels.
    Shares every behaviour with .zv-field; only the shell differs. */
@@ -2515,8 +2748,12 @@ select.zv-field:open {
   }
 }
 
+/* Reduced motion slows the wheel instead of stopping it: stopped, only the
+   three cards at the top were ever seen and the rest of the projects were
+   unreachable (Android battery savers turn this setting on silently). */
 @media (prefers-reduced-motion: reduce) {
-  .m3-radial__wheel { animation: none; will-change: auto; }
+  /* !important + extra specificity to beat index.css's global 0.01ms. */
+  .m3-radial .m3-radial__wheel { animation-duration: 220s !important; }
   .m3-radial__card img { transition: none; }
 }
 
