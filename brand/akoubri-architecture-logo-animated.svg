@@ -1,0 +1,150 @@
+<svg width="440" height="440" viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="akShine" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0"    stop-color="#fff" stop-opacity="0"/>
+      <stop offset="0.45" stop-color="#fff" stop-opacity="1"/>
+      <stop offset="0.55" stop-color="#fff" stop-opacity="1"/>
+      <stop offset="1"    stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+
+    <mask id="akShineMask" maskUnits="userSpaceOnUse" x="0" y="0" width="1000" height="1000">
+      <rect y="-5" width="240" height="1010" fill="url(#akShine)" x="-240">
+        <animate attributeName="x" values="-240;-240;1040;1040" keyTimes="0;0.30;0.62;1"
+                 dur="5.5s" begin="2.2s" repeatCount="indefinite"
+                 calcMode="spline" keySplines="0 0 1 1; 0.33 0 0.15 1; 0 0 1 1"/>
+      </rect>
+    </mask>
+
+    <!-- copper terminates exactly on the band's inner edge -->
+    <clipPath id="akCopperCut" clipPathUnits="userSpaceOnUse">
+      <path d="M0 0 L638.3 0 L638.3 276 C596 335, 545 411, 513 448 C490 476, 445 505, 394 533 L394 1000 L0 1000 Z"/>
+    </clipPath>
+
+    <mask id="akRevealA" maskUnits="userSpaceOnUse" x="0" y="0" width="1000" height="1000">
+      <path d="M255 700 L467 255 L560 460" fill="none" stroke="#fff" stroke-width="210"
+            stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10"
+            stroke-dasharray="720" stroke-dashoffset="720">
+        <animate attributeName="stroke-dashoffset" from="720" to="0" dur="0.85s" begin="0.35s"
+                 fill="freeze" calcMode="spline" keySplines="0.16 1 0.3 1"/>
+      </path>
+    </mask>
+
+    <mask id="akRevealBand" maskUnits="userSpaceOnUse" x="0" y="0" width="1000" height="1000">
+      <path d="M675.4 238 L675.4 276 C634 335, 581.5 411.5, 552.5 448 C530 476, 462.5 506.5, 394 533 L345 547"
+            fill="none" stroke="#fff" stroke-width="230" stroke-linecap="butt"
+            stroke-dasharray="490" stroke-dashoffset="490">
+        <animate attributeName="stroke-dashoffset" from="490" to="0" dur="0.7s" begin="0.75s"
+                 fill="freeze" calcMode="spline" keySplines="0.22 1 0.36 1"/>
+      </path>
+    </mask>
+
+    <mask id="akRevealLeg" maskUnits="userSpaceOnUse" x="0" y="0" width="1000" height="1000">
+      <path d="M530 410 L690 700" fill="none" stroke="#fff" stroke-width="200" stroke-linecap="butt"
+            stroke-dasharray="340" stroke-dashoffset="340">
+        <animate attributeName="stroke-dashoffset" from="340" to="0" dur="0.5s" begin="1.05s"
+                 fill="freeze" calcMode="spline" keySplines="0.22 1 0.36 1"/>
+      </path>
+    </mask>
+    <!-- transparent stripes: cut through the band, not painted white -->
+    <mask id="akBandHoles" maskUnits="userSpaceOnUse" x="0" y="0" width="1000" height="1000">
+      <path d="M638.3 276 C596 335, 545 411, 513 448 C490 476, 445 505, 394 533 C480 508, 570 476, 592 448 C618 412, 672 335, 712.5 276 Z" fill="#fff"/>
+      <g fill="none" stroke="#000" stroke-width="2.2" opacity="0">
+        <animate attributeName="opacity" from="0" to="1" dur="0.5s" begin="1.35s" fill="freeze" calcMode="spline" keySplines="0.33 0 0.15 1"/>
+        <path d="M645.7 276 C603.6 335, 552.3 411.1, 520.9 448 C498.0 476, 448.5 505.3, 409 526"/>
+        <path d="M653.1 276 C611.2 335, 559.6 411.2, 528.8 448 C506.0 476, 452.0 505.6, 409 526"/>
+        <path d="M660.6 276 C618.8 335, 566.9 411.3, 536.7 448 C514.0 476, 455.5 505.9, 409 526"/>
+        <path d="M668.0 276 C626.4 335, 574.2 411.4, 544.6 448 C522.0 476, 459.0 506.2, 409 526"/>
+        <path d="M675.4 276 C634.0 335, 581.5 411.5, 552.5 448 C530.0 476, 462.5 506.5, 409 526"/>
+        <path d="M682.8 276 C641.6 335, 588.8 411.6, 560.4 448 C538.0 476, 466.0 506.8, 409 526"/>
+        <path d="M690.2 276 C649.2 335, 596.1 411.7, 568.3 448 C546.0 476, 469.5 507.1, 409 526"/>
+        <path d="M697.7 276 C656.8 335, 603.4 411.8, 576.2 448 C554.0 476, 473.0 507.4, 409 526"/>
+        <path d="M705.1 276 C664.4 335, 610.7 411.9, 584.1 448 C562.0 476, 476.5 507.7, 409 526"/>
+      </g>
+    </mask>
+    <!-- transparent keyline: 3-unit gap cut from leg and copper along the band edge -->
+    <mask id="akKeyline" maskUnits="userSpaceOnUse" x="0" y="0" width="1000" height="1000">
+      <rect width="1000" height="1000" fill="#fff"/>
+      <path d="M638.3 276 C596 335, 545 411, 513 448 C490 476, 445 505, 394 533 C480 508, 570 476, 592 448 C618 412, 672 335, 712.5 276 Z" fill="none" stroke="#000" stroke-width="6" stroke-linejoin="round"/>
+      <g fill="none" stroke="#000" stroke-width="2.2" opacity="0">
+        <animate attributeName="opacity" from="0" to="1" dur="0.5s" begin="1.35s" fill="freeze" calcMode="spline" keySplines="0.33 0 0.15 1"/>
+        <path d="M645.7 276 C603.6 335, 552.3 411.1, 520.9 448 C498.0 476, 448.5 505.3, 409 526"/>
+        <path d="M653.1 276 C611.2 335, 559.6 411.2, 528.8 448 C506.0 476, 452.0 505.6, 409 526"/>
+        <path d="M660.6 276 C618.8 335, 566.9 411.3, 536.7 448 C514.0 476, 455.5 505.9, 409 526"/>
+        <path d="M668.0 276 C626.4 335, 574.2 411.4, 544.6 448 C522.0 476, 459.0 506.2, 409 526"/>
+        <path d="M675.4 276 C634.0 335, 581.5 411.5, 552.5 448 C530.0 476, 462.5 506.5, 409 526"/>
+        <path d="M682.8 276 C641.6 335, 588.8 411.6, 560.4 448 C538.0 476, 466.0 506.8, 409 526"/>
+        <path d="M690.2 276 C649.2 335, 596.1 411.7, 568.3 448 C546.0 476, 469.5 507.1, 409 526"/>
+        <path d="M697.7 276 C656.8 335, 603.4 411.8, 576.2 448 C554.0 476, 473.0 507.4, 409 526"/>
+        <path d="M705.1 276 C664.4 335, 610.7 411.9, 584.1 448 C562.0 476, 476.5 507.7, 409 526"/>
+      </g>
+    </mask>
+  </defs>
+
+  <g transform="translate(500 500)">
+    <g><!-- idle breathe -->
+      <animateTransform attributeName="transform" type="scale" values="1;1.012;1"
+                        dur="4.8s" begin="2.4s" repeatCount="indefinite"
+                        calcMode="spline" keySplines="0.45 0 0.55 1; 0.45 0 0.55 1"/>
+      <g><!-- assembly pop -->
+        <animateTransform attributeName="transform" type="scale" values="1;1.035;0.993;1"
+                          keyTimes="0;0.45;0.75;1" dur="0.55s" begin="1.75s" fill="freeze"
+                          calcMode="spline" keySplines="0.2 0.8 0.3 1; 0.4 0 0.4 1; 0.3 0 0.2 1"/>
+        <g transform="translate(-500 -500)">
+
+          <!-- RING -->
+          <path d="M500 12 A488 488 0 0 0 500 988" fill="none" stroke="#C78E69" stroke-width="5"
+                stroke-dasharray="1534" stroke-dashoffset="1534">
+            <animate attributeName="stroke-dashoffset" from="1534" to="0" dur="1.15s" fill="freeze"
+                     calcMode="spline" keySplines="0.16 1 0.3 1"/>
+          </path>
+          <path d="M500 12 A488 488 0 0 1 500 988" fill="none" stroke="#10243F" stroke-width="5"
+                stroke-dasharray="1534" stroke-dashoffset="1534">
+            <animate attributeName="stroke-dashoffset" from="1534" to="0" dur="1.15s" fill="freeze"
+                     calcMode="spline" keySplines="0.16 1 0.3 1"/>
+          </path>
+
+          <!-- COPPER A -->
+          <g mask="url(#akRevealA)">
+            <g mask="url(#akKeyline)"><g clip-path="url(#akCopperCut)">
+              <path d="M445.5 274.6 L489.5 274.6 L616 500 L535 500 L467.8 373.7 L323.5 634.7 L249.3 634.7 Z" fill="#C78E69"/>
+            </g></g>
+          </g>
+
+          <!-- SOLID NAVY LEG (sits UNDER the band; stripes run across it) -->
+          <g mask="url(#akRevealLeg)">
+            <g mask="url(#akKeyline)"><path d="M513.2 450 L591.3 450 L692.9 634.7 L614.8 634.7 Z" fill="#10243F"/></g>
+          </g>
+          <!-- STRIPED BAND -->
+          <g mask="url(#akRevealBand)">
+            <g mask="url(#akBandHoles)"><path d="M638.3 276 C596 335, 545 411, 513 448 C490 476, 445 505, 394 533 C480 508, 570 476, 592 448 C618 412, 672 335, 712.5 276 Z" fill="#10243F"/></g>
+          </g>
+
+
+          <!-- WORDMARK -->
+          <g opacity="0" transform="translate(0 14)">
+            <animate attributeName="opacity" from="0" to="1" dur="0.6s" begin="1.55s"
+                     fill="freeze" calcMode="spline" keySplines="0.33 0 0.15 1"/>
+            <animateTransform attributeName="transform" type="translate" from="0 14" to="0 0"
+                              dur="0.7s" begin="1.55s" fill="freeze"
+                              calcMode="spline" keySplines="0.16 1 0.3 1"/>
+            <text x="506" y="722" text-anchor="middle"
+                  font-family="Poppins, 'Century Gothic', Futura, 'Helvetica Neue', Arial, sans-serif"
+                  font-size="47" font-weight="400" textLength="668" lengthAdjust="spacingAndGlyphs">
+              <tspan fill="#10243F">Akoubri Architecture </tspan><tspan fill="#C78E69">&amp; Design</tspan>
+            </text>
+          </g>
+
+          <!-- SPECULAR SWEEP -->
+          <g mask="url(#akShineMask)" opacity="0.5" style="pointer-events:none">
+            <g clip-path="url(#akCopperCut)"><path d="M445.5 274.6 L489.5 274.6 L616 500 L535 500 L467.8 373.7 L323.5 634.7 L249.3 634.7 Z" fill="#fff"/></g>
+            <path d="M638.3 276 C596 335, 545 411, 513 448 C490 476, 445 505, 394 533 C480 508, 570 476, 592 448 C618 412, 672 335, 712.5 276 Z" fill="#fff"/>
+            <path d="M513.2 450 L591.3 450 L692.9 634.7 L614.8 634.7 Z" fill="#fff"/>
+            <path d="M500 12 A488 488 0 0 0 500 988" fill="none" stroke="#fff" stroke-width="5"/>
+            <path d="M500 12 A488 488 0 0 1 500 988" fill="none" stroke="#fff" stroke-width="5"/>
+          </g>
+
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>
