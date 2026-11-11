@@ -29,6 +29,7 @@
   RewriteRule ^projets/villa/?$ /projets/villa-jumelee-1 [R=301,L]
   RewriteRule ^projets/villa-k/?$ /projets/villa-jumelee-2 [R=301,L]
   RewriteRule ^projets/villa-targa/?$ /projets/villa-jumelee-3 [R=301,L]
+  RewriteRule ^projets/villa-plain-pied-2/?$ /projets/villa-jumelee-4 [R=301,L]
 
   # Let real files, directories and the PHP API through untouched.
   RewriteCond %{REQUEST_FILENAME} -f [OR]
